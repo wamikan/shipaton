@@ -18,8 +18,10 @@ class AudioService {
   bool get isPlayingAmbient => _isPlayingAmbient;
 
   AudioService() {
-    _ambientPlayer.setLoopMode(LoopMode.one);
-    _ambientPlayer.setVolume(_ambientVolume);
+    try {
+      _ambientPlayer.setLoopMode(LoopMode.one);
+      _ambientPlayer.setVolume(_ambientVolume);
+    } catch (_) {}
   }
 
   /// Sets and starts playing an ambient soundscape.

@@ -28,6 +28,22 @@ class TimerNotifier extends StateNotifier<TimerState> {
     };
   }
 
+  void _startAmbientBgm() {
+    final audioNotifier = _ref.read(audioNotifierProvider.notifier);
+    final audioState = _ref.read(audioNotifierProvider);
+    if (audioState.currentSound.id != 'none' && !audioState.isPlaying) {
+      audioNotifier.togglePlayback();
+    }
+  }
+
+  void _pauseAmbientBgm() {
+    final audioNotifier = _ref.read(audioNotifierProvider.notifier);
+    final audioState = _ref.read(audioNotifierProvider);
+    if (audioState.isPlaying) {
+      audioNotifier.togglePlayback();
+    }
+  }
+
   /// Starts or resumes the countdown timer.
   void start() {
     if (state.isRunning) return;
@@ -39,6 +55,11 @@ class TimerNotifier extends StateNotifier<TimerState> {
     state = state.copyWith(status: TimerStatus.running);
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+
+    // Automatically start ambient BGM during focus session
+    if (state.mode == PomodoroMode.focus) {
+      _startAmbientBgm();
+    }
   }
 
   /// Pauses the running timer.
@@ -46,11 +67,13 @@ class TimerNotifier extends StateNotifier<TimerState> {
     if (!state.isRunning) return;
     _timer?.cancel();
     state = state.copyWith(status: TimerStatus.paused);
+    _pauseAmbientBgm();
   }
 
   /// Resets timer back to current mode's duration.
   void reset() {
     _timer?.cancel();
+    _pauseAmbientBgm();
     final durationSeconds = _getModeDurationSeconds(state.mode);
     state = state.copyWith(
       status: TimerStatus.initial,
@@ -102,6 +125,7 @@ class TimerNotifier extends StateNotifier<TimerState> {
   /// Triggered when the timer hits zero.
   void _onCompleted() {
     _timer?.cancel();
+    _pauseAmbientBgm();
 
     final settings = _ref.read(settingsNotifierProvider);
     if (settings.soundAlertsEnabled) {

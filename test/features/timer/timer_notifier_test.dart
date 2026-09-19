@@ -27,11 +27,11 @@ void main() {
     container.dispose();
   });
 
-  test('Initial timer state has 25 minutes and Focus mode', () {
+  test('Initial timer state has test duration and Focus mode', () {
     final state = container.read(timerNotifierProvider);
     expect(state.mode, PomodoroMode.focus);
-    expect(state.remainingSeconds, 25 * 60);
-    expect(state.totalSeconds, 25 * 60);
+    expect(state.remainingSeconds, 10);
+    expect(state.totalSeconds, 10);
     expect(state.status, TimerStatus.initial);
     expect(state.selectedCharacter.id, 'enhancer');
     expect(state.progress, 1.0);
@@ -43,14 +43,14 @@ void main() {
     notifier.switchMode(PomodoroMode.shortBreak);
     var state = container.read(timerNotifierProvider);
     expect(state.mode, PomodoroMode.shortBreak);
-    expect(state.remainingSeconds, 5 * 60);
-    expect(state.totalSeconds, 5 * 60);
+    expect(state.remainingSeconds, 5);
+    expect(state.totalSeconds, 5);
 
     notifier.switchMode(PomodoroMode.longBreak);
     state = container.read(timerNotifierProvider);
     expect(state.mode, PomodoroMode.longBreak);
-    expect(state.remainingSeconds, 15 * 60);
-    expect(state.totalSeconds, 15 * 60);
+    expect(state.remainingSeconds, 10);
+    expect(state.totalSeconds, 10);
   });
 
   test('Character selection updates active companion', () {
@@ -62,7 +62,7 @@ void main() {
     expect(state.selectedCharacter.tone, CharacterTone.cool);
   });
 
-  test('Starting and pausing updates timer status', () {
+  test('Starting, pausing, and resetting updates timer status', () {
     final notifier = container.read(timerNotifierProvider.notifier);
 
     notifier.start();
@@ -73,6 +73,16 @@ void main() {
 
     notifier.reset();
     expect(container.read(timerNotifierProvider).status, TimerStatus.initial);
-    expect(container.read(timerNotifierProvider).remainingSeconds, 25 * 60);
+    expect(container.read(timerNotifierProvider).remainingSeconds, 10);
+  });
+
+  test('startBreak auto-starts break countdown immediately', () {
+    final notifier = container.read(timerNotifierProvider.notifier);
+
+    notifier.startBreak();
+    final state = container.read(timerNotifierProvider);
+    expect(state.mode, PomodoroMode.shortBreak);
+    expect(state.status, TimerStatus.running);
+    expect(state.remainingSeconds, 5);
   });
 }
