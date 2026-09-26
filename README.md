@@ -71,20 +71,22 @@ lib/
 ### Installation
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/shipaton.git
+git clone https://github.com/wamikan/shipaton.git
 cd shipaton
 
 # Install dependencies
 flutter pub get
 
-# Run on macOS / Chrome / iOS / Android
+# Run on macOS / iOS / Android
 flutter run
 ```
 
-### Instant Interactive Demo (Zero-Setup)
-Open [`demo_preview.html`](demo_preview.html) in any web browser to test the full app experience with real-time Web Audio synthesis, character unlocks, and simulated RevenueCat purchase flows:
+### 🌐 Instant Live Web Demo (Zero-Setup)
+Experience the app right in your browser with real-time Web Audio soundscapes, 10s quick-test mode, and RevenueCat simulation:
+- **Live Demo**: [https://wamikan.github.io/shipaton/](https://wamikan.github.io/shipaton/)
+- Or open local [`index.html`](index.html) in your browser:
 ```bash
-open demo_preview.html
+open index.html
 ```
 
 ---

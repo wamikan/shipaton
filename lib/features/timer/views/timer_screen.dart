@@ -53,10 +53,12 @@ class TimerScreen extends ConsumerWidget {
           children: [
             const Text('Nordic Focus', style: AppTypography.headerTitle),
             Text(
-              'Session #${timerState.sessionsCompleted + 1}',
-              style: AppTypography.bodySmall.copyWith(
+              'SESSION #${timerState.sessionsCompleted + 1}',
+              style: const TextStyle(
                 color: AppColors.textTertiary,
-                fontWeight: FontWeight.w600,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.8,
               ),
             ),
           ],
@@ -79,11 +81,9 @@ class TimerScreen extends ConsumerWidget {
                     : AppColors.cardBorder,
               ),
             ),
-            icon: Icon(
-              audioState.isPlaying
-                  ? Icons.graphic_eq_rounded
-                  : Icons.headphones_outlined,
-              size: 20,
+            icon: Text(
+              audioState.isPlaying ? '🎵' : '🎧',
+              style: const TextStyle(fontSize: 16),
             ),
           ),
           const SizedBox(width: 8),

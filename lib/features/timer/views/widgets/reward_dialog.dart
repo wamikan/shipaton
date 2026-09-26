@@ -53,17 +53,21 @@ class RewardDialog extends StatelessWidget {
             ),
             const SizedBox(height: 18),
 
-            // Congratulations Title
+            // Title
             const Text(
-              'Session Complete!',
+              'Session Completed 🔔',
               style: AppTypography.headerTitle,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
-            Text(
-              '${character.name} is proud of your deep focus.',
-              style: AppTypography.body,
+            const Text(
+              'Focus cycle ended. Rest break starts next.',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textSecondary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -79,17 +83,14 @@ class RewardDialog extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.monetization_on_rounded,
-                    color: AppColors.coinGold,
-                    size: 28,
-                  ),
+                  const Text('🪙', style: TextStyle(fontSize: 22)),
                   const SizedBox(width: 10),
                   Text(
                     '+$coinsEarned Coins',
                     style: AppTypography.headerTitle.copyWith(
                       color: AppColors.coinGoldDark,
                       fontSize: 20,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                 ],
@@ -110,7 +111,7 @@ class RewardDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(26),
                   ),
                 ),
-                child: const Text('Claim & Rest', style: AppTypography.button),
+                child: const Text('Claim & Start Break', style: AppTypography.button),
               ),
             ),
           ],

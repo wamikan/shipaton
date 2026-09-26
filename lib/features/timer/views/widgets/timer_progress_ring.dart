@@ -82,31 +82,32 @@ class TimerProgressRing extends StatelessWidget {
               ),
               const SizedBox(height: 6),
 
-              // Subtitle / Reward cue
+              // Subtitle / Status cue
               if (state.mode == PomodoroMode.focus)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.monetization_on_rounded,
-                      size: 14,
-                      color: AppColors.coinGold,
-                    ),
-                    const SizedBox(width: 4),
+                    const Text('🪙', style: TextStyle(fontSize: 13)),
+                    const SizedBox(width: 5),
                     Text(
-                      '+${state.mode.coinReward} Coins on finish',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.textSecondary,
-                        fontWeight: FontWeight.w500,
+                      '+${state.mode.coinReward} COINS',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: AppColors.coinGoldDark,
                       ),
                     ),
                   ],
                 )
               else
                 Text(
-                  'Relax and recharge',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                  state.mode == PomodoroMode.shortBreak ? '☕ SHORT BREAK' : '🌿 LONG BREAK',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                    color: activeColor,
                   ),
                 ),
             ],
