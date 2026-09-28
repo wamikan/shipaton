@@ -8,10 +8,31 @@ import '../../../../core/utils/time_formatter.dart';
 import '../../../../data/models/character_model.dart';
 import '../../models/timer_state.dart';
 
+/// Configuration for individual food items in the girl's background food mountain
+class _FoodMountainItem {
+  final String asset;
+  final Offset offset;
+  final double scale;
+  final double rotation;
+  final double fadeStart;
+  final double fadeEnd;
+
+  const _FoodMountainItem({
+    required this.asset,
+    required this.offset,
+    required this.scale,
+    this.rotation = 0.0,
+    required this.fadeStart,
+    required this.fadeEnd,
+  });
+}
+
 /// Central stage displaying the animated companion and organic time progress.
 /// Replaces the circular progress ring when Focus Companion Animation is enabled:
-/// - Enhancer (Girl): Banquet tray of 5 delicacies that are eaten and decrease as time elapses.
-/// - Suppressant (Boy): Surrounding pond of arctic water that shrinks inward as he absorbs it.
+/// - Enhancer (Girl): Frameless character standing in front of a giant mountain of stacked food
+///   that seamlessly sinks and fades out as she feasts, with active eating at her slime head.
+/// - Suppressant (Boy): Frameless character standing directly inside a massive arctic water puddle
+///   that overflows the stage and smoothly shrinks inward as his cloak absorbs it, blooming flowers on his head.
 /// - Countdown timer digits and mode info are displayed cleanly BELOW the stage with zero overlap.
 class AnimatedFocusStage extends StatefulWidget {
   final TimerState state;
@@ -32,7 +53,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   late AnimationController _cycleController;
   int _itemIndex = 0;
 
-  static const List<Map<String, String>> _foods = [
+  static const List<Map<String, String>> _activeFoods = [
     {'path': AppAssets.foodApple, 'name': 'Apple'},
     {'path': AppAssets.foodCinnamonRoll, 'name': 'Cinnamon Roll'},
     {'path': AppAssets.foodPancake, 'name': 'Pancake'},
@@ -46,6 +67,193 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     AppAssets.berryBlueberry,
   ];
 
+  /// Mountain of stacked delicacies positioned in tiers behind the girl
+  static const List<_FoodMountainItem> _mountainItems = [
+    // --- Tier 1: Peak (Top tier, fades out first between 1.0 and 0.68) ---
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(-34, -62),
+      scale: 0.88,
+      rotation: -0.15,
+      fadeStart: 1.0,
+      fadeEnd: 0.72,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(0, -72),
+      scale: 0.95,
+      rotation: 0.08,
+      fadeStart: 1.0,
+      fadeEnd: 0.68,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(36, -60),
+      scale: 0.90,
+      rotation: 0.16,
+      fadeStart: 1.0,
+      fadeEnd: 0.70,
+    ),
+
+    // --- Tier 2: Upper-Mid (Fades out between 0.90 and 0.45) ---
+    _FoodMountainItem(
+      asset: AppAssets.berryCloudberry,
+      offset: Offset(-76, -34),
+      scale: 0.92,
+      rotation: -0.22,
+      fadeStart: 0.92,
+      fadeEnd: 0.50,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(-38, -26),
+      scale: 1.0,
+      rotation: 0.06,
+      fadeStart: 0.88,
+      fadeEnd: 0.46,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryBlueberry,
+      offset: Offset(0, -22),
+      scale: 0.86,
+      rotation: -0.12,
+      fadeStart: 0.82,
+      fadeEnd: 0.44,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(40, -28),
+      scale: 0.95,
+      rotation: -0.10,
+      fadeStart: 0.88,
+      fadeEnd: 0.48,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(78, -32),
+      scale: 0.92,
+      rotation: 0.20,
+      fadeStart: 0.90,
+      fadeEnd: 0.48,
+    ),
+
+    // --- Tier 3: Mid-Lower (Fades out between 0.75 and 0.22) ---
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(-112, 6),
+      scale: 1.05,
+      rotation: -0.26,
+      fadeStart: 0.78,
+      fadeEnd: 0.32,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(-72, 8),
+      scale: 1.02,
+      rotation: 0.14,
+      fadeStart: 0.72,
+      fadeEnd: 0.26,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(-28, 14),
+      scale: 1.08,
+      rotation: -0.06,
+      fadeStart: 0.66,
+      fadeEnd: 0.20,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryCloudberry,
+      offset: Offset(28, 12),
+      scale: 0.98,
+      rotation: 0.18,
+      fadeStart: 0.68,
+      fadeEnd: 0.22,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryBlueberry,
+      offset: Offset(74, 10),
+      scale: 0.98,
+      rotation: -0.16,
+      fadeStart: 0.74,
+      fadeEnd: 0.28,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(114, 8),
+      scale: 1.02,
+      rotation: 0.22,
+      fadeStart: 0.78,
+      fadeEnd: 0.30,
+    ),
+
+    // --- Tier 4: Base Foundation (Fades out between 0.55 and 0.0) ---
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(-142, 46),
+      scale: 1.10,
+      rotation: -0.12,
+      fadeStart: 0.58,
+      fadeEnd: 0.06,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryBlueberry,
+      offset: Offset(-102, 50),
+      scale: 0.98,
+      rotation: 0.12,
+      fadeStart: 0.52,
+      fadeEnd: 0.03,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(-60, 52),
+      scale: 1.12,
+      rotation: 0.06,
+      fadeStart: 0.46,
+      fadeEnd: 0.0,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(-18, 56),
+      scale: 1.08,
+      rotation: -0.14,
+      fadeStart: 0.40,
+      fadeEnd: 0.0,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(26, 54),
+      scale: 1.14,
+      rotation: 0.10,
+      fadeStart: 0.44,
+      fadeEnd: 0.0,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryCloudberry,
+      offset: Offset(70, 52),
+      scale: 1.04,
+      rotation: -0.08,
+      fadeStart: 0.48,
+      fadeEnd: 0.02,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(112, 48),
+      scale: 1.08,
+      rotation: 0.18,
+      fadeStart: 0.54,
+      fadeEnd: 0.04,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(146, 44),
+      scale: 1.04,
+      rotation: -0.20,
+      fadeStart: 0.58,
+      fadeEnd: 0.06,
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +265,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     _cycleController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         setState(() {
-          _itemIndex = (_itemIndex + 1) % 3;
+          _itemIndex = (_itemIndex + 1) % _activeFoods.length;
         });
         if (widget.state.isRunning) {
           _cycleController.forward(from: 0.0);
@@ -90,12 +298,6 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     super.dispose();
   }
 
-  /// Number of food delicacies remaining on the banquet plate (0 to 5)
-  int get _foodsRemaining {
-    if (widget.state.isCompleted || widget.state.remainingSeconds == 0) return 0;
-    return (widget.state.progress * 5).ceil().clamp(0, 5);
-  }
-
   @override
   Widget build(BuildContext context) {
     final char = widget.state.selectedCharacter;
@@ -119,7 +321,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 1. Companion Switch Pill (Clean, Bold, Interactive)
+        // 1. Companion Switch Pill (Interactive Header)
         InkWell(
           onTap: widget.onSwitchCharacter,
           borderRadius: BorderRadius.circular(20),
@@ -158,52 +360,61 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
 
-        // 2. Central Animation Stage (Center Prominence)
+        // 2. Frameless Central Stage (Wide & Open Atmosphere)
         SizedBox(
-          width: 320,
-          height: 250,
+          width: 360,
+          height: 260,
           child: AnimatedBuilder(
             animation: _cycleController,
             builder: (context, child) {
               final t = _cycleController.value;
+              final progress = widget.state.progress;
+
               return Stack(
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: [
-                  // Suppressant: Concentric Shrinking Water Pond (Beneath Cape)
+                  // --- GIRL (ENHANCER): Stacked Mountain of Food Behind Her ---
+                  if (isEnhancer)
+                    Positioned(
+                      top: 60,
+                      child: _buildFoodMountain(progress, t),
+                    ),
+
+                  // --- BOY (SUPPRESSANT): Massive Seamless Water Puddle Beneath Him ---
                   if (!isEnhancer)
                     Positioned(
-                      bottom: 40,
+                      top: 155,
                       child: CustomPaint(
-                        size: const Size(300, 80),
-                        painter: _WaterPondPainter(
-                          progress: widget.state.progress,
+                        size: const Size(380, 100),
+                        painter: _SeamlessWaterPondPainter(
+                          progress: progress,
                           cycle: t,
                           isRunning: widget.state.isRunning,
                         ),
                       ),
                     ),
 
-                  // Hero Character Avatar Frame
+                  // --- Frameless Hero Character (Standing Freely in Environment) ---
                   Positioned(
-                    top: isEnhancer ? 10 : 20,
-                    child: _buildHeroCharacter(char, isEnhancer, t),
+                    top: isEnhancer ? 20 : 25,
+                    child: _buildFramelessHero(char, isEnhancer, t),
                   ),
 
-                  // Enhancer: Food Banquet Tray with 5 Delicacies Decreasing Over Time
+                  // --- Girl: Serving Plate with Active Delicacy at her Feet ---
                   if (isEnhancer)
                     Positioned(
-                      bottom: 0,
-                      child: _buildFoodBanquetPlate(t),
+                      bottom: 4,
+                      child: _buildGirlFeastStatus(progress),
                     ),
 
-                  // Suppressant: Water Absorption Subtitle & Status
+                  // --- Boy: Seamless Water Purification Status ---
                   if (!isEnhancer)
                     Positioned(
                       bottom: 4,
-                      child: _buildWaterStatusIndicator(),
+                      child: _buildBoyWaterStatus(progress),
                     ),
                 ],
               );
@@ -211,7 +422,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
 
         // 3. Clear, Non-Overlapping Countdown Section (Below Stage)
         _buildTimerDisplaySection(timeFormatted, activeColor),
@@ -219,74 +430,160 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     );
   }
 
-  /// Builds the large central hero character with head slime eating or sprout blooming overlays
-  Widget _buildHeroCharacter(CharacterModel char, bool isEnhancer, double t) {
-    const double avatarSize = 140;
+  /// Builds the background mountain of delicacies stacked behind the girl.
+  /// Seamlessly sinks and fades out as focus time advances.
+  Widget _buildFoodMountain(double progress, double t) {
+    // Sinking down as progress decreases
+    final sinkY = (1.0 - progress) * 32.0;
 
-    return Container(
-      width: avatarSize,
-      height: avatarSize,
-      decoration: BoxDecoration(
-        color: char.backgroundColor,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: char.borderColor, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: char.primaryColor.withValues(alpha: 0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(8),
-      clipBehavior: Clip.none,
+    return Transform.translate(
+      offset: Offset(0, sinkY),
       child: Stack(
         alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          // Base Character Sprite
-          Image.asset(
-            char.assetPath,
-            fit: BoxFit.contain,
-            width: avatarSize - 16,
-            height: avatarSize - 16,
-            errorBuilder: (context, error, stackTrace) => Center(
-              child: Text(
-                char.tone == CharacterTone.warm ? '🔥' : '❄️',
-                style: const TextStyle(fontSize: 48),
+          // Background ambient feast glow
+          Opacity(
+            opacity: (0.15 + 0.55 * progress).clamp(0.0, 0.7),
+            child: Container(
+              width: 310,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.orange.withValues(alpha: 0.35),
+                    Colors.amber.withValues(alpha: 0.15),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.6, 1.0],
+                ),
               ),
             ),
           ),
 
-          // Girl Slime Eating Overlay (when running)
-          if (isEnhancer && widget.state.isRunning)
-            _buildGirlEatingOverlay(avatarSize, t),
+          // Piled Food Items
+          ..._mountainItems.map((item) {
+            // Calculate individual seamless opacity based on progress range
+            double itemOpacity = 1.0;
+            if (progress >= item.fadeStart) {
+              itemOpacity = 1.0;
+            } else if (progress <= item.fadeEnd) {
+              itemOpacity = 0.0;
+            } else {
+              itemOpacity = (progress - item.fadeEnd) / (item.fadeStart - item.fadeEnd);
+            }
 
-          // Boy Head Sprout Blooming Overlay (when running)
+            if (itemOpacity <= 0.005) return const SizedBox.shrink();
+
+            // Subtle feast breathing bob when timer is running
+            final itemBob = widget.state.isRunning
+                ? math.sin(t * math.pi * 2 + item.offset.dx * 0.05) * 1.5
+                : 0.0;
+
+            return Transform.translate(
+              offset: Offset(item.offset.dx, item.offset.dy + itemBob),
+              child: Transform.rotate(
+                angle: item.rotation,
+                child: Transform.scale(
+                  scale: item.scale,
+                  child: Opacity(
+                    opacity: itemOpacity,
+                    child: SizedBox(
+                      width: 44,
+                      height: 44,
+                      child: Image.asset(
+                        item.asset,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.medium,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the frameless hero character without any card box or outline.
+  Widget _buildFramelessHero(CharacterModel char, bool isEnhancer, double t) {
+    const double spriteSize = 150;
+
+    return SizedBox(
+      width: spriteSize,
+      height: spriteSize,
+      child: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          // Subtle soft ground contact shadow
+          Positioned(
+            bottom: 4,
+            child: Container(
+              width: spriteSize * 0.65,
+              height: 14,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: isEnhancer
+                        ? Colors.orange.withValues(alpha: 0.18)
+                        : const Color(0xFF27ABA4).withValues(alpha: 0.35),
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // High-Res Frameless Character Sprite
+          Image.asset(
+            char.assetPath,
+            width: spriteSize,
+            height: spriteSize,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (context, error, stackTrace) => Center(
+              child: Text(
+                char.tone == CharacterTone.warm ? '🔥' : '❄️',
+                style: const TextStyle(fontSize: 54),
+              ),
+            ),
+          ),
+
+          // Girl Slime Eating Overlay (active consumption on slime head)
+          if (isEnhancer && widget.state.isRunning)
+            _buildGirlEatingOverlay(spriteSize, t),
+
+          // Boy Head Sprout Blooming Overlay (water nourishment bloom)
           if (!isEnhancer && widget.state.isRunning)
-            _buildBoyBloomingOverlay(avatarSize, t),
+            _buildBoyBloomingOverlay(spriteSize, t),
         ],
       ),
     );
   }
 
   /// Girl (食欲増進ちゃん): Slime head swallowing active food
-  Widget _buildGirlEatingOverlay(double avatarSize, double t) {
-    final currentFood = _foods[_itemIndex % _foods.length]['path']!;
+  Widget _buildGirlEatingOverlay(double spriteSize, double t) {
+    final currentFood = _activeFoods[_itemIndex % _activeFoods.length]['path']!;
 
     double foodScale = 1.0;
     double foodOpacity = 1.0;
-    double foodY = -avatarSize * 0.38;
+    double foodY = -spriteSize * 0.38;
 
     if (t < 0.35) {
       final bob = math.sin(t / 0.35 * math.pi) * 3.0;
       foodY += bob;
-      foodScale = 0.9 + (t / 0.35) * 0.15;
+      foodScale = 0.92 + (t / 0.35) * 0.15;
       foodOpacity = (t / 0.1).clamp(0.0, 1.0);
     } else if (t < 0.75) {
       final sinkProgress = (t - 0.35) / 0.40;
-      foodY += sinkProgress * (avatarSize * 0.16);
-      foodScale = (1.05 - sinkProgress * 0.70).clamp(0.2, 1.05);
+      foodY += sinkProgress * (spriteSize * 0.18);
+      foodScale = (1.07 - sinkProgress * 0.75).clamp(0.2, 1.07);
       foodOpacity = (1.0 - sinkProgress * 0.85).clamp(0.0, 1.0);
     } else {
       foodOpacity = 0.0;
@@ -305,8 +602,8 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
               child: Opacity(
                 opacity: foodOpacity,
                 child: SizedBox(
-                  width: avatarSize * 0.38,
-                  height: avatarSize * 0.38,
+                  width: spriteSize * 0.38,
+                  height: spriteSize * 0.38,
                   child: Image.asset(currentFood, fit: BoxFit.contain),
                 ),
               ),
@@ -316,19 +613,19 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
         // Slime gel amber glow pulse during swallow
         if (t >= 0.35 && t <= 0.85)
           Positioned(
-            top: avatarSize * 0.04,
+            top: spriteSize * 0.04,
             child: Opacity(
-              opacity: math.sin((t - 0.35) / 0.50 * math.pi) * 0.6,
+              opacity: math.sin((t - 0.35) / 0.50 * math.pi) * 0.65,
               child: Container(
-                width: avatarSize * 0.48,
-                height: avatarSize * 0.26,
+                width: spriteSize * 0.48,
+                height: spriteSize * 0.26,
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.35),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: const [
                     BoxShadow(
                       color: Colors.amber,
-                      blurRadius: 10,
+                      blurRadius: 12,
                       spreadRadius: 2,
                     ),
                   ],
@@ -341,17 +638,17 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   }
 
   /// Boy (食欲減退君): Sprout blooming on head as water is absorbed
-  Widget _buildBoyBloomingOverlay(double avatarSize, double t) {
+  Widget _buildBoyBloomingOverlay(double spriteSize, double t) {
     final currentBloom = _blooms[_itemIndex % _blooms.length];
 
     double bloomScale = 0.0;
     double bloomOpacity = 0.0;
-    final double bloomY = -avatarSize * 0.40;
+    final double bloomY = -spriteSize * 0.42;
 
     if (t >= 0.35 && t < 0.85) {
       final bloomT = (t - 0.35) / 0.50;
       if (bloomT < 0.3) {
-        bloomScale = (bloomT / 0.3) * 1.15;
+        bloomScale = (bloomT / 0.3) * 1.18;
         bloomOpacity = (bloomT / 0.2).clamp(0.0, 1.0);
       } else {
         bloomScale = 1.0 + math.sin((bloomT - 0.3) * math.pi * 3) * 0.06;
@@ -376,8 +673,8 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
               child: Opacity(
                 opacity: bloomOpacity,
                 child: SizedBox(
-                  width: avatarSize * 0.40,
-                  height: avatarSize * 0.40,
+                  width: spriteSize * 0.40,
+                  height: spriteSize * 0.40,
                   child: Image.asset(currentBloom, fit: BoxFit.contain),
                 ),
               ),
@@ -387,96 +684,40 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     );
   }
 
-  /// Enhancer Girl: 5-delicacy banquet plate showing food decreasing over time
-  Widget _buildFoodBanquetPlate(double t) {
-    final remaining = _foodsRemaining;
+  /// Girl: Feast status pill with active dish and percentage
+  Widget _buildGirlFeastStatus(double progress) {
+    final percent = (progress * 100).toInt();
+    final activeFood = _activeFoods[_itemIndex % _activeFoods.length];
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.cardBorder, width: 1.2),
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.enhancerBorder, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.orange.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Row of 5 food slots
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: List.generate(5, (index) {
-              final isPresent = index < remaining;
-              final isBeingEaten = isPresent && (index == remaining - 1) && widget.state.isRunning;
-              final food = _foods[index];
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 400),
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: isPresent
-                        ? (isBeingEaten ? const Color(0xFFFFF3DB) : const Color(0xFFFFF8F5))
-                        : AppColors.surfaceSecondary,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isPresent
-                          ? (isBeingEaten ? AppColors.coinGold : AppColors.enhancerBorder)
-                          : AppColors.cardBorder.withValues(alpha: 0.6),
-                      width: isBeingEaten ? 2.0 : 1.2,
-                    ),
-                    boxShadow: isBeingEaten
-                        ? [
-                            BoxShadow(
-                              color: AppColors.coinGold.withValues(alpha: 0.4),
-                              blurRadius: 6,
-                              spreadRadius: 1,
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Center(
-                    child: isPresent
-                        ? Transform.scale(
-                            scale: isBeingEaten
-                                ? 1.0 + math.sin(t * math.pi * 2) * 0.08
-                                : 1.0,
-                            child: Image.asset(
-                              food['path']!,
-                              width: 26,
-                              height: 26,
-                              fit: BoxFit.contain,
-                            ),
-                          )
-                        : const Text(
-                            '🍽️',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppColors.textTertiary,
-                            ),
-                          ),
-                  ),
-                ),
-              );
-            }),
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: Image.asset(activeFood['path']!, fit: BoxFit.contain),
           ),
-          const SizedBox(height: 6),
-
-          // Food Count Text
+          const SizedBox(width: 8),
           Text(
-            remaining > 0
-                ? '$remaining OF 5 DELICACIES REMAINING'
-                : '🎉 ALL DELICACIES EATEN! FOCUS COMPLETE',
+            percent > 0
+                ? 'FEAST IN PROGRESS: $percent% REMAINING'
+                : '🎉 ALL FEAST DEVOURED! FOCUS COMPLETE',
             style: TextStyle(
-              color: remaining > 0 ? AppColors.enhancerPrimary : AppColors.primaryDark,
+              color: percent > 0 ? AppColors.enhancerPrimary : AppColors.primaryDark,
               fontSize: 10,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
@@ -487,15 +728,15 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     );
   }
 
-  /// Suppressant Boy: Water Absorption Status Subtitle
-  Widget _buildWaterStatusIndicator() {
-    final waterPercent = (widget.state.progress * 100).toInt();
+  /// Boy: Water level status pill with seamless percentage
+  Widget _buildBoyWaterStatus(double progress) {
+    final waterPercent = (progress * 100).toInt();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.4), width: 1.2),
         boxShadow: [
           BoxShadow(
@@ -509,7 +750,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text('💧', style: TextStyle(fontSize: 12)),
-          const SizedBox(width: 5),
+          const SizedBox(width: 6),
           Text(
             waterPercent > 0
                 ? 'WATER LEVEL: $waterPercent% (ABSORBING)'
@@ -600,13 +841,16 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   }
 }
 
-/// Custom painter for Suppressant Boy's shrinking water pond
-class _WaterPondPainter extends CustomPainter {
-  final double progress; // 1.0 down to 0.0
+/// Custom painter for Suppressant Boy's massive, seamless shrinking water pond.
+/// The boy stands directly on top of this pool.
+/// At progress = 1.0, it spans wide across the stage (~360px), and shrinks seamlessly
+/// inward towards the cloak hem as time elapses.
+class _SeamlessWaterPondPainter extends CustomPainter {
+  final double progress; // 1.0 down to 0.0 (smoothly continuous)
   final double cycle;
   final bool isRunning;
 
-  _WaterPondPainter({
+  _SeamlessWaterPondPainter({
     required this.progress,
     required this.cycle,
     required this.isRunning,
@@ -614,31 +858,34 @@ class _WaterPondPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2 + 10);
+    final center = Offset(size.width / 2, size.height / 2);
 
-    // Dynamic radius based on time progress:
-    // Shrinks from ~130px width down to ~45px width
-    final maxRx = size.width * 0.44;
-    final minRx = size.width * 0.15;
+    // Initial pool spans wide (~360px width, 92px height),
+    // and seamlessly shrinks inward to ~54px width, 18px height right under his cloak.
+    const double maxRx = 175.0; // 350px width
+    const double minRx = 27.0;  // 54px width
+    const double maxRy = 46.0;  // 92px height
+    const double minRy = 9.0;   // 18px height
+
     final currentRx = (minRx + (maxRx - minRx) * progress).clamp(minRx, maxRx);
-    final currentRy = currentRx * 0.28;
+    final currentRy = (minRy + (maxRy - minRy) * progress).clamp(minRy, maxRy);
 
-    // 1. Ambient Glow
+    // 1. Vast Ambient Arctic Glow (extends even beyond the pond)
     final glowPaint = Paint()
-      ..color = const Color(0xFF48D1CC).withValues(alpha: 0.22 * progress)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
+      ..color = const Color(0xFF48D1CC).withValues(alpha: 0.28 * progress)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16);
     canvas.drawOval(
-      Rect.fromCenter(center: center, width: currentRx * 2.2, height: currentRy * 2.2),
+      Rect.fromCenter(center: center, width: currentRx * 2.25, height: currentRy * 2.25),
       glowPaint,
     );
 
-    // 2. Base Water Pool Gradient Fill
+    // 2. Base Water Pool Fill (Luminous Arctic Gradient)
     final poolRect = Rect.fromCenter(center: center, width: currentRx * 2, height: currentRy * 2);
     final poolGradient = RadialGradient(
       colors: [
-        const Color(0xFFE4F8F7).withValues(alpha: 0.9 * progress + 0.1),
-        const Color(0xFF48D1CC).withValues(alpha: 0.75 * progress + 0.1),
-        const Color(0xFF27ABA4).withValues(alpha: 0.9 * progress + 0.1),
+        const Color(0xFFF0FDFB).withValues(alpha: 0.95 * progress + 0.05),
+        const Color(0xFF48D1CC).withValues(alpha: 0.85 * progress + 0.10),
+        const Color(0xFF1E8D87).withValues(alpha: 0.95 * progress + 0.05),
       ],
       stops: const [0.0, 0.55, 1.0],
     );
@@ -647,24 +894,24 @@ class _WaterPondPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
     canvas.drawOval(poolRect, poolPaint);
 
-    // 3. Water Shore Border
+    // 3. Crisp Translucent Water Shoreline Border
     final borderPaint = Paint()
-      ..color = const Color(0xFF48D1CC).withValues(alpha: 0.85 * progress + 0.15)
+      ..color = const Color(0xFF6DEBE6).withValues(alpha: 0.9 * progress + 0.1)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
+      ..strokeWidth = 2.2;
     canvas.drawOval(poolRect, borderPaint);
 
-    // 4. Inward Water Absorption Waves (when running)
-    if (isRunning && progress > 0.05) {
-      for (int i = 0; i < 3; i++) {
-        final rippleT = (cycle + i / 3.0) % 1.0;
-        final rippleScale = (1.0 - rippleT * 0.70).clamp(0.2, 1.0);
-        final rippleAlpha = (math.sin(rippleT * math.pi) * 0.7 * progress).clamp(0.0, 1.0);
+    // 4. Inward Water Absorption Waves (smoothly flowing towards cape center)
+    if (isRunning && progress > 0.03) {
+      for (int i = 0; i < 4; i++) {
+        final rippleT = (cycle + i / 4.0) % 1.0;
+        final rippleScale = (1.0 - rippleT * 0.78).clamp(0.15, 1.0);
+        final rippleAlpha = (math.sin(rippleT * math.pi) * 0.75 * progress).clamp(0.0, 1.0);
 
         final ripplePaint = Paint()
           ..color = Colors.white.withValues(alpha: rippleAlpha)
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.4;
+          ..strokeWidth = 1.5;
 
         canvas.drawOval(
           Rect.fromCenter(
@@ -676,10 +923,22 @@ class _WaterPondPainter extends CustomPainter {
         );
       }
     }
+
+    // 5. Water contact rim grounding the boy's cape directly into the pool
+    final contactRect = Rect.fromCenter(
+      center: Offset(center.dx, center.dy - 2),
+      width: minRx * 2.2,
+      height: minRy * 2.2,
+    );
+    final contactPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.65 * progress + 0.15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8;
+    canvas.drawOval(contactRect, contactPaint);
   }
 
   @override
-  bool shouldRepaint(covariant _WaterPondPainter oldDelegate) {
+  bool shouldRepaint(covariant _SeamlessWaterPondPainter oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.cycle != cycle ||
         oldDelegate.isRunning != isRunning;

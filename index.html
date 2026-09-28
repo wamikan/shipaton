@@ -6,7 +6,7 @@
   <title>Nordic Focus - Minimalist Pomodoro Demo</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
-    /* Strictly no floating/bouncing animations */
+    /* Strictly no distracting bouncing animations */
     .circular-chart {
       display: block;
       margin: 0 auto;
@@ -54,18 +54,18 @@
       animation: bloomGrow 3.2s ease-in-out infinite;
     }
     @keyframes rippleIn {
-      0% { transform: scale(1.1); opacity: 0.1; }
-      50% { transform: scale(0.7); opacity: 0.8; }
-      100% { transform: scale(0.3); opacity: 0; }
+      0% { transform: scale(1.05); opacity: 0.15; }
+      50% { transform: scale(0.68); opacity: 0.85; }
+      100% { transform: scale(0.24); opacity: 0; }
     }
     .anim-ripple {
-      animation: rippleIn 2.4s ease-out infinite;
+      animation: rippleIn 2.6s ease-out infinite;
     }
     .anim-ripple-delay-1 {
-      animation: rippleIn 2.4s ease-out infinite 0.8s;
+      animation: rippleIn 2.6s ease-out infinite 0.85s;
     }
     .anim-ripple-delay-2 {
-      animation: rippleIn 2.4s ease-out infinite 1.6s;
+      animation: rippleIn 2.6s ease-out infinite 1.7s;
     }
   </style>
 </head>
@@ -158,39 +158,48 @@
           </div>
         </div>
 
-        <!-- CENTER AREA A: ANIMATED FOCUS STAGE (Active when Companion Animation is ON) -->
-        <div id="stage-container" class="my-auto flex flex-col items-center justify-center relative w-full">
+        <!-- CENTER AREA A: ANIMATED FOCUS STAGE (Frameless, Atmospheric, Giant Water / Food Mountain) -->
+        <div id="stage-container" class="my-auto flex flex-col items-center justify-center relative w-full overflow-visible">
           <!-- Animation Visual Stage Box -->
-          <div class="relative w-72 h-64 flex flex-col items-center justify-center">
+          <div class="relative w-full h-64 flex flex-col items-center justify-center overflow-visible">
             
-            <!-- Suppressant: Shrinking Arctic Water Pond (Beneath Cape) -->
-            <div id="boy-water-pool" class="hidden absolute bottom-12 inset-x-0 mx-auto w-56 h-16 rounded-[100%] bg-gradient-to-r from-[#27ABA4]/60 via-[#48D1CC]/80 to-[#27ABA4]/60 shadow-[0_0_24px_#48D1CC] border border-[#48D1CC] transition-all duration-700 ease-out flex items-center justify-center overflow-hidden pointer-events-none">
-              <!-- Water Ripple Concentric Circles -->
-              <div class="absolute w-44 h-11 rounded-[100%] border border-white/60 anim-ripple"></div>
-              <div class="absolute w-36 h-9 rounded-[100%] border border-white/50 anim-ripple-delay-1"></div>
-              <div class="absolute w-24 h-6 rounded-[100%] border border-white/40 anim-ripple-delay-2"></div>
-            </div>
-
-            <!-- Hero Character Frame -->
-            <div id="stage-char-frame" class="relative z-10 w-36 h-36 rounded-3xl bg-[#FFF1ED] p-2 border-2 border-[#FFDDD5] shadow-lg flex items-center justify-center overflow-visible cursor-pointer" onclick="toggleCharacter()">
-              <!-- Slime Eating Overlay for Enhancer Girl -->
-              <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute w-10 h-10 object-contain pointer-events-none z-20 anim-food-eat" />
-              <!-- Sprout Bloom Overlay for Suppressant Boy -->
-              <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute w-10 h-10 object-contain pointer-events-none z-20 anim-bloom-grow" />
-              <!-- Base Character Image -->
-              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="w-full h-full object-contain" />
-            </div>
-
-            <!-- Enhancer: 5-Delicacy Banquet Plate (Decreasing over time) -->
-            <div id="girl-banquet-plate" class="relative z-20 mt-2 bg-white rounded-2xl px-3 py-1.5 border border-[#E2ECEE] shadow-sm flex flex-col items-center">
-              <div class="flex items-center gap-1.5" id="plate-slots-container">
-                <!-- 5 food slots generated dynamically -->
+            <!-- GIRL: Stacked Food Mountain Behind Her (Sinks & Fades) -->
+            <div id="girl-food-mountain" class="absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-700 ease-out z-0">
+              <div id="mountain-inner" class="relative w-[320px] h-[180px] transition-all duration-500">
+                <!-- Stacked food elements injected dynamically -->
               </div>
-              <span id="food-plate-count" class="text-[10px] font-extrabold text-[#FF715B] tracking-wide mt-1">5 OF 5 DELICACIES REMAINING</span>
+            </div>
+
+            <!-- BOY: Massive Arctic Water Pond (Under Cape, Shrinking Seamlessly) -->
+            <div id="boy-water-pool" class="hidden absolute top-[148px] inset-x-0 mx-auto w-[350px] h-[92px] rounded-[100%] bg-gradient-to-r from-[#1E8D87]/90 via-[#48D1CC]/85 to-[#1E8D87]/90 shadow-[0_0_36px_rgba(72,209,204,0.7)] border-2 border-[#6DEBE6] transition-all duration-300 ease-out flex items-center justify-center overflow-hidden pointer-events-none z-0">
+              <!-- Water Ripple Concentric Circles -->
+              <div class="absolute w-[280px] h-[68px] rounded-[100%] border border-white/60 anim-ripple"></div>
+              <div class="absolute w-[200px] h-[50px] rounded-[100%] border border-white/50 anim-ripple-delay-1"></div>
+              <div class="absolute w-[130px] h-[32px] rounded-[100%] border border-white/40 anim-ripple-delay-2"></div>
+              <!-- Contact Rim right under cape hem -->
+              <div class="absolute w-[56px] h-[18px] rounded-[100%] border border-white/80"></div>
+            </div>
+
+            <!-- Frameless Hero Character (No Box/Border) -->
+            <div id="stage-char-frame" class="relative z-20 w-40 h-40 flex items-center justify-center cursor-pointer pointer-events-auto" onclick="toggleCharacter()">
+              <!-- Soft ground contact shadow -->
+              <div id="char-ground-shadow" class="absolute bottom-2 w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none"></div>
+              <!-- Slime Eating Overlay for Enhancer Girl -->
+              <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute top-[-10px] w-12 h-12 object-contain pointer-events-none z-30 anim-food-eat" />
+              <!-- Sprout Bloom Overlay for Suppressant Boy -->
+              <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute top-[-14px] w-12 h-12 object-contain pointer-events-none z-30 anim-bloom-grow" />
+              <!-- Base Character Image (Frameless) -->
+              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="w-full h-full object-contain filter drop-shadow-md" />
+            </div>
+
+            <!-- Girl: Feast Status Pill -->
+            <div id="girl-feast-status" class="relative z-30 mt-2 bg-white/95 rounded-full px-3.5 py-1 border border-[#FF715B]/30 shadow-sm text-[10px] font-extrabold text-[#FF715B] flex items-center gap-1.5">
+              <span id="active-food-icon" class="text-xs">🍎</span>
+              <span id="feast-status-text">FEAST: 100% REMAINING</span>
             </div>
 
             <!-- Suppressant: Water Absorption Status Subtitle -->
-            <div id="boy-water-status" class="hidden relative z-20 mt-2 bg-white/95 rounded-full px-3 py-1 border border-[#48D1CC]/40 shadow-sm text-[10px] font-extrabold text-[#27ABA4] flex items-center gap-1.5">
+            <div id="boy-water-status" class="hidden relative z-30 mt-2 bg-white/95 rounded-full px-3.5 py-1 border border-[#48D1CC]/40 shadow-sm text-[10px] font-extrabold text-[#27ABA4] flex items-center gap-1.5">
               <span id="water-level-text">💧 WATER LEVEL: 100% (ABSORBING)</span>
             </div>
 
@@ -346,154 +355,171 @@
 
     </div>
 
-    <!-- Bottom Navigation Bar (Apple HIG Style) -->
-    <div class="absolute bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-[#E2ECEE] py-2.5 px-6 flex justify-around items-center z-40">
-      <button onclick="switchTab('timer')" id="nav-timer" class="flex flex-col items-center py-1 px-3 rounded-xl text-[#27ABA4] bg-[#48D1CC]/15 transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <span class="text-[10px] font-extrabold mt-0.5">Timer</span>
+    <!-- Bottom Navigation Bar (Apple HIG Geometry) -->
+    <div class="absolute bottom-0 inset-x-0 h-16 bg-white/95 backdrop-blur-md border-t border-[#E2ECEE] flex items-center justify-around px-4 z-40">
+      <button id="nav-timer" onclick="switchTab('timer')" class="flex flex-col items-center justify-center flex-1 text-[#48D1CC] transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span class="text-[10px] font-extrabold mt-1">Timer</span>
       </button>
 
-      <button onclick="switchTab('shop')" id="nav-shop" class="flex flex-col items-center py-1 px-3 rounded-xl text-[#8BA2A8] hover:text-slate-700 transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-        <span class="text-[10px] font-bold mt-0.5">Shop</span>
+      <button id="nav-shop" onclick="switchTab('shop')" class="flex flex-col items-center justify-center flex-1 text-slate-400 hover:text-slate-600 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+        <span class="text-[10px] font-extrabold mt-1">Shop</span>
       </button>
 
-      <button onclick="switchTab('settings')" id="nav-settings" class="flex flex-col items-center py-1 px-3 rounded-xl text-[#8BA2A8] hover:text-slate-700 transition">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        <span class="text-[10px] font-bold mt-0.5">Settings</span>
+      <button id="nav-settings" onclick="switchTab('settings')" class="flex flex-col items-center justify-center flex-1 text-slate-400 hover:text-slate-600 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <span class="text-[10px] font-extrabold mt-1">Settings</span>
       </button>
     </div>
 
-    <!-- MODAL 1: PAYWALL (REVENUECAT COIN PACKS) -->
-    <div id="modal-paywall" class="hidden absolute inset-0 bg-black/40 z-50 flex items-end justify-center transition-opacity">
-      <div class="w-full bg-white rounded-t-[32px] p-5 shadow-2xl">
-        <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
-        <div class="flex justify-between items-center mb-3">
+    <!-- MODAL 1: BGM SOUNDSCAPE SHEET -->
+    <div id="modal-sound" class="hidden absolute inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end">
+      <div class="w-full bg-white rounded-t-[32px] p-5 border-t border-[#E2ECEE] shadow-2xl max-h-[85%] overflow-y-auto">
+        <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+        <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-base font-extrabold text-[#162529]">Coin Store</h3>
-            <p class="text-xs font-medium text-[#516970]">Instantly unlock characters & soundscapes</p>
+            <h3 class="text-base font-extrabold text-[#162529]">Nordic Soundscapes</h3>
+            <p class="text-xs text-[#8BA2A8]">Synthesized Web Audio ambient drones</p>
           </div>
-          <button onclick="closePaywall()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+          <button onclick="closeSoundSheet()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold hover:bg-slate-200">✕</button>
         </div>
 
-        <div class="space-y-2.5 mb-4">
-          <div class="p-3 rounded-2xl border border-[#E2ECEE] flex items-center justify-between hover:bg-slate-50 transition">
-            <div>
-              <p class="text-xs font-extrabold text-[#162529]">Handful of Coins</p>
-              <p class="text-[11px] text-[#D98209] font-extrabold">🪙 +100 Coins</p>
-            </div>
-            <button onclick="buyCoinPack(100)" class="bg-[#48D1CC] text-white text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-sm hover:bg-[#27ABA4]">$0.99</button>
-          </div>
-
-          <div class="p-3 rounded-2xl border-2 border-[#48D1CC] bg-[#E4F8F7]/30 flex items-center justify-between">
-            <div>
-              <span class="text-[9px] font-extrabold bg-[#48D1CC] text-white px-1.5 py-0.5 rounded">POPULAR</span>
-              <p class="text-xs font-extrabold text-[#162529] mt-0.5">Pouch of Coins</p>
-              <p class="text-[11px] text-[#D98209] font-extrabold">🪙 +500 Coins (Unlock Imp!)</p>
-            </div>
-            <button onclick="buyCoinPack(500)" class="bg-[#48D1CC] text-white text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-sm hover:bg-[#27ABA4]">$3.99</button>
-          </div>
-
-          <div class="p-3 rounded-2xl border border-[#E2ECEE] flex items-center justify-between hover:bg-slate-50 transition">
-            <div>
-              <span class="text-[9px] font-extrabold bg-[#F5A623] text-white px-1.5 py-0.5 rounded">BEST VALUE</span>
-              <p class="text-xs font-extrabold text-[#162529] mt-0.5">Chest of Coins</p>
-              <p class="text-[11px] text-[#D98209] font-extrabold">🪙 +1,200 Coins</p>
-            </div>
-            <button onclick="buyCoinPack(1200)" class="bg-[#48D1CC] text-white text-xs font-extrabold px-3.5 py-1.5 rounded-xl shadow-sm hover:bg-[#27ABA4]">$7.99</button>
-          </div>
-        </div>
-        <div class="text-center">
-          <button onclick="restorePurchases()" class="text-xs text-slate-500 hover:text-slate-800 underline mb-1 font-semibold">Restore Purchases</button>
-          <p class="text-[10px] text-slate-400">Consumable In-App Purchases via RevenueCat SDK.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL 2: AMBIENT SOUND & BGM SELECTOR -->
-    <div id="modal-sound" class="hidden absolute inset-0 bg-black/40 z-50 flex items-end justify-center">
-      <div class="w-full bg-white rounded-t-[32px] p-5 shadow-2xl">
-        <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
-        <div class="flex justify-between items-center mb-3">
-          <div>
-            <h3 class="text-base font-extrabold text-[#162529]">Focus BGM & Soundscapes</h3>
-            <p class="text-xs font-medium text-[#516970]">Soothing audio while focusing</p>
-          </div>
-          <button onclick="closeSoundSheet()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
-        </div>
-
-        <!-- Master Play / Pause Preview Button -->
-        <div class="mb-3">
-          <button id="btn-toggle-bgm" onclick="toggleBgmManual()" class="w-full py-2.5 rounded-2xl bg-[#48D1CC] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-[#27ABA4] active:scale-95 transition">
-            <span id="bgm-btn-icon">▶️</span>
-            <span id="bgm-btn-text">Play BGM Audio Preview</span>
-          </button>
-        </div>
-
-        <!-- Volume Slider -->
-        <div class="mb-3 bg-[#F6F9FA] p-3 rounded-2xl border border-[#E2ECEE]">
-          <div class="flex justify-between items-center text-xs font-extrabold mb-1.5">
-            <span class="text-[#162529] flex items-center gap-1.5">
-              🔊 BGM Volume
-            </span>
-            <span id="lbl-bgm-volume" class="text-[#27ABA4]">60%</span>
-          </div>
-          <input type="range" min="0" max="100" value="60" oninput="setBgmVolume(this.value)" class="w-full accent-[#48D1CC]" />
-        </div>
-
-        <!-- Track List -->
-        <div class="space-y-2 mb-2">
-          <div onclick="selectBgmTrack('rain_piano')" id="track-rain_piano" class="p-3 rounded-2xl border-2 border-[#48D1CC] bg-[#E4F8F7]/60 flex items-center justify-between cursor-pointer transition">
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-extrabold text-[#162529]">🌧️ Nordic Rain & Lo-fi Piano</span>
-                <span class="text-[9px] font-extrabold bg-[#48D1CC] text-white px-1.5 py-0.5 rounded">DEFAULT</span>
+        <div class="space-y-2 mb-4">
+          <!-- Track 1: Rain & Piano -->
+          <div id="track-rain_piano" onclick="selectBgmTrack('rain_piano')" class="p-3 rounded-2xl border-2 border-[#48D1CC] bg-[#E4F8F7]/60 flex items-center justify-between cursor-pointer transition">
+            <div class="flex items-center space-x-3">
+              <span class="text-lg">🌧️</span>
+              <div>
+                <p class="text-xs font-extrabold text-[#162529]">Nordic Rain & Lo-fi Piano</p>
+                <p class="text-[10px] text-[#516970]">Warm Rhodes chords with soft rain noise</p>
               </div>
-              <p class="text-[11px] font-medium text-slate-500 mt-0.5">Warm Rhodes chords + gentle rain</p>
             </div>
             <span id="status-rain_piano" class="text-xs font-extrabold text-[#27ABA4]">Selected</span>
           </div>
 
-          <div onclick="selectBgmTrack('forest_chimes')" id="track-forest_chimes" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
-            <div>
-              <span class="text-xs font-extrabold text-[#162529]">🌲 Pine Forest & Crystal Bells</span>
-              <p class="text-[11px] font-medium text-slate-500 mt-0.5">Nordic wind breeze & pentatonic chimes</p>
+          <!-- Track 2: Pine Forest & Chimes -->
+          <div id="track-forest_chimes" onclick="selectBgmTrack('forest_chimes')" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
+            <div class="flex items-center space-x-3">
+              <span class="text-lg">🌲</span>
+              <div>
+                <p class="text-xs font-extrabold text-[#162529]">Pine Forest & Crystal Bells</p>
+                <p class="text-[10px] text-[#516970]">Soothing chimes + mountain wind harmonics</p>
+              </div>
             </div>
             <span id="status-forest_chimes" class="text-xs font-bold text-slate-400">Select</span>
           </div>
 
-          <div onclick="selectBgmTrack('river_drone')" id="track-river_drone" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
-            <div>
-              <span class="text-xs font-extrabold text-[#162529]">🌊 Glacier Mountain Stream</span>
-              <p class="text-[11px] font-medium text-slate-500 mt-0.5">Mountain water & warm ambient drone</p>
+          <!-- Track 3: Glacier Stream -->
+          <div id="track-river_drone" onclick="selectBgmTrack('river_drone')" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
+            <div class="flex items-center space-x-3">
+              <span class="text-lg">🌊</span>
+              <div>
+                <p class="text-xs font-extrabold text-[#162529]">Glacier Stream (Deep Focus)</p>
+                <p class="text-[10px] text-[#516970]">Water current rushing over arctic stones</p>
+              </div>
             </div>
             <span id="status-river_drone" class="text-xs font-bold text-slate-400">Select</span>
           </div>
 
-          <div onclick="selectBgmTrack('silent')" id="track-silent" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
-            <div>
-              <span class="text-xs font-extrabold text-[#162529]">🔇 Silent Calm</span>
-              <p class="text-[11px] font-medium text-slate-500 mt-0.5">Mute background audio</p>
+          <!-- Track 4: Mute / Silence -->
+          <div id="track-silent" onclick="selectBgmTrack('silent')" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
+            <div class="flex items-center space-x-3">
+              <span class="text-lg">🔕</span>
+              <div>
+                <p class="text-xs font-extrabold text-[#162529]">Mute (Silent Focus)</p>
+                <p class="text-[10px] text-[#516970]">Standard Pomodoro bells only</p>
+              </div>
             </div>
             <span id="status-silent" class="text-xs font-bold text-slate-400">Select</span>
           </div>
         </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-xs font-bold text-[#162529]">Master Volume</span>
+          <div class="flex items-center space-x-2">
+            <input type="range" min="0" max="100" value="60" oninput="setBgmVolume(this.value)" class="accent-[#48D1CC] w-28" />
+            <span id="lbl-bgm-volume" class="text-xs font-bold text-[#27ABA4] w-8 text-right">60%</span>
+          </div>
+        </div>
+
+        <button onclick="toggleBgmManual()" id="btn-bgm-manual" class="w-full mt-4 py-2.5 rounded-xl bg-[#48D1CC] text-white font-extrabold text-xs tracking-wider shadow-sm hover:bg-[#27ABA4] transition">
+          PLAY SOUNDSCAPE PREVIEW
+        </button>
       </div>
     </div>
 
-    <!-- MODAL 3: SESSION COMPLETE REWARD -->
-    <div id="modal-reward" class="hidden absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
-      <div class="bg-white rounded-3xl p-6 w-full text-center shadow-2xl max-w-[300px] border border-[#E2ECEE]">
-        <div class="w-20 h-20 mx-auto rounded-2xl bg-[#FFF1ED] border border-[#FFDDD5] p-2 mb-3">
-          <img id="reward-img" src="" alt="Reward" class="w-full h-full object-contain" />
+    <!-- MODAL 2: SESSION COMPLETE REWARD DIALOG -->
+    <div id="modal-reward" class="hidden absolute inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+      <div class="bg-white rounded-3xl p-6 border border-[#E2ECEE] shadow-2xl w-full max-w-xs text-center flex flex-col items-center">
+        <div class="w-20 h-20 rounded-2xl bg-[#FFF8F5] p-2 border border-[#FFDDD5] flex items-center justify-center mb-3">
+          <img id="reward-img" src="assets/images/character_enhancer.png" alt="Reward Companion" class="w-full h-full object-contain" />
         </div>
-        <h3 class="text-lg font-extrabold text-[#162529]">Session Completed 🔔</h3>
-        <p class="text-xs font-semibold text-[#516970] mt-1">Focus cycle ended. Rest break starts next.</p>
-        <div class="my-4 bg-[#FFF3DB] border border-[#F5A623]/40 rounded-2xl py-2 px-4 inline-flex items-center gap-2">
+        <h3 class="text-lg font-black text-[#162529]">Focus Cycle Ended</h3>
+        <p class="text-xs font-semibold text-[#516970] mt-1">25-minute focus period completed. Break begins next.</p>
+        
+        <div class="my-4 bg-[#FFF3DB] border border-[#F5A623]/40 rounded-2xl py-2 px-4 flex items-center space-x-2">
           <span class="text-lg">🪙</span>
-          <span class="text-sm font-extrabold text-[#D98209]">+10 Coins Earned</span>
+          <span class="text-sm font-extrabold text-[#D98209]">+10 Focus Coins Earned</span>
         </div>
-        <button onclick="claimReward()" class="w-full py-3.5 rounded-2xl bg-[#48D1CC] text-white text-xs font-extrabold tracking-wide shadow-md hover:bg-[#27ABA4] active:scale-95 transition">Claim & Start Break</button>
+
+        <button onclick="claimReward()" class="w-full py-3 rounded-full bg-[#48D1CC] text-white font-extrabold text-xs tracking-wider shadow-md hover:bg-[#27ABA4] active:scale-95 transition">
+          COLLECT & START BREAK
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 3: REVENUECAT PAYWALL SHEET -->
+    <div id="modal-paywall" class="hidden absolute inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end">
+      <div class="w-full bg-white rounded-t-[32px] p-5 border-t border-[#E2ECEE] shadow-2xl max-h-[85%] overflow-y-auto">
+        <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-base font-extrabold text-[#162529]">Focus Coin Packs</h3>
+            <p class="text-xs text-[#8BA2A8]">RevenueCat In-App Purchase Simulation</p>
+          </div>
+          <button onclick="closePaywallSheet()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold hover:bg-slate-200">✕</button>
+        </div>
+
+        <div class="space-y-2 mb-4">
+          <div onclick="buyCoinPack(200, '$1.99')" class="p-3 rounded-2xl border border-slate-200 hover:border-[#F5A623] hover:bg-[#FFFDF9] flex items-center justify-between cursor-pointer transition">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🪙</span>
+              <div>
+                <p class="text-xs font-extrabold text-[#162529]">Pocket Coins</p>
+                <p class="text-[10px] text-[#516970]">200 Focus Coins</p>
+              </div>
+            </div>
+            <span class="text-xs font-extrabold bg-[#FFF3DB] text-[#D98209] px-3 py-1 rounded-full border border-[#F5A623]/30">$1.99</span>
+          </div>
+
+          <div onclick="buyCoinPack(600, '$4.99')" class="p-3 rounded-2xl border-2 border-[#F5A623] bg-[#FFF8EE] flex items-center justify-between cursor-pointer transition">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">💰</span>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <p class="text-xs font-extrabold text-[#162529]">Nordic Vault</p>
+                  <span class="text-[9px] font-black bg-[#F5A623] text-white px-1.5 py-0.2 rounded">POPULAR</span>
+                </div>
+                <p class="text-[10px] text-[#516970]">600 Focus Coins (+100 bonus)</p>
+              </div>
+            </div>
+            <span class="text-xs font-extrabold bg-[#F5A623] text-white px-3 py-1 rounded-full shadow-sm">$4.99</span>
+          </div>
+
+          <div onclick="buyCoinPack(1500, '$9.99')" class="p-3 rounded-2xl border border-slate-200 hover:border-[#F5A623] hover:bg-[#FFFDF9] flex items-center justify-between cursor-pointer transition">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">👑</span>
+              <div>
+                <p class="text-xs font-extrabold text-[#162529]">Treasury Chest</p>
+                <p class="text-[10px] text-[#516970]">1500 Focus Coins (Best Value)</p>
+              </div>
+            </div>
+            <span class="text-xs font-extrabold bg-[#FFF3DB] text-[#D98209] px-3 py-1 rounded-full border border-[#F5A623]/30">$9.99</span>
+          </div>
+        </div>
+
+        <p class="text-[10px] text-center text-slate-400">Sandbox Test Mode • Instant simulated credit via RevenueCat webhook</p>
       </div>
     </div>
 
@@ -506,17 +532,47 @@
 
     // Food and Nature Item Assets
     const foodList = [
-      { name: 'Apple', src: 'assets/images/items/food_apple.png' },
-      { name: 'Cinnamon Roll', src: 'assets/images/items/food_cinnamon_roll.png' },
-      { name: 'Pancake', src: 'assets/images/items/food_pancake.png' },
-      { name: 'Cloudberry', src: 'assets/images/items/berry_cloudberry.png' },
-      { name: 'Blueberry', src: 'assets/images/items/berry_blueberry.png' }
+      { name: 'Apple', src: 'assets/images/items/food_apple.png', icon: '🍎' },
+      { name: 'Cinnamon Roll', src: 'assets/images/items/food_cinnamon_roll.png', icon: '🥐' },
+      { name: 'Pancake', src: 'assets/images/items/food_pancake.png', icon: '🥞' },
+      { name: 'Cloudberry', src: 'assets/images/items/berry_cloudberry.png', icon: '🫐' },
+      { name: 'Blueberry', src: 'assets/images/items/berry_blueberry.png', icon: '🍇' }
     ];
 
     const bloomList = [
       'assets/images/items/flower_lily_valley.png',
       'assets/images/items/berry_cloudberry.png',
       'assets/images/items/berry_blueberry.png'
+    ];
+
+    // Mountain food configuration: 22 items positioned behind the girl in tiers
+    const mountainConfig = [
+      // Tier 1 (Peak): top -25 to -15px, fades 1.0 -> 0.70
+      { src: foodList[0].src, left: 110, top: 4, scale: 0.84, rot: -10, fadeStart: 1.0, fadeEnd: 0.70 },
+      { src: foodList[1].src, left: 140, top: -6, scale: 0.94, rot: 6, fadeStart: 1.0, fadeEnd: 0.68 },
+      { src: foodList[2].src, left: 172, top: 6, scale: 0.88, rot: 12, fadeStart: 1.0, fadeEnd: 0.72 },
+      // Tier 2 (Upper mid): top 22 to 38px, fades 0.90 -> 0.45
+      { src: foodList[3].src, left: 74, top: 26, scale: 0.90, rot: -15, fadeStart: 0.92, fadeEnd: 0.50 },
+      { src: foodList[2].src, left: 104, top: 30, scale: 0.96, rot: 4, fadeStart: 0.88, fadeEnd: 0.46 },
+      { src: foodList[4].src, left: 142, top: 28, scale: 0.86, rot: -8, fadeStart: 0.82, fadeEnd: 0.44 },
+      { src: foodList[0].src, left: 176, top: 32, scale: 0.92, rot: 10, fadeStart: 0.88, fadeEnd: 0.48 },
+      { src: foodList[1].src, left: 210, top: 28, scale: 0.90, rot: 18, fadeStart: 0.90, fadeEnd: 0.48 },
+      // Tier 3 (Mid): top 55 to 75px, fades 0.78 -> 0.25
+      { src: foodList[1].src, left: 42, top: 58, scale: 1.02, rot: -20, fadeStart: 0.78, fadeEnd: 0.32 },
+      { src: foodList[0].src, left: 78, top: 62, scale: 1.00, rot: 12, fadeStart: 0.72, fadeEnd: 0.26 },
+      { src: foodList[2].src, left: 116, top: 66, scale: 1.05, rot: -5, fadeStart: 0.66, fadeEnd: 0.20 },
+      { src: foodList[3].src, left: 158, top: 64, scale: 0.96, rot: 14, fadeStart: 0.68, fadeEnd: 0.22 },
+      { src: foodList[4].src, left: 196, top: 62, scale: 0.98, rot: -12, fadeStart: 0.74, fadeEnd: 0.28 },
+      { src: foodList[0].src, left: 236, top: 58, scale: 1.00, rot: 16, fadeStart: 0.78, fadeEnd: 0.30 },
+      // Tier 4 (Base): top 92 to 110px, fades 0.55 -> 0.02
+      { src: foodList[2].src, left: 16, top: 94, scale: 1.08, rot: -10, fadeStart: 0.58, fadeEnd: 0.06 },
+      { src: foodList[4].src, left: 52, top: 98, scale: 0.96, rot: 10, fadeStart: 0.52, fadeEnd: 0.03 },
+      { src: foodList[1].src, left: 90, top: 100, scale: 1.10, rot: 4, fadeStart: 0.46, fadeEnd: 0.0 },
+      { src: foodList[0].src, left: 128, top: 104, scale: 1.06, rot: -12, fadeStart: 0.40, fadeEnd: 0.0 },
+      { src: foodList[2].src, left: 170, top: 102, scale: 1.12, rot: 8, fadeStart: 0.44, fadeEnd: 0.0 },
+      { src: foodList[3].src, left: 208, top: 100, scale: 1.02, rot: -6, fadeStart: 0.48, fadeEnd: 0.02 },
+      { src: foodList[1].src, left: 246, top: 96, scale: 1.06, rot: 14, fadeStart: 0.54, fadeEnd: 0.04 },
+      { src: foodList[0].src, left: 278, top: 92, scale: 1.02, rot: -18, fadeStart: 0.58, fadeEnd: 0.06 }
     ];
 
     // Web Audio Synthesizer
@@ -697,151 +753,107 @@
         }
       });
 
+      updateBgmUI();
       if (isBgmPlaying) {
         pauseBgm();
         startBgm();
-      } else {
-        updateBgmUI();
       }
     }
 
     function updateBgmUI() {
-      const btn = document.getElementById('btn-toggle-bgm');
-      const icon = document.getElementById('bgm-btn-icon');
-      const text = document.getElementById('bgm-btn-text');
       const bannerText = document.getElementById('bgm-banner-text');
-      const visualizer = document.getElementById('eq-visualizer');
-      const iconSound = document.getElementById('icon-sound');
       const pulse = document.getElementById('bgm-pulse');
       const dot = document.getElementById('bgm-dot');
+      const visualizer = document.getElementById('eq-visualizer');
+      const soundIcon = document.getElementById('icon-sound');
+      const btnManual = document.getElementById('btn-bgm-manual');
 
-      const titles = {
-        rain_piano: 'Nordic Rain & Piano',
-        forest_chimes: 'Pine Forest & Bells',
-        river_drone: 'Glacier Stream',
-        silent: 'Silent Calm'
+      const names = {
+        'rain_piano': 'Nordic Rain & Piano',
+        'forest_chimes': 'Pine Forest & Chimes',
+        'river_drone': 'Glacier Stream',
+        'silent': 'Silent (Muted)'
       };
 
-      if (isBgmPlaying && currentBgmTrack !== 'silent') {
-        if (btn) btn.classList.replace('bg-[#48D1CC]', 'bg-[#27ABA4]');
-        if (icon) icon.innerText = '⏸️';
-        if (text) text.innerText = 'Pause BGM Audio';
-        if (bannerText) bannerText.innerText = '🎵 BGM: ' + titles[currentBgmTrack] + ' (Playing)';
-        if (visualizer) visualizer.classList.remove('hidden');
-        if (iconSound) iconSound.classList.add('hidden');
-        if (pulse) pulse.classList.remove('hidden');
-        if (dot) dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-[#27ABA4]';
+      if (isBgmPlaying) {
+        pulse.classList.remove('hidden');
+        dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-[#27ABA4]';
+        bannerText.innerText = '🎵 BGM: ' + names[currentBgmTrack] + ' (Playing)';
+        visualizer.classList.remove('hidden');
+        soundIcon.classList.add('hidden');
+        btnManual.innerText = 'PAUSE SOUNDSCAPE PREVIEW';
+        btnManual.className = 'w-full mt-4 py-2.5 rounded-xl bg-[#FF715B] text-white font-extrabold text-xs tracking-wider shadow-sm hover:bg-[#e05641] transition';
       } else {
-        if (btn) btn.classList.replace('bg-[#27ABA4]', 'bg-[#48D1CC]');
-        if (icon) icon.innerText = '▶️';
-        if (text) text.innerText = 'Play BGM Audio Preview';
-        if (bannerText) bannerText.innerText = currentBgmTrack === 'silent' ? '🔇 BGM: Silent Calm' : '🎵 BGM: ' + titles[currentBgmTrack] + ' (Ready)';
-        if (visualizer) visualizer.classList.add('hidden');
-        if (iconSound) iconSound.classList.remove('hidden');
-        if (pulse) pulse.classList.add('hidden');
-        if (dot) dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-slate-300';
+        pulse.classList.add('hidden');
+        dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-slate-400';
+        bannerText.innerText = '🎵 BGM: ' + names[currentBgmTrack] + ' (Ready)';
+        visualizer.classList.add('hidden');
+        soundIcon.classList.remove('hidden');
+        btnManual.innerText = 'PLAY SOUNDSCAPE PREVIEW';
+        btnManual.className = 'w-full mt-4 py-2.5 rounded-xl bg-[#48D1CC] text-white font-extrabold text-xs tracking-wider shadow-sm hover:bg-[#27ABA4] transition';
       }
     }
 
     function playBellSound() {
-      try {
-        const ctx = getAudioContext();
-        const now = ctx.currentTime;
-        [587.33, 880.00, 1174.66].forEach((f, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(f, now + i * 0.05);
-          gain.gain.setValueAtTime(0.001, now + i * 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.18, now + i * 0.05 + 0.04);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 3.0);
-          osc.connect(gain);
-          gain.connect(getMasterGain());
-          osc.start(now + i * 0.05);
-          osc.stop(now + i * 0.05 + 3.1);
-        });
-      } catch(e) {}
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      [528, 1056, 1584].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.2 / (idx + 1), now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
+        osc.connect(gain);
+        gain.connect(getMasterGain());
+        osc.start(now);
+        osc.stop(now + 3.3);
+      });
     }
 
     function playCoinChime() {
-      try {
-        const ctx = getAudioContext();
-        const now = ctx.currentTime;
-        [987.77, 1318.51].forEach((f, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(f, now + i * 0.08);
-          gain.gain.setValueAtTime(0.001, now + i * 0.08);
-          gain.gain.exponentialRampToValueAtTime(0.2, now + i * 0.08 + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.6);
-          osc.connect(gain);
-          gain.connect(getMasterGain());
-          osc.start(now + i * 0.08);
-          osc.stop(now + i * 0.08 + 0.7);
-        });
-      } catch(e) {}
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      [987.77, 1318.51, 1567.98, 1975.53].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.001, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.6);
+        osc.connect(gain);
+        gain.connect(getMasterGain());
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.7);
+      });
     }
 
     // App State
     const state = {
       coins: 100,
+      suppressantUnlocked: false,
+      streamUnlocked: false,
+      activeChar: 'enhancer',
       mode: 'focus',
       remaining: 10,
       total: 10,
-      isRunning: false,
-      sessionsCompleted: 0,
-      activeChar: 'enhancer',
-      suppressantUnlocked: false,
-      streamUnlocked: false,
-      showFocusAnimation: true,
       durations: {
         focus: 10,
-        short: 5,
-        long: 10
-      }
+        shortBreak: 5,
+        longBreak: 10
+      },
+      isRunning: false,
+      sessionsCompleted: 0,
+      showFocusAnimation: true
     };
 
     let timerInterval = null;
-    let currentItemIdx = 0;
     let itemCycleInterval = null;
+    let currentItemIdx = 0;
 
-    // Initialize Images
-    function initImages() {
-      const charImg = document.getElementById('char-img');
-      const stageCharImg = document.getElementById('stage-char-img');
-      const shopEnhancerImg = document.getElementById('shop-enhancer-img');
-      const shopSuppressantImg = document.getElementById('shop-suppressant-img');
-      const rewardImg = document.getElementById('reward-img');
-
-      const src = state.activeChar === 'enhancer' ? enhancerImgSrc : suppressantImgSrc;
-      if (charImg) charImg.src = src;
-      if (stageCharImg) stageCharImg.src = src;
-      if (shopEnhancerImg) shopEnhancerImg.src = enhancerImgSrc;
-      if (shopSuppressantImg) shopSuppressantImg.src = suppressantImgSrc;
-      if (rewardImg) rewardImg.src = src;
-
-      updateCharacterUI();
-      buildPlateSlots();
-      updateAnimationModeView();
-      renderTimer();
-    }
-
-    // Build the 5 Delicacy Slots on Girl's Plate
-    function buildPlateSlots() {
-      const container = document.getElementById('plate-slots-container');
-      if (!container) return;
-      container.innerHTML = '';
-      for (let i = 0; i < 5; i++) {
-        const slot = document.createElement('div');
-        slot.id = 'plate-slot-' + i;
-        slot.className = 'w-9 h-9 rounded-full bg-[#FFF8F5] border border-[#FFDDD5] flex items-center justify-center transition-all duration-300 shadow-sm';
-        slot.innerHTML = `<img src="${foodList[i].src}" alt="${foodList[i].name}" class="w-6 h-6 object-contain" />`;
-        container.appendChild(slot);
-      }
-    }
-
-    // Update Timer Display & Visual Depletion
+    // Render Timer Digits & Visuals
     function renderTimer() {
       const minutes = Math.floor(state.remaining / 60);
       const seconds = state.remaining % 60;
@@ -858,41 +870,43 @@
       const strokeOffset = 100 * (1 - progress);
       document.getElementById('progress-arc').style.strokeDashoffset = strokeOffset;
 
-      // Organic Progress 1: Girl's Food Depletion (5 delicacies decreasing)
-      const foodsRemaining = state.remaining === 0 ? 0 : Math.ceil(progress * 5);
-      for (let i = 0; i < 5; i++) {
-        const slot = document.getElementById('plate-slot-' + i);
-        if (!slot) continue;
-        if (i < foodsRemaining) {
-          const isBeingEaten = state.isRunning && (i === foodsRemaining - 1);
-          slot.className = isBeingEaten
-            ? 'w-9 h-9 rounded-full bg-[#FFF3DB] border-2 border-[#F5A623] shadow-md flex items-center justify-center scale-105 transition-all duration-300'
-            : 'w-9 h-9 rounded-full bg-[#FFF8F5] border border-[#FFDDD5] flex items-center justify-center transition-all duration-300 shadow-sm';
-          slot.innerHTML = `<img src="${foodList[i].src}" alt="${foodList[i].name}" class="w-6 h-6 object-contain" />`;
-        } else {
-          slot.className = 'w-9 h-9 rounded-full bg-[#F6F9FA] border border-[#E2ECEE] flex items-center justify-center opacity-40 transition-all duration-300';
-          slot.innerHTML = '<span class="text-xs text-slate-300">🍽️</span>';
-        }
+      // Organic Progress 1: Girl's Food Mountain Sinking & Fading
+      const mountainInner = document.getElementById('mountain-inner');
+      if (mountainInner) {
+        const sinkY = (1 - progress) * 36;
+        mountainInner.style.transform = `translateY(${sinkY}px)`;
+        mountainConfig.forEach((item, idx) => {
+          const el = document.getElementById('mtn-food-' + idx);
+          if (!el) return;
+          let opacity = 1.0;
+          if (progress >= item.fadeStart) opacity = 1.0;
+          else if (progress <= item.fadeEnd) opacity = 0.0;
+          else opacity = (progress - item.fadeEnd) / (item.fadeStart - item.fadeEnd);
+          el.style.opacity = Math.max(0, opacity);
+        });
       }
 
-      const plateLabel = document.getElementById('food-plate-count');
-      if (plateLabel) {
+      const feastPct = Math.round(progress * 100);
+      const feastLabel = document.getElementById('feast-status-text');
+      const foodIcon = document.getElementById('active-food-icon');
+      if (foodIcon) {
+        foodIcon.innerText = foodList[currentItemIdx % foodList.length].icon;
+      }
+      if (feastLabel) {
         if (state.remaining === 0) {
-          plateLabel.innerText = '🎉 ALL DELICACIES EATEN! FOCUS ACHIEVED';
-          plateLabel.className = 'text-[10px] font-extrabold text-[#27ABA4] tracking-wide mt-1';
+          feastLabel.innerText = '🎉 ALL FEAST DEVOURED! FOCUS COMPLETE';
         } else {
-          plateLabel.innerText = foodsRemaining + ' OF 5 DELICACIES REMAINING';
-          plateLabel.className = 'text-[10px] font-extrabold text-[#FF715B] tracking-wide mt-1';
+          feastLabel.innerText = 'FEAST: ' + feastPct + '% REMAINING';
         }
       }
 
-      // Organic Progress 2: Boy's Water Pond Shrinking
+      // Organic Progress 2: Boy's Water Pond Shrinking Seamlessly
       const waterPool = document.getElementById('boy-water-pool');
       if (waterPool) {
-        // Pool scales in width/height with remaining water
-        const poolScale = 0.25 + 0.75 * progress;
+        // Continuous seamless scaling
+        const poolScale = 0.16 + 0.84 * progress;
         waterPool.style.transform = `scale(${poolScale})`;
-        waterPool.style.opacity = Math.max(0.15, progress);
+        waterPool.style.opacity = Math.max(0.1, progress * 0.9 + 0.1);
       }
 
       const waterLabel = document.getElementById('water-level-text');
@@ -916,7 +930,8 @@
       const switchPill = document.getElementById('char-switch-pill');
 
       const isEnhancer = state.activeChar === 'enhancer';
-      const girlPlate = document.getElementById('girl-banquet-plate');
+      const girlMountain = document.getElementById('girl-food-mountain');
+      const girlStatus = document.getElementById('girl-feast-status');
       const boyPool = document.getElementById('boy-water-pool');
       const boyStatus = document.getElementById('boy-water-status');
 
@@ -928,11 +943,13 @@
         switchPill.classList.remove('hidden');
 
         if (isEnhancer) {
-          girlPlate.classList.remove('hidden');
+          girlMountain.classList.remove('hidden');
+          girlStatus.classList.remove('hidden');
           boyPool.classList.add('hidden');
           boyStatus.classList.add('hidden');
         } else {
-          girlPlate.classList.add('hidden');
+          girlMountain.classList.add('hidden');
+          girlStatus.classList.add('hidden');
           boyPool.classList.remove('hidden');
           boyStatus.classList.remove('hidden');
         }
@@ -1095,133 +1112,92 @@
     }
 
     function setMode(mode) {
-      pauseTimer();
       state.mode = mode;
-      
-      const btnFocus = document.getElementById('mode-focus');
-      const btnShort = document.getElementById('mode-short');
-      const btnLong = document.getElementById('mode-long');
+      state.total = state.durations[mode];
+      state.remaining = state.total;
+
+      const colors = {
+        focus: '#48D1CC',
+        shortBreak: '#5AB693',
+        longBreak: '#8BA2A8'
+      };
+      const titles = {
+        focus: 'Focus (' + state.durations.focus + 's)',
+        shortBreak: 'Short Break (' + state.durations.shortBreak + 's)',
+        longBreak: 'Long Break (' + state.durations.longBreak + 's)'
+      };
+
+      ['focus', 'shortBreak', 'longBreak'].forEach(m => {
+        const btn = document.getElementById('mode-' + (m === 'shortBreak' ? 'short' : (m === 'longBreak' ? 'long' : 'focus')));
+        if (m === mode) {
+          btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold transition bg-white text-[#162529] shadow-sm';
+        } else {
+          btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold text-[#8BA2A8] transition hover:text-slate-700';
+        }
+      });
+
       const tag = document.getElementById('timer-mode-tag');
       const stageTag = document.getElementById('stage-timer-mode-tag');
-      const arc = document.getElementById('progress-arc');
+      tag.innerText = mode.toUpperCase();
+      stageTag.innerText = mode.toUpperCase();
+
       const sub = document.getElementById('timer-sub');
       const stageSub = document.getElementById('stage-timer-sub');
-
-      btnFocus.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#8BA2A8] transition';
-      btnShort.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#8BA2A8] transition';
-      btnLong.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#8BA2A8] transition';
-
       if (mode === 'focus') {
-        btnFocus.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold transition bg-white text-[#162529] shadow-sm';
-        tag.innerText = 'FOCUS';
-        stageTag.innerText = 'FOCUS';
-        tag.className = 'text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#48D1CC]/15 text-[#27ABA4]';
-        stageTag.className = 'text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#48D1CC]/15 text-[#27ABA4]';
-        arc.style.stroke = '#48D1CC';
-        const subHtml = '<span class="text-xs font-extrabold text-[#D98209] flex items-center gap-1.5"><span>🪙</span> +10 COINS</span>';
-        sub.innerHTML = subHtml;
-        stageSub.innerHTML = subHtml;
-        state.total = state.durations.focus;
-      } else if (mode === 'shortBreak') {
-        btnShort.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold transition bg-white text-[#162529] shadow-sm';
-        tag.innerText = 'SHORT BREAK';
-        stageTag.innerText = 'SHORT BREAK';
-        tag.className = 'text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#5AB693]/15 text-[#5AB693]';
-        stageTag.className = 'text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#5AB693]/15 text-[#5AB693]';
-        arc.style.stroke = '#5AB693';
-        const subHtml = '<span class="text-xs font-extrabold text-[#5AB693]">☕ SHORT BREAK</span>';
-        sub.innerHTML = subHtml;
-        stageSub.innerHTML = subHtml;
-        state.total = state.durations.short;
+        const rewardHtml = '<span>🪙</span> +10 COINS';
+        sub.innerHTML = rewardHtml;
+        stageSub.innerHTML = rewardHtml;
       } else {
-        btnLong.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold transition bg-white text-[#162529] shadow-sm';
-        tag.innerText = 'LONG BREAK';
-        stageTag.innerText = 'LONG BREAK';
-        tag.className = 'text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#8BA2A8]/15 text-[#8BA2A8]';
-        stageTag.className = 'text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#8BA2A8]/15 text-[#8BA2A8]';
-        arc.style.stroke = '#8BA2A8';
-        const subHtml = '<span class="text-xs font-extrabold text-[#8BA2A8]">🌿 LONG BREAK</span>';
-        sub.innerHTML = subHtml;
-        stageSub.innerHTML = subHtml;
-        state.total = state.durations.long;
+        const breakHtml = mode === 'shortBreak' ? '☕ SHORT BREAK RELAXATION' : '🌿 LONG BREAK RECHARGE';
+        sub.innerHTML = breakHtml;
+        stageSub.innerHTML = breakHtml;
       }
 
-      state.remaining = state.total;
-      document.getElementById('play-text').innerText = 'START (' + state.total + 's)';
-      renderTimer();
+      document.getElementById('progress-arc').style.stroke = colors[mode];
+      resetTimer();
     }
 
     function toggleCharacter() {
-      if (state.activeChar === 'enhancer') {
-        if (state.suppressantUnlocked) {
-          setActiveCharacter('suppressant');
-        } else {
-          switchTab('shop');
-        }
-      } else {
-        setActiveCharacter('enhancer');
-      }
+      const next = state.activeChar === 'enhancer' ? 'suppressant' : 'enhancer';
+      setActiveCharacter(next);
     }
 
     function setActiveCharacter(charId) {
       state.activeChar = charId;
-      updateCharacterUI();
-      updateAnimationModeView();
-    }
+      const isEnhancer = charId === 'enhancer';
 
-    function updateCharacterUI() {
-      const isEnhancer = state.activeChar === 'enhancer';
-      const imgSrc = isEnhancer ? enhancerImgSrc : suppressantImgSrc;
+      document.getElementById('char-img').src = isEnhancer ? enhancerImgSrc : suppressantImgSrc;
+      document.getElementById('stage-char-img').src = isEnhancer ? enhancerImgSrc : suppressantImgSrc;
+      document.getElementById('char-name').innerText = isEnhancer ? 'Appetite Enhancer' : 'Appetite Suppressant';
+      document.getElementById('stage-char-name').innerText = isEnhancer ? 'APPETITE ENHANCER' : 'APPETITE SUPPRESSANT';
+      document.getElementById('stage-char-icon').innerText = isEnhancer ? '🔥' : '❄️';
+      document.getElementById('char-badge').innerText = isEnhancer ? '🔥 WARM IMP' : '❄️ COOL SAGE';
+      document.getElementById('char-badge').className = isEnhancer
+        ? 'inline-block px-2 py-0.5 text-[10px] font-extrabold tracking-wide uppercase rounded-md bg-[#FF715B]/15 text-[#FF715B]'
+        : 'inline-block px-2 py-0.5 text-[10px] font-extrabold tracking-wide uppercase rounded-md bg-[#27ABA4]/15 text-[#27ABA4]';
 
-      document.getElementById('char-img').src = imgSrc;
-      document.getElementById('stage-char-img').src = imgSrc;
+      document.getElementById('char-frame').className = isEnhancer
+        ? 'w-16 h-16 rounded-2xl bg-[#FFF1ED] p-1.5 shrink-0 flex items-center justify-center overflow-hidden border border-[#FFDDD5] relative'
+        : 'w-16 h-16 rounded-2xl bg-[#E4F8F7] p-1.5 shrink-0 flex items-center justify-center overflow-hidden border border-[#48D1CC]/30 relative';
 
-      const badge = document.getElementById('char-badge');
-      const name = document.getElementById('char-name');
-      const frame = document.getElementById('char-frame');
-      const stageFrame = document.getElementById('stage-char-frame');
-      const stageName = document.getElementById('stage-char-name');
-      const stageIcon = document.getElementById('stage-char-icon');
-
+      // Update shop buttons
+      const btnEnhancer = document.getElementById('btn-equip-enhancer');
+      const btnSuppressant = document.getElementById('btn-buy-suppressant');
       if (isEnhancer) {
-        badge.innerText = '🔥 WARM IMP';
-        badge.className = 'inline-block px-2 py-0.5 text-[10px] font-extrabold tracking-wide uppercase rounded-md bg-[#FF715B]/15 text-[#FF715B]';
-        name.innerText = 'Appetite Enhancer';
-        frame.className = 'w-16 h-16 rounded-2xl bg-[#FFF1ED] p-1.5 shrink-0 flex items-center justify-center overflow-hidden border border-[#FFDDD5] relative';
-        stageFrame.className = 'relative z-10 w-36 h-36 rounded-3xl bg-[#FFF1ED] p-2 border-2 border-[#FFDDD5] shadow-lg flex items-center justify-center overflow-visible cursor-pointer';
-        stageName.innerText = 'APPETITE ENHANCER (GIRL)';
-        stageIcon.innerText = '🔥';
-      } else {
-        badge.innerText = '❄️ COOL SAGE';
-        badge.className = 'inline-block px-2 py-0.5 text-[10px] font-extrabold tracking-wide uppercase rounded-md bg-[#27ABA4]/15 text-[#27ABA4]';
-        name.innerText = 'Appetite Suppressant';
-        frame.className = 'w-16 h-16 rounded-2xl bg-[#E4F8F7] p-1.5 shrink-0 flex items-center justify-center overflow-hidden border border-[#48D1CC]/30 relative';
-        stageFrame.className = 'relative z-10 w-36 h-36 rounded-3xl bg-[#E4F8F7] p-2 border-2 border-[#48D1CC]/40 shadow-lg flex items-center justify-center overflow-visible cursor-pointer';
-        stageName.innerText = 'APPETITE SUPPRESSANT (BOY)';
-        stageIcon.innerText = '❄️';
-      }
-
-      // Shop Equipped Buttons
-      const btnEquipEnhancer = document.getElementById('btn-equip-enhancer');
-      const btnBuySuppressant = document.getElementById('btn-buy-suppressant');
-      if (isEnhancer) {
-        btnEquipEnhancer.innerText = 'Equipped';
-        btnEquipEnhancer.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default';
+        btnEnhancer.innerText = 'Equipped';
+        btnEnhancer.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default';
         if (state.suppressantUnlocked) {
-          btnBuySuppressant.innerText = 'Equip';
-          btnBuySuppressant.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#48D1CC] text-white shadow-sm hover:bg-[#27ABA4] active:scale-95 transition';
+          btnSuppressant.innerText = 'Equip';
+          btnSuppressant.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition';
         }
       } else {
-        btnEquipEnhancer.innerText = 'Equip';
-        btnEquipEnhancer.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#FF715B] text-white shadow-sm hover:bg-[#e05641] active:scale-95 transition';
-        btnBuySuppressant.innerText = 'Equipped';
-        btnBuySuppressant.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default';
+        btnEnhancer.innerText = 'Equip';
+        btnEnhancer.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#FF715B] text-[#FF715B] shadow-sm hover:bg-[#FFF1ED] active:scale-95 transition';
+        btnSuppressant.innerText = 'Equipped';
+        btnSuppressant.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default';
       }
-    }
 
-    function updateCoinDisplay() {
-      document.getElementById('coin-display').innerText = state.coins;
-      document.getElementById('shop-coin-display').innerText = state.coins;
+      updateAnimationModeView();
     }
 
     function buyOrEquipSuppressant() {
@@ -1242,62 +1218,40 @@
       }
     }
 
-    function buySound(soundId, cost) {
-      if (state.streamUnlocked) {
-        selectBgmTrack(soundId);
-        switchTab('timer');
+    function buySound(trackId, cost) {
+      if (state.coins >= cost) {
+        state.coins -= cost;
+        state.streamUnlocked = true;
+        updateCoinDisplay();
+        document.getElementById('btn-stream').innerText = 'Owned';
+        document.getElementById('btn-stream').className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default';
+        playCoinChime();
+        selectBgmTrack(trackId);
+        openSoundSheet();
       } else {
-        if (state.coins >= cost) {
-          state.coins -= cost;
-          state.streamUnlocked = true;
-          updateCoinDisplay();
-          document.getElementById('btn-stream').innerText = 'Select';
-          document.getElementById('btn-stream').className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#27ABA4] text-white shadow-sm';
-          document.getElementById('cost-stream').innerText = 'Unlocked';
-          playCoinChime();
-          selectBgmTrack(soundId);
-        } else {
-          openPaywallSheet();
-        }
+        openPaywallSheet();
       }
     }
 
-    function buyCoinPack(amount) {
+    function updateCoinDisplay() {
+      document.getElementById('coin-display').innerText = state.coins;
+      document.getElementById('shop-coin-display').innerText = state.coins;
+    }
+
+    function buyCoinPack(amount, price) {
       state.coins += amount;
       updateCoinDisplay();
+      closePaywallSheet();
       playCoinChime();
-      closePaywall();
     }
 
-    function restorePurchases() {
-      alert('Purchases restored via RevenueCat.');
-      closePaywall();
-    }
-
-    function switchTab(tabId) {
-      ['timer', 'shop', 'settings'].forEach(id => {
-        const tab = document.getElementById('tab-' + id);
-        const nav = document.getElementById('nav-' + id);
-        if (id === tabId) {
-          tab.classList.remove('hidden');
-          nav.className = 'flex flex-col items-center py-1 px-3 rounded-xl text-[#27ABA4] bg-[#48D1CC]/15 transition';
-        } else {
-          tab.classList.add('hidden');
-          nav.className = 'flex flex-col items-center py-1 px-3 rounded-xl text-[#8BA2A8] hover:text-slate-700 transition';
-        }
-      });
-    }
-
-    function updateDuration(type, val) {
-      val = parseInt(val, 10);
-      state.durations[type] = val;
-      const unit = val === 1 ? ' sec' : ' secs';
-      document.getElementById('lbl-' + type).innerText = val + unit;
-      if (state.mode === type) {
-        state.total = val;
-        state.remaining = val;
-        document.getElementById('play-text').innerText = 'START (' + val + 's)';
-        renderTimer();
+    function updateDuration(modeKey, val) {
+      state.durations[modeKey === 'short' ? 'shortBreak' : (modeKey === 'long' ? 'longBreak' : 'focus')] = parseInt(val);
+      document.getElementById('lbl-' + modeKey).innerText = val + ' secs';
+      if ((modeKey === 'focus' && state.mode === 'focus') ||
+          (modeKey === 'short' && state.mode === 'shortBreak') ||
+          (modeKey === 'long' && state.mode === 'longBreak')) {
+        setMode(state.mode);
       }
     }
 
@@ -1310,23 +1264,49 @@
       updateDuration('long', 10);
     }
 
-    function openPaywallSheet() { document.getElementById('modal-paywall').classList.remove('hidden'); }
-    function closePaywall() { document.getElementById('modal-paywall').classList.add('hidden'); }
-    function openSoundSheet() { 
-      getAudioContext();
-      document.getElementById('modal-sound').classList.remove('hidden'); 
+    function switchTab(tabId) {
+      ['timer', 'shop', 'settings'].forEach(t => {
+        const page = document.getElementById('tab-' + t);
+        const nav = document.getElementById('nav-' + t);
+        if (t === tabId) {
+          page.classList.remove('hidden');
+          nav.className = 'flex flex-col items-center justify-center flex-1 text-[#48D1CC] transition';
+        } else {
+          page.classList.add('hidden');
+          nav.className = 'flex flex-col items-center justify-center flex-1 text-slate-400 hover:text-slate-600 transition';
+        }
+      });
     }
-    function closeSoundSheet() { document.getElementById('modal-sound').classList.add('hidden'); }
 
-    // Start App
+    function openSoundSheet() { document.getElementById('modal-sound').classList.remove('hidden'); }
+    function closeSoundSheet() { document.getElementById('modal-sound').classList.add('hidden'); }
+    function openPaywallSheet() { document.getElementById('modal-paywall').classList.remove('hidden'); }
+    function closePaywallSheet() { document.getElementById('modal-paywall').classList.add('hidden'); }
+
+    // Init Mountain Items on Load
+    function initFoodMountain() {
+      const container = document.getElementById('mountain-inner');
+      if (!container) return;
+      container.innerHTML = '';
+      mountainConfig.forEach((item, idx) => {
+        const el = document.createElement('div');
+        el.id = 'mtn-food-' + idx;
+        el.className = 'absolute w-10 h-10 transition-opacity duration-300 pointer-events-none';
+        el.style.left = item.left + 'px';
+        el.style.top = item.top + 'px';
+        el.style.transform = `scale(${item.scale}) rotate(${item.rot}deg)`;
+        el.innerHTML = `<img src="${item.src}" class="w-full h-full object-contain filter drop-shadow-sm" />`;
+        container.appendChild(el);
+      });
+    }
+
+    // Startup Initialization
     window.addEventListener('DOMContentLoaded', () => {
-      initImages();
-      updateCoinDisplay();
-      updateBgmUI();
+      initFoodMountain();
+      setActiveCharacter('enhancer');
+      setMode('focus');
+      updateAnimationModeView();
     });
-    initImages();
-    updateCoinDisplay();
-    updateBgmUI();
   </script>
 </body>
 </html>
