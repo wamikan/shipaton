@@ -6,6 +6,7 @@ class TimerSettingsModel {
   final bool autoStartBreaks;
   final bool autoStartFocus;
   final bool soundAlertsEnabled;
+  final bool showFocusAnimation;
 
   const TimerSettingsModel({
     required this.focusMinutes,
@@ -14,6 +15,7 @@ class TimerSettingsModel {
     this.autoStartBreaks = false,
     this.autoStartFocus = false,
     this.soundAlertsEnabled = true,
+    this.showFocusAnimation = true,
   });
 
   factory TimerSettingsModel.defaultSettings() {
@@ -24,6 +26,7 @@ class TimerSettingsModel {
       autoStartBreaks: false,
       autoStartFocus: false,
       soundAlertsEnabled: true,
+      showFocusAnimation: true,
     );
   }
 
@@ -34,6 +37,7 @@ class TimerSettingsModel {
     bool? autoStartBreaks,
     bool? autoStartFocus,
     bool? soundAlertsEnabled,
+    bool? showFocusAnimation,
   }) {
     return TimerSettingsModel(
       focusMinutes: focusMinutes ?? this.focusMinutes,
@@ -42,6 +46,7 @@ class TimerSettingsModel {
       autoStartBreaks: autoStartBreaks ?? this.autoStartBreaks,
       autoStartFocus: autoStartFocus ?? this.autoStartFocus,
       soundAlertsEnabled: soundAlertsEnabled ?? this.soundAlertsEnabled,
+      showFocusAnimation: showFocusAnimation ?? this.showFocusAnimation,
     );
   }
 }

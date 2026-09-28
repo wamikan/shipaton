@@ -111,6 +111,30 @@ class SettingsScreen extends ConsumerWidget {
 
           const SizedBox(height: 28),
 
+          // Section: Companion Animation
+          _buildSectionHeader('COMPANION & ANIMATION'),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: SwitchListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+              title: const Text('Focus Companion Animation', style: AppTypography.sectionTitle),
+              subtitle: const Text(
+                'Show eating & water absorption animations while timer is running',
+                style: AppTypography.bodySmall,
+              ),
+              activeThumbColor: AppColors.primary,
+              value: settings.showFocusAnimation,
+              onChanged: (val) => settingsNotifier.toggleFocusAnimation(val),
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
           // Section: About
           _buildSectionHeader('ABOUT SHIPATON TIMER'),
           const SizedBox(height: 10),

@@ -9,6 +9,7 @@ class SettingsRepository {
   static const String _keyAutoBreaks = 'timer_auto_start_breaks';
   static const String _keyAutoFocus = 'timer_auto_start_focus';
   static const String _keySoundAlerts = 'timer_sound_alerts_enabled';
+  static const String _keyShowFocusAnimation = 'timer_show_focus_animation';
 
   final SharedPreferences _prefs;
 
@@ -22,6 +23,7 @@ class SettingsRepository {
       autoStartBreaks: _prefs.getBool(_keyAutoBreaks) ?? false,
       autoStartFocus: _prefs.getBool(_keyAutoFocus) ?? false,
       soundAlertsEnabled: _prefs.getBool(_keySoundAlerts) ?? true,
+      showFocusAnimation: _prefs.getBool(_keyShowFocusAnimation) ?? true,
     );
   }
 
@@ -32,5 +34,6 @@ class SettingsRepository {
     await _prefs.setBool(_keyAutoBreaks, settings.autoStartBreaks);
     await _prefs.setBool(_keyAutoFocus, settings.autoStartFocus);
     await _prefs.setBool(_keySoundAlerts, settings.soundAlertsEnabled);
+    await _prefs.setBool(_keyShowFocusAnimation, settings.showFocusAnimation);
   }
 }

@@ -37,6 +37,12 @@ class SettingsNotifier extends StateNotifier<TimerSettingsModel> {
     state = updated;
   }
 
+  Future<void> toggleFocusAnimation(bool enabled) async {
+    final updated = state.copyWith(showFocusAnimation: enabled);
+    await _repository.saveSettings(updated);
+    state = updated;
+  }
+
   Future<void> resetToDefaults() async {
     final defaults = TimerSettingsModel.defaultSettings();
     await _repository.saveSettings(defaults);

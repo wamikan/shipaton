@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../data/models/character_model.dart';
+import '../../../settings/notifiers/settings_notifier.dart';
+import 'companion_animated_avatar.dart';
 
-/// Clean, minimal, non-animated Character Companion card.
+/// Character Companion card.
 /// Designed according to modern Apple HIG and Digital Agency Design System standards:
-/// bold typography, high-contrast functional labels, zero fluff/poems, zero animations.
-class CharacterCompanionCard extends StatelessWidget {
+/// bold typography, high-contrast functional labels.
+/// Displays animated eating/water-absorption when timer is running and animation setting is ON.
+class CharacterCompanionCard extends ConsumerWidget {
   final CharacterModel character;
   final bool isRunning;
   final VoidCallback? onSwitchCharacter;
@@ -19,9 +23,10 @@ class CharacterCompanionCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final char = character;
     final isWarm = char.tone == CharacterTone.warm;
+    final settings = ref.watch(settingsNotifierProvider);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -40,8 +45,13 @@ class CharacterCompanionCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Static Avatar (No animation, crisp presentation)
-          _buildCharacterAvatar(char, isWarm),
+          // Animated Avatar (Respects showFocusAnimation setting)
+          CompanionAnimatedAvatar(
+            character: char,
+            isRunning: isRunning,
+            showAnimation: settings.showFocusAnimation,
+            size: 68,
+          ),
           const SizedBox(width: 14),
 
           // Companion Info: Bold, minimal, functional
@@ -108,32 +118,6 @@ class CharacterCompanionCard extends StatelessWidget {
               icon: const Icon(Icons.swap_horiz_rounded, size: 20),
             ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCharacterAvatar(CharacterModel char, bool isWarm) {
-    return Container(
-      width: 68,
-      height: 68,
-      decoration: BoxDecoration(
-        color: char.backgroundColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: char.borderColor, width: 1.2),
-      ),
-      padding: const EdgeInsets.all(4),
-      clipBehavior: Clip.antiAlias,
-      child: Image.asset(
-        char.assetPath,
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) {
-          return Center(
-            child: Text(
-              isWarm ? '🔥' : '❄️',
-              style: const TextStyle(fontSize: 28),
-            ),
-          );
-        },
       ),
     );
   }
