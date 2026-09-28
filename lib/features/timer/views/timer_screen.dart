@@ -7,7 +7,9 @@ import '../../../data/services/audio_service.dart';
 import '../../shop/views/coin_pack_paywall_sheet.dart';
 import '../models/timer_state.dart';
 import '../notifiers/timer_notifier.dart';
+import '../../settings/notifiers/settings_notifier.dart';
 import 'widgets/ambient_sound_sheet.dart';
+import 'widgets/animated_focus_stage.dart';
 import 'widgets/character_companion_card.dart';
 import 'widgets/coin_balance_badge.dart';
 import 'widgets/reward_dialog.dart';
@@ -24,6 +26,8 @@ class TimerScreen extends ConsumerWidget {
     final timerState = ref.watch(timerNotifierProvider);
     final timerNotifier = ref.read(timerNotifierProvider.notifier);
     final audioState = ref.watch(audioNotifierProvider);
+    final settings = ref.watch(settingsNotifierProvider);
+    final showAnimation = settings.showFocusAnimation;
 
     // Listen for session completion to display reward celebration dialog
     ref.listen<TimerState>(timerNotifierProvider, (previous, next) {
@@ -107,35 +111,59 @@ class TimerScreen extends ConsumerWidget {
                 child: IntrinsicHeight(
                   child: Column(
                     children: [
-                      const SizedBox(height: 12),
+                      if (showAnimation) ...[
+                        const SizedBox(height: 8),
 
-                      // 1. Character Companion Card
-                      CharacterCompanionCard(
-                        character: timerState.selectedCharacter,
-                        isRunning: timerState.isRunning,
-                        onSwitchCharacter: () =>
-                            _toggleCharacter(ref, timerState),
-                      ),
+                        // Mode Segmented Selector (Focus / Short Break / Long Break)
+                        SessionModeSelector(
+                          currentMode: timerState.mode,
+                          onModeSelected: (mode) {
+                            timerNotifier.switchMode(mode);
+                          },
+                        ),
 
-                      const Spacer(flex: 1),
+                        const Spacer(flex: 1),
 
-                      // 2. Mode Segmented Selector (Focus / Short Break / Long Break)
-                      SessionModeSelector(
-                        currentMode: timerState.mode,
-                        onModeSelected: (mode) {
-                          timerNotifier.switchMode(mode);
-                        },
-                      ),
+                        // Prominent Center Stage: Companion with disappearing food (Girl)
+                        // or shrinking water pond (Boy), with non-overlapping clock below
+                        AnimatedFocusStage(
+                          state: timerState,
+                          onSwitchCharacter: () =>
+                              _toggleCharacter(ref, timerState),
+                        ),
 
-                      const Spacer(flex: 1),
+                        const Spacer(flex: 2),
+                      ] else ...[
+                        const SizedBox(height: 12),
 
-                      // 3. Circular Nordic Timer Ring
-                      TimerProgressRing(
-                        state: timerState,
-                        size: 260,
-                      ),
+                        // 1. Character Companion Card
+                        CharacterCompanionCard(
+                          character: timerState.selectedCharacter,
+                          isRunning: timerState.isRunning,
+                          onSwitchCharacter: () =>
+                              _toggleCharacter(ref, timerState),
+                        ),
 
-                      const Spacer(flex: 2),
+                        const Spacer(flex: 1),
+
+                        // 2. Mode Segmented Selector (Focus / Short Break / Long Break)
+                        SessionModeSelector(
+                          currentMode: timerState.mode,
+                          onModeSelected: (mode) {
+                            timerNotifier.switchMode(mode);
+                          },
+                        ),
+
+                        const Spacer(flex: 1),
+
+                        // 3. Circular Nordic Timer Ring (Minimalist Fallback)
+                        TimerProgressRing(
+                          state: timerState,
+                          size: 260,
+                        ),
+
+                        const Spacer(flex: 2),
+                      ],
 
                       // 4. Timer Controls (Reset, Start/Pause, Skip)
                       TimerControlsBar(
