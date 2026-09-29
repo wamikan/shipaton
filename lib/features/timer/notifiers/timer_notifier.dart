@@ -12,20 +12,34 @@ class TimerNotifier extends StateNotifier<TimerState> {
   Timer? _timer;
 
   TimerNotifier(this._ref) : super(TimerState.initial()) {
-    // 10-second test duration for audio verification
-    const testSeconds = 10;
+    final duration = _getModeDurationSeconds(state.mode);
     state = state.copyWith(
-      remainingSeconds: testSeconds,
-      totalSeconds: testSeconds,
+      remainingSeconds: duration,
+      totalSeconds: duration,
     );
+
+    // Synchronize timer duration with settings changes when in initial state
+    _ref.listen<TimerSettingsModel>(settingsNotifierProvider, (previous, next) {
+      if (state.status == TimerStatus.initial) {
+        final newDuration = switch (state.mode) {
+          PomodoroMode.focus => next.focusMinutes * 60,
+          PomodoroMode.shortBreak => next.shortBreakMinutes * 60,
+          PomodoroMode.longBreak => next.longBreakMinutes * 60,
+        };
+        state = state.copyWith(
+          remainingSeconds: newDuration,
+          totalSeconds: newDuration,
+        );
+      }
+    });
   }
 
   int _getModeDurationSeconds(PomodoroMode mode) {
-    // 10 seconds for Focus, 5s for Short Break, 10s for Long Break
+    final settings = _ref.read(settingsNotifierProvider);
     return switch (mode) {
-      PomodoroMode.focus => 10,
-      PomodoroMode.shortBreak => 5,
-      PomodoroMode.longBreak => 10,
+      PomodoroMode.focus => settings.focusMinutes * 60,
+      PomodoroMode.shortBreak => settings.shortBreakMinutes * 60,
+      PomodoroMode.longBreak => settings.longBreakMinutes * 60,
     };
   }
 
@@ -40,19 +54,11 @@ class TimerNotifier extends StateNotifier<TimerState> {
   }
 
   void _startAmbientBgm() {
-    final audioNotifier = _ref.read(audioNotifierProvider.notifier);
-    final audioState = _ref.read(audioNotifierProvider);
-    if (audioState.currentSound.id != 'none' && !audioState.isPlaying) {
-      audioNotifier.togglePlayback();
-    }
+    _ref.read(audioNotifierProvider.notifier).play();
   }
 
   void _pauseAmbientBgm() {
-    final audioNotifier = _ref.read(audioNotifierProvider.notifier);
-    final audioState = _ref.read(audioNotifierProvider);
-    if (audioState.isPlaying) {
-      audioNotifier.togglePlayback();
-    }
+    _ref.read(audioNotifierProvider.notifier).pause();
   }
 
   /// Starts or resumes the countdown timer.

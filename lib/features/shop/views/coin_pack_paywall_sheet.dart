@@ -92,7 +92,7 @@ class _CoinPackPaywallSheetState extends ConsumerState<CoinPackPaywallSheet> {
           ...CoinPackModel.defaultPacks.map((pack) {
             return Container(
               margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
                 color: pack.isPopular
                     ? AppColors.primarySubtle
@@ -108,35 +108,36 @@ class _CoinPackPaywallSheetState extends ConsumerState<CoinPackPaywallSheet> {
               child: Row(
                 children: [
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 42,
+                    height: 42,
                     decoration: BoxDecoration(
                       color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.cardBorder),
                     ),
                     child: Icon(
                       pack.icon,
                       color: AppColors.coinGoldDark,
-                      size: 24,
+                      size: 22,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: 10),
 
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 6,
                           children: [
                             Text(
                               pack.title,
-                              style: AppTypography.sectionTitle.copyWith(fontSize: 15),
+                              style: AppTypography.sectionTitle.copyWith(fontSize: 14),
                             ),
-                            if (pack.isPopular) ...[
-                              const SizedBox(width: 8),
+                            if (pack.isPopular)
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
                                 decoration: BoxDecoration(
                                   color: AppColors.primary,
                                   borderRadius: BorderRadius.circular(6),
@@ -144,14 +145,13 @@ class _CoinPackPaywallSheetState extends ConsumerState<CoinPackPaywallSheet> {
                                 child: const Text(
                                   'POPULAR',
                                   style: TextStyle(
-                                    fontSize: 9,
+                                    fontSize: 8.5,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                     letterSpacing: 0.5,
                                   ),
                                 ),
                               ),
-                            ],
                           ],
                         ),
                         const SizedBox(height: 3),
@@ -177,20 +177,22 @@ class _CoinPackPaywallSheetState extends ConsumerState<CoinPackPaywallSheet> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
 
                   // Purchase Button
                   ElevatedButton(
                     onPressed: _isProcessing
                         ? null
                         : () async {
+                            final nav = Navigator.of(context);
+                            final messenger = ScaffoldMessenger.of(context);
                             setState(() => _isProcessing = true);
                             try {
                               final success =
                                   await purchaseService.purchaseCoinPack(pack);
                               if (success && mounted) {
-                                Navigator.pop(context);
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                nav.pop();
+                                messenger.showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       'Successfully added +${pack.coins} Coins to your balance!',
@@ -213,12 +215,16 @@ class _CoinPackPaywallSheetState extends ConsumerState<CoinPackPaywallSheet> {
                       foregroundColor: pack.isPopular
                           ? Colors.white
                           : AppColors.textPrimary,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      minimumSize: const Size(64, 38),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: Text(pack.priceString),
+                    child: Text(
+                      pack.priceString,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ],
               ),
@@ -231,11 +237,12 @@ class _CoinPackPaywallSheetState extends ConsumerState<CoinPackPaywallSheet> {
               onPressed: _isProcessing
                   ? null
                   : () async {
+                      final messenger = ScaffoldMessenger.of(context);
                       setState(() => _isProcessing = true);
                       try {
                         final success = await purchaseService.restorePurchases();
                         if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text(
                                 success

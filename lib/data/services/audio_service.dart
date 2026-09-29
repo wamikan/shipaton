@@ -127,15 +127,23 @@ class AudioNotifier extends StateNotifier<AudioState> {
     );
   }
 
+  Future<void> play() async {
+    if (state.currentSound.id != 'none') {
+      await _audioService.playAmbient(state.currentSound);
+      state = state.copyWith(isPlaying: true);
+    }
+  }
+
+  Future<void> pause() async {
+    await _audioService.stopAmbient();
+    state = state.copyWith(isPlaying: false);
+  }
+
   Future<void> togglePlayback() async {
     if (state.isPlaying) {
-      await _audioService.stopAmbient();
-      state = state.copyWith(isPlaying: false);
+      await pause();
     } else {
-      if (state.currentSound.id != 'none') {
-        await _audioService.playAmbient(state.currentSound);
-        state = state.copyWith(isPlaying: true);
-      }
+      await play();
     }
   }
 

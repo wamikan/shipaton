@@ -278,6 +278,20 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    for (final path in _companionOriginalSizes.keys) {
+      precacheImage(AssetImage(path), context);
+    }
+    for (final item in _activeFoods) {
+      final path = item['path'];
+      if (path != null) {
+        precacheImage(AssetImage(path), context);
+      }
+    }
+  }
+
+  @override
   void didUpdateWidget(covariant AnimatedFocusStage oldWidget) {
     super.didUpdateWidget(oldWidget);
     final shouldAnimate =
@@ -580,11 +594,6 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
         isActionPhase ? ((t - 0.18) / 0.44).clamp(0.0, 1.0) : 0.0;
 
     // Display size derived strictly from original image dimensions multiplied by uniform scale
-    final originalSize =
-        _companionOriginalSizes[spritePath] ?? const Size(3300, 4050);
-    final double spriteWidth = originalSize.width * _uniformCompanionScale;
-    final double spriteHeight = originalSize.height * _uniformCompanionScale;
-
     // Stable 220x220 bounding box with strictly pinned bottom baseline
     return SizedBox(
       width: 220,
@@ -614,30 +623,23 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
             ),
           ),
 
-          // High-Res Frameless Character Sprite (exact uniform scale, pinned to bottom:0, instant swap)
-          Positioned(
-            bottom: 0,
-            child: Image.asset(
-              spritePath,
-              key: ValueKey(spritePath),
-              width: spriteWidth,
-              height: spriteHeight,
-              fit: BoxFit.fill,
-              alignment: Alignment.bottomCenter,
-              filterQuality: FilterQuality.high,
-              gaplessPlayback: true,
-              errorBuilder: (context, error, stackTrace) => SizedBox(
-                width: spriteWidth,
-                height: spriteHeight,
-                child: Center(
-                  child: Text(
-                    char.tone == CharacterTone.warm ? '🔥' : '❄️',
-                    style: const TextStyle(fontSize: 54),
-                  ),
+          // Pre-rendered High-Res Character Sprites (Preloaded, GPU resident, 0ms swap, zero blank frame)
+          for (final entry in _companionOriginalSizes.entries)
+            Positioned(
+              bottom: 0,
+              child: Offstage(
+                offstage: entry.key != spritePath,
+                child: Image.asset(
+                  entry.key,
+                  width: entry.value.width * _uniformCompanionScale,
+                  height: entry.value.height * _uniformCompanionScale,
+                  fit: BoxFit.fill,
+                  alignment: Alignment.bottomCenter,
+                  filterQuality: FilterQuality.high,
+                  gaplessPlayback: true,
                 ),
               ),
             ),
-          ),
 
           // Slime Eating Overlay for Enhancer Girl (Phase 1)
           if (isEnhancer && isActionPhase)

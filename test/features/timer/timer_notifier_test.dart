@@ -32,8 +32,8 @@ void main() {
   test('Initial timer state has test duration and Focus mode', () {
     final state = container.read(timerNotifierProvider);
     expect(state.mode, PomodoroMode.focus);
-    expect(state.remainingSeconds, 10);
-    expect(state.totalSeconds, 10);
+    expect(state.remainingSeconds, 25 * 60);
+    expect(state.totalSeconds, 25 * 60);
     expect(state.status, TimerStatus.initial);
     expect(state.selectedCharacter.id, 'enhancer');
     expect(state.progress, 1.0);
@@ -45,14 +45,14 @@ void main() {
     notifier.switchMode(PomodoroMode.shortBreak);
     var state = container.read(timerNotifierProvider);
     expect(state.mode, PomodoroMode.shortBreak);
-    expect(state.remainingSeconds, 5);
-    expect(state.totalSeconds, 5);
+    expect(state.remainingSeconds, 5 * 60);
+    expect(state.totalSeconds, 5 * 60);
 
     notifier.switchMode(PomodoroMode.longBreak);
     state = container.read(timerNotifierProvider);
     expect(state.mode, PomodoroMode.longBreak);
-    expect(state.remainingSeconds, 10);
-    expect(state.totalSeconds, 10);
+    expect(state.remainingSeconds, 15 * 60);
+    expect(state.totalSeconds, 15 * 60);
   });
 
   test('Character selection updates active companion', () {
@@ -75,7 +75,7 @@ void main() {
 
     notifier.reset();
     expect(container.read(timerNotifierProvider).status, TimerStatus.initial);
-    expect(container.read(timerNotifierProvider).remainingSeconds, 10);
+    expect(container.read(timerNotifierProvider).remainingSeconds, 25 * 60);
   });
 
   test('startBreak auto-starts break countdown immediately', () {
@@ -85,12 +85,18 @@ void main() {
     final state = container.read(timerNotifierProvider);
     expect(state.mode, PomodoroMode.shortBreak);
     expect(state.status, TimerStatus.running);
-    expect(state.remainingSeconds, 5);
+    expect(state.remainingSeconds, 5 * 60);
   });
 }
 
 class _FakeAudioNotifier extends AudioNotifier {
   _FakeAudioNotifier() : super(_FakeAudioService());
+
+  @override
+  Future<void> play() async {}
+
+  @override
+  Future<void> pause() async {}
 
   @override
   Future<void> togglePlayback() async {}

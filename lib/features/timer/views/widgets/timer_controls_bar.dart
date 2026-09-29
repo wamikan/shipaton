@@ -26,7 +26,7 @@ class TimerControlsBar extends StatelessWidget {
     final isRunning = state.isRunning;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -36,18 +36,19 @@ class TimerControlsBar extends StatelessWidget {
             tooltip: 'Reset Timer',
             onPressed: onReset,
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 14),
 
           // Primary Hero Play/Pause Button
           Expanded(
             child: SizedBox(
-              height: 56,
+              height: 54,
               child: ElevatedButton(
                 onPressed: isRunning ? onPause : onStart,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   shadowColor: AppColors.primary.withValues(alpha: 0.4),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28),
@@ -55,18 +56,23 @@ class TimerControlsBar extends StatelessWidget {
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       isRunning ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                      size: 26,
+                      size: 24,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      isRunning ? 'PAUSE' : (state.isPaused ? 'RESUME' : 'START FOCUS'),
-                      style: AppTypography.button.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        isRunning ? 'PAUSE' : (state.isPaused ? 'RESUME' : 'START FOCUS'),
+                        style: AppTypography.button.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -74,7 +80,7 @@ class TimerControlsBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: 14),
 
           // Skip Button
           _buildSecondaryButton(
