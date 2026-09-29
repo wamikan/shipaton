@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../data/models/ambient_sound_model.dart';
 import '../../../data/models/shop_item_model.dart';
+import '../../../data/services/audio_service.dart';
 import '../../gamification/notifiers/coin_notifier.dart';
 import '../../timer/views/widgets/coin_balance_badge.dart';
 import '../notifiers/shop_notifier.dart';
@@ -359,6 +361,48 @@ class _ShopScreenState extends ConsumerState<ShopScreen>
           child: const Text('Equip', style: TextStyle(fontSize: 12)),
         );
       }
+    }
+
+    if (item.category == ShopCategory.ambientBgm) {
+      final audioState = ref.watch(audioNotifierProvider);
+      final isCurrentSound = audioState.currentSound.id == item.id;
+      final isPlaying = isCurrentSound && audioState.isPlaying;
+
+      return ElevatedButton.icon(
+        onPressed: () {
+          final targetSound = AmbientSoundModel.defaultSoundscapes
+              .where((s) => s.id == item.id)
+              .firstOrNull ??
+              AmbientSoundModel.defaultSoundscapes.first;
+          if (isPlaying) {
+            ref.read(audioNotifierProvider.notifier).pause();
+          } else {
+            ref.read(audioNotifierProvider.notifier).selectSound(
+                  targetSound.copyWith(isUnlocked: true),
+                );
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isCurrentSound
+              ? AppColors.primarySubtle
+              : AppColors.surfaceSecondary,
+          foregroundColor: isCurrentSound
+              ? AppColors.primaryDark
+              : AppColors.textPrimary,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        icon: Icon(
+          isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+          size: 16,
+        ),
+        label: Text(
+          isPlaying ? 'Playing' : (isCurrentSound ? 'Selected' : 'Play'),
+          style: const TextStyle(fontSize: 12),
+        ),
+      );
     }
 
     return const SizedBox.shrink();

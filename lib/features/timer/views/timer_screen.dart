@@ -93,9 +93,9 @@ class TimerScreen extends ConsumerWidget {
           ],
         ),
         actions: [
-          // Fairy Message Compendium (言葉の図鑑)
+          // Fairy Message Compendium
           IconButton(
-            tooltip: '言葉の図鑑',
+            tooltip: 'Fairy Archive',
             onPressed: () => FairyCompendiumSheet.show(
               context,
               initialCharacterId: timerState.selectedCharacter.id,
@@ -152,51 +152,51 @@ class TimerScreen extends ConsumerWidget {
                 child: IntrinsicHeight(
                   child: Column(
                     children: [
-                      if (showAnimation) ...[
-                        const SizedBox(height: 6),
+                      const SizedBox(height: 6),
 
-                        // Active Working Category Chip
-                        InkWell(
-                          onTap: () => CategorySelectorSheet.show(context),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: AppColors.cardBorder),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.03),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
+                      // Active Working Category Chip (Visible in both animation ON and OFF modes)
+                      InkWell(
+                        onTap: () => CategorySelectorSheet.show(context),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppColors.cardBorder),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.03),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(activeCategory.icon, style: const TextStyle(fontSize: 14)),
+                              const SizedBox(width: 6),
+                              Text(
+                                activeCategory.name,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
                                 ),
-                              ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(activeCategory.icon, style: const TextStyle(fontSize: 14)),
-                                const SizedBox(width: 6),
-                                Text(
-                                  activeCategory.name,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.arrow_drop_down_rounded,
-                                  size: 18,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(
+                                Icons.arrow_drop_down_rounded,
+                                size: 18,
+                                color: AppColors.textSecondary,
+                              ),
+                            ],
                           ),
                         ),
+                      ),
 
+                      if (showAnimation) ...[
                         const SizedBox(height: 8),
 
                         // Mode Segmented Selector (Focus / Short Break / Long Break)

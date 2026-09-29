@@ -1,8 +1,8 @@
 /// Modes for background music playback across focus sessions and breaks.
 enum BgmBreakMode {
-  always, // 常時再生 (作業中・休憩中の両方でBGMを再生)
-  focusOnly, // 休憩中のみ鳴らさない (作業中のみBGMを再生)
-  breakOnly, // 休憩中のみ鳴らす (休憩中のみBGMを再生)
+  always, // Continuous playback (play BGM during both focus and breaks)
+  focusOnly, // Focus only (mute BGM during breaks)
+  breakOnly, // Break only (play BGM only during breaks)
 }
 
 /// Configurable timer preferences.

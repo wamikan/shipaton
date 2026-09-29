@@ -7,7 +7,7 @@ import '../../../data/constants/fairy_messages_catalog.dart';
 import '../../../data/models/focus_stats_model.dart';
 import '../notifiers/focus_stats_notifier.dart';
 
-/// Modal bottom sheet displaying the Fairy Message Compendium (言葉の図鑑).
+/// Modal bottom sheet displaying the Fairy Message Compendium (Quote Archive).
 class FairyCompendiumSheet extends ConsumerStatefulWidget {
   final String initialCharacterId;
 
@@ -42,10 +42,10 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
   }
 
   String _formatMinutes(int minutes) {
-    if (minutes < 60) return '$minutes分';
+    if (minutes < 60) return '$minutes mins';
     final hours = minutes ~/ 60;
     final mins = minutes % 60;
-    return mins > 0 ? '$hours時間$mins分' : '$hours時間';
+    return mins > 0 ? '${hours}h ${mins}m' : '${hours}h';
   }
 
   int _getThresholdForLevel(int level) {
@@ -64,7 +64,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
     final statsState = ref.watch(focusStatsNotifierProvider);
     final affectionInfo = statsState.getAffection(_selectedCharId);
     final isEnhancer = _selectedCharId == 'enhancer';
-    final charName = isEnhancer ? '食欲増進ちゃん' : '食欲減退くん';
+    final charName = isEnhancer ? 'Appetite Enhancer' : 'Appetite Suppressant';
     final primaryColor = isEnhancer ? AppColors.enhancerPrimary : AppColors.suppressantPrimary;
     final bgColor = isEnhancer ? AppColors.enhancerBg : AppColors.suppressantBg;
 
@@ -102,7 +102,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                       children: [
                         Text('📖', style: TextStyle(fontSize: 22)),
                         SizedBox(width: 8),
-                        Text('妖精の言葉図鑑', style: AppTypography.headerTitle),
+                        Text('Fairy Archive', style: AppTypography.headerTitle),
                       ],
                     ),
                     IconButton(
@@ -125,7 +125,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                       Expanded(
                         child: _buildCharTab(
                           id: 'enhancer',
-                          label: '🍓 食欲増進ちゃん',
+                          label: '🍓 Enhancer',
                           isSelected: isEnhancer,
                           activeColor: AppColors.enhancerPrimary,
                         ),
@@ -134,7 +134,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                       Expanded(
                         child: _buildCharTab(
                           id: 'suppressant',
-                          label: '💧 食欲減退くん',
+                          label: '💧 Suppressant',
                           isSelected: !isEnhancer,
                           activeColor: AppColors.suppressantPrimary,
                         ),
@@ -215,7 +215,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  '累計集中時間: ${_formatMinutes(affectionInfo.totalMinutes)}',
+                                  'Total Focus: ${_formatMinutes(affectionInfo.totalMinutes)}',
                                   style: const TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
@@ -238,8 +238,8 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                             children: [
                               Text(
                                 affectionInfo.nextLevelThreshold != null
-                                    ? '次の好感度 Lv.${affectionInfo.level + 1} まで'
-                                    : '最高好感度 Lv.5 MAX 達成！',
+                                    ? 'To Friendship Lv.${affectionInfo.level + 1}'
+                                    : 'MAX Friendship (Lv.5) Reached!',
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -248,8 +248,8 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                               ),
                               Text(
                                 affectionInfo.nextLevelThreshold != null
-                                    ? '${affectionInfo.totalMinutes} / ${affectionInfo.nextLevelThreshold}分'
-                                    : '絆 MAX',
+                                    ? '${affectionInfo.totalMinutes} / ${affectionInfo.nextLevelThreshold} mins'
+                                    : 'MAX',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -279,7 +279,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('解放された言葉', style: AppTypography.sectionTitle),
+                    const Text('Unlocked Quotes', style: AppTypography.sectionTitle),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                       decoration: BoxDecoration(
@@ -287,7 +287,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        '収集状況: $unlockedCount / ${allMessages.length}',
+                        'Collected: $unlockedCount / ${allMessages.length}',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -387,7 +387,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '？？？ （未解放）',
+                    '??? (Locked)',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -396,7 +396,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '好感度 Lv.${message.requiredLevel}（累計${_getThresholdForLevel(message.requiredLevel)}分）で解放',
+                    'Unlocks at Friendship Lv.${message.requiredLevel} (${_getThresholdForLevel(message.requiredLevel)}m focus)',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
@@ -456,7 +456,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Lv.${message.requiredLevel} 解放',
+                  'Lv.${message.requiredLevel} Unlocked',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -477,7 +477,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
               borderRadius: BorderRadius.circular(14),
             ),
             child: Text(
-              '「${message.quote}」',
+              '"${message.quote}"',
               style: TextStyle(
                 fontSize: 13,
                 height: 1.45,

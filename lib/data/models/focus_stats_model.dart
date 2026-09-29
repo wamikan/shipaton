@@ -45,7 +45,7 @@ class FocusCategoryModel {
   factory FocusCategoryModel.fromMap(Map<String, dynamic> map) {
     return FocusCategoryModel(
       id: map['id'] as String? ?? 'other',
-      name: map['name'] as String? ?? 'その他',
+      name: map['name'] as String? ?? 'Other',
       icon: map['icon'] as String? ?? '✨',
       totalMinutes: (map['totalMinutes'] as num?)?.toInt() ?? 0,
       isCustom: map['isCustom'] as bool? ?? false,
@@ -58,12 +58,12 @@ class FocusCategoryModel {
 
   /// Default categories available on fresh install
   static const List<FocusCategoryModel> defaultCategories = [
-    FocusCategoryModel(id: 'math', name: '数学・理数', icon: '📐'),
-    FocusCategoryModel(id: 'study', name: '勉強・読書', icon: '📚'),
-    FocusCategoryModel(id: 'work', name: '仕事・開発', icon: '💻'),
-    FocusCategoryModel(id: 'hobby', name: '趣味・創作', icon: '🎨'),
-    FocusCategoryModel(id: 'exercise', name: '運動・健康', icon: '🏃'),
-    FocusCategoryModel(id: 'other', name: 'その他', icon: '☕'),
+    FocusCategoryModel(id: 'math', name: 'Math & Logic', icon: '📐'),
+    FocusCategoryModel(id: 'study', name: 'Study & Reading', icon: '📚'),
+    FocusCategoryModel(id: 'work', name: 'Work & Code', icon: '💻'),
+    FocusCategoryModel(id: 'hobby', name: 'Creative & Hobby', icon: '🎨'),
+    FocusCategoryModel(id: 'exercise', name: 'Fitness & Health', icon: '🏃'),
+    FocusCategoryModel(id: 'other', name: 'Other', icon: '☕'),
   ];
 }
 
@@ -107,18 +107,18 @@ class FairyAffectionInfo {
   });
 
   /// Calculates affection level (Lv.1 to Lv.5) from total focus minutes.
-  /// Lv.1: 0 - 24 mins (出会い)
-  /// Lv.2: 25 - 59 mins (仲良し - 1ポモドーロ)
-  /// Lv.3: 60 - 119 mins (信頼 - 1時間)
-  /// Lv.4: 120 - 239 mins (大親友 - 2時間)
-  /// Lv.5: 240+ mins (魂の絆 - 4時間)
+  /// Lv.1: 0 - 24 mins (Acquaintance)
+  /// Lv.2: 25 - 59 mins (Good Friend)
+  /// Lv.3: 60 - 119 mins (Trusted Ally)
+  /// Lv.4: 120 - 239 mins (Best Companion)
+  /// Lv.5: 240+ mins (Soulbound)
   factory FairyAffectionInfo.fromMinutes(String characterId, int totalMinutes) {
     if (totalMinutes >= 240) {
       return FairyAffectionInfo(
         characterId: characterId,
         totalMinutes: totalMinutes,
         level: 5,
-        levelName: '魂の絆',
+        levelName: 'Soulbound',
         levelThreshold: 240,
         nextLevelThreshold: null,
         progressToNext: 1.0,
@@ -129,7 +129,7 @@ class FairyAffectionInfo {
         characterId: characterId,
         totalMinutes: totalMinutes,
         level: 4,
-        levelName: '大親友',
+        levelName: 'Best Companion',
         levelThreshold: 120,
         nextLevelThreshold: 240,
         progressToNext: progress.clamp(0.0, 1.0),
@@ -140,7 +140,7 @@ class FairyAffectionInfo {
         characterId: characterId,
         totalMinutes: totalMinutes,
         level: 3,
-        levelName: '深い信頼',
+        levelName: 'Trusted Ally',
         levelThreshold: 60,
         nextLevelThreshold: 120,
         progressToNext: progress.clamp(0.0, 1.0),
@@ -151,7 +151,7 @@ class FairyAffectionInfo {
         characterId: characterId,
         totalMinutes: totalMinutes,
         level: 2,
-        levelName: '仲良し',
+        levelName: 'Good Friend',
         levelThreshold: 25,
         nextLevelThreshold: 60,
         progressToNext: progress.clamp(0.0, 1.0),
@@ -162,7 +162,7 @@ class FairyAffectionInfo {
         characterId: characterId,
         totalMinutes: totalMinutes,
         level: 1,
-        levelName: 'はじめまして',
+        levelName: 'Acquaintance',
         levelThreshold: 0,
         nextLevelThreshold: 25,
         progressToNext: progress.clamp(0.0, 1.0),

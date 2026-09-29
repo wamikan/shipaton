@@ -102,7 +102,7 @@ class FocusStatsNotifier extends StateNotifier<FocusStatsState> {
     final id = 'custom_${DateTime.now().millisecondsSinceEpoch}';
     final newCategory = FocusCategoryModel(
       id: id,
-      name: name.trim().isEmpty ? 'カスタム作業' : name.trim(),
+      name: name.trim().isEmpty ? 'Custom Activity' : name.trim(),
       icon: icon.trim().isEmpty ? '✨' : icon.trim(),
       totalMinutes: 0,
       isCustom: true,

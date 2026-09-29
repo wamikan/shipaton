@@ -31,7 +31,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
-          border: Border(
+          border: const Border(
             top: BorderSide(color: AppColors.cardBorder, width: 1),
           ),
           boxShadow: [
@@ -107,7 +107,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   color: AppColors.primaryDark,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,

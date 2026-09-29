@@ -14,7 +14,7 @@ void main() {
       // Level 1: 0 - 24 mins
       final lv1Start = FairyAffectionInfo.fromMinutes('enhancer', 0);
       expect(lv1Start.level, 1);
-      expect(lv1Start.levelName, 'はじめまして');
+      expect(lv1Start.levelName, 'Acquaintance');
       expect(lv1Start.nextLevelThreshold, 25);
       expect(lv1Start.progressToNext, 0.0);
 
@@ -25,25 +25,25 @@ void main() {
       // Level 2: 25 - 59 mins
       final lv2 = FairyAffectionInfo.fromMinutes('enhancer', 25);
       expect(lv2.level, 2);
-      expect(lv2.levelName, '仲良し');
+      expect(lv2.levelName, 'Good Friend');
       expect(lv2.nextLevelThreshold, 60);
 
       // Level 3: 60 - 119 mins
       final lv3 = FairyAffectionInfo.fromMinutes('enhancer', 60);
       expect(lv3.level, 3);
-      expect(lv3.levelName, '深い信頼');
+      expect(lv3.levelName, 'Trusted Ally');
       expect(lv3.nextLevelThreshold, 120);
 
       // Level 4: 120 - 239 mins
       final lv4 = FairyAffectionInfo.fromMinutes('enhancer', 120);
       expect(lv4.level, 4);
-      expect(lv4.levelName, '大親友');
+      expect(lv4.levelName, 'Best Companion');
       expect(lv4.nextLevelThreshold, 240);
 
       // Level 5: 240+ mins
       final lv5 = FairyAffectionInfo.fromMinutes('enhancer', 240);
       expect(lv5.level, 5);
-      expect(lv5.levelName, '魂の絆');
+      expect(lv5.levelName, 'Soulbound');
       expect(lv5.nextLevelThreshold, isNull);
       expect(lv5.progressToNext, 1.0);
     });
@@ -96,7 +96,7 @@ void main() {
       final state = container.read(focusStatsNotifierProvider);
       expect(state.categories.length, FocusCategoryModel.defaultCategories.length);
       expect(state.activeCategoryId, 'math');
-      expect(state.activeCategory.name, '数学・理数');
+      expect(state.activeCategory.name, 'Math & Logic');
       expect(state.characterMinutes['enhancer'], 0);
       expect(state.characterMinutes['suppressant'], 0);
     });
@@ -107,16 +107,16 @@ void main() {
 
       final state = container.read(focusStatsNotifierProvider);
       expect(state.activeCategoryId, 'hobby');
-      expect(state.activeCategory.name, '趣味・創作');
+      expect(state.activeCategory.name, 'Creative & Hobby');
     });
 
     test('Adding custom category persists and selects it', () async {
       final notifier = container.read(focusStatsNotifierProvider.notifier);
-      await notifier.addCustomCategory(name: '資格勉強', icon: '📝');
+      await notifier.addCustomCategory(name: 'Language Study', icon: '📝');
 
       final state = container.read(focusStatsNotifierProvider);
-      expect(state.categories.any((c) => c.name == '資格勉強'), true);
-      expect(state.activeCategory.name, '資格勉強');
+      expect(state.categories.any((c) => c.name == 'Language Study'), true);
+      expect(state.activeCategory.name, 'Language Study');
       expect(state.activeCategory.icon, '📝');
       expect(state.activeCategory.isCustom, true);
     });

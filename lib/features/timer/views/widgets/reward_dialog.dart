@@ -68,7 +68,7 @@ class RewardDialog extends StatelessWidget {
             const SizedBox(height: 4),
 
             const Text(
-              '集中セッション完了！休憩に入ります',
+              'Focus session complete! Time for a well-deserved break.',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -93,7 +93,7 @@ class RewardDialog extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      '「${reward!.featuredMessage.quote}」',
+                      '"${reward!.featuredMessage.quote}"',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -133,7 +133,7 @@ class RewardDialog extends StatelessWidget {
                     const Text('🎉', style: TextStyle(fontSize: 18)),
                     const SizedBox(width: 8),
                     Text(
-                      '好感度 Lv.${reward!.newAffection.level} [${reward!.newAffection.levelName}] にUP！',
+                      'Friendship reached Lv.${reward!.newAffection.level} [${reward!.newAffection.levelName}]!',
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -159,7 +159,7 @@ class RewardDialog extends StatelessWidget {
                     const Text('✨', style: TextStyle(fontSize: 14)),
                     const SizedBox(width: 6),
                     Text(
-                      '図鑑に新しい言葉が${reward!.newlyUnlockedMessages.length}件登録されました！',
+                      '${reward!.newlyUnlockedMessages.length} new quote(s) unlocked in archive!',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -188,7 +188,7 @@ class RewardDialog extends StatelessWidget {
                           Text('🪙', style: TextStyle(fontSize: 18)),
                           SizedBox(width: 8),
                           Text(
-                            '獲得コイン',
+                            'Coins Earned',
                             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                           ),
                         ],
@@ -223,7 +223,7 @@ class RewardDialog extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          '+${reward!.minutesGained}分 集中',
+                          '+${reward!.minutesGained} mins Focus',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -241,7 +241,7 @@ class RewardDialog extends StatelessWidget {
                             Text(isWarm ? '🍓' : '💧', style: const TextStyle(fontSize: 16)),
                             const SizedBox(width: 8),
                             Text(
-                              '${character.name} 好感度',
+                              '${character.name} Friendship',
                               style: const TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -251,7 +251,7 @@ class RewardDialog extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          'Lv.${reward!.newAffection.level} (${reward!.newAffection.totalMinutes}分)',
+                          'Lv.${reward!.newAffection.level} (${reward!.newAffection.totalMinutes}m)',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -277,7 +277,7 @@ class RewardDialog extends StatelessWidget {
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                 ),
-                child: const Text('休憩をはじめる', style: AppTypography.button),
+                child: const Text('Start Break', style: AppTypography.button),
               ),
             ),
 
@@ -288,7 +288,7 @@ class RewardDialog extends StatelessWidget {
                 child: TextButton.icon(
                   onPressed: onViewCompendium,
                   icon: const Icon(Icons.menu_book_rounded, size: 18),
-                  label: const Text('言葉の図鑑を見る', style: TextStyle(fontWeight: FontWeight.w700)),
+                  label: const Text('Open Fairy Archive', style: TextStyle(fontWeight: FontWeight.w700)),
                   style: TextButton.styleFrom(
                     foregroundColor: primaryColor,
                   ),

@@ -542,30 +542,29 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     final isCompleted =
         widget.state.isCompleted || widget.state.remainingSeconds == 0;
 
-    // 1. 休憩中 (Break mode): Always smiling
+    // 1. Break mode: Always smiling
     if (isBreak) {
       return char.completedAssetPath ?? char.assetPath;
     }
 
-    // 2. セッション完了 (Completed): Celebration smiling pose
+    // 2. Completed: Celebration smiling pose
     if (isCompleted) {
       return char.completedAssetPath ?? char.assetPath;
     }
 
-    // 3. 作業用タイマー実行中 (Focus mode running):
-    // ループ: 標準状態 (1.6s) -> 食材捕食・水分吸収 (4.0s) -> 笑顔 (3.4s)
+    // 3. Focus mode running:
+    // Cycle: Idle (1.6s) -> Action Eating/Drinking (4.0s) -> Smiling (3.4s)
     if (isRunning) {
       if (t < 0.18) {
-        return char.assetPath; // 1. 標準状態
+        return char.assetPath; // 1. Idle state
       } else if (t < 0.62) {
-        return char.actionAssetPath ?? char.assetPath; // 2. 食材捕食・水分吸収
+        return char.actionAssetPath ?? char.assetPath; // 2. Eating/Drinking action
       } else {
-        return char.completedAssetPath ?? char.assetPath; // 3. 笑顔
+        return char.completedAssetPath ?? char.assetPath; // 3. Smiling
       }
     }
 
-    // 4. 通常時 (Normal / Idle / Paused in focus mode):
-    // 標準状態のまま
+    // 4. Normal / Idle / Paused in focus mode:
     return char.assetPath;
   }
 
@@ -696,7 +695,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     );
   }
 
-  /// Girl (食欲増進ちゃん): Slime head swallowing active food.
+  /// Girl (Appetite Enhancer): Slime head swallowing active food.
   /// Guaranteed to completely swallow and fade to opacity 0 by 84% of Phase 1,
   /// so she transitions into the smile pose with food 100% swallowed.
   Widget _buildGirlEatingOverlay(double phaseT) {
@@ -745,7 +744,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     );
   }
 
-  /// Boy (食欲減退君): Sprout blooming on head as water is absorbed.
+  /// Boy (Appetite Suppressant): Sprout blooming on head as water is absorbed.
   /// Flower / Berry blossoms gloriously and dissolves into aura by 92% of Phase 1,
   /// so he transitions into the smiling pose with water absorption fully finished.
   Widget _buildBoyBloomingOverlay(double phaseT) {

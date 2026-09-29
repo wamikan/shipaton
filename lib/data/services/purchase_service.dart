@@ -44,16 +44,27 @@ class PurchaseService {
       try {
         final offerings = await Purchases.getOfferings();
         final currentOffering = offerings.current;
-
         if (currentOffering != null &&
             currentOffering.availablePackages.isNotEmpty) {
-          final package = currentOffering.availablePackages
+          var package = currentOffering.availablePackages
               .where(
                 (p) =>
                     p.identifier == pack.identifier ||
                     p.storeProduct.identifier == pack.identifier,
               )
               .firstOrNull;
+
+          // If the RevenueCat test offering only has standard packages (e.g. monthly),
+          // map to an available package so the RevenueCat Test Store sheet appears!
+          if (package == null && currentOffering.availablePackages.isNotEmpty) {
+            const packList = CoinPackModel.defaultPacks;
+            final packIndex =
+                packList.indexWhere((p) => p.identifier == pack.identifier);
+            final safeIndex = packIndex >= 0
+                ? packIndex % currentOffering.availablePackages.length
+                : 0;
+            package = currentOffering.availablePackages[safeIndex];
+          }
 
           if (package != null) {
             final purchaseResult =

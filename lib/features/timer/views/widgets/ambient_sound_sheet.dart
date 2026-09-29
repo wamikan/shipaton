@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../data/models/ambient_sound_model.dart';
 import '../../../../data/services/audio_service.dart';
+import '../../../shop/notifiers/shop_notifier.dart';
 
 /// Nordic bottom sheet for adjusting ambient soundscapes and volume.
 class AmbientSoundSheet extends ConsumerWidget {
@@ -22,6 +23,8 @@ class AmbientSoundSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final audioState = ref.watch(audioNotifierProvider);
     final audioNotifier = ref.read(audioNotifierProvider.notifier);
+    final shopCatalog = ref.watch(shopNotifierProvider);
+    final unlockedIds = ref.watch(shopRepositoryProvider).getUnlockedItemIds();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
@@ -106,7 +109,10 @@ class AmbientSoundSheet extends ConsumerWidget {
           // Sound List
           ...AmbientSoundModel.defaultSoundscapes.map((sound) {
             final isSelected = audioState.currentSound.id == sound.id;
-            final isLocked = !sound.isUnlocked;
+            final isUnlocked = sound.isUnlocked ||
+                unlockedIds.contains(sound.id) ||
+                shopCatalog.any((item) => item.id == sound.id && item.isUnlocked);
+            final isLocked = !isUnlocked;
 
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
@@ -172,7 +178,7 @@ class AmbientSoundSheet extends ConsumerWidget {
                         );
                       }
                     : () {
-                        audioNotifier.selectSound(sound);
+                        audioNotifier.selectSound(sound.copyWith(isUnlocked: true));
                       },
               ),
             );

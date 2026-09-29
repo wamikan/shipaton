@@ -20,9 +20,18 @@ class FocusStatsRepository {
     }
     try {
       final decoded = json.decode(raw) as List<dynamic>;
-      return decoded
-          .map((item) => FocusCategoryModel.fromMap(item as Map<String, dynamic>))
-          .toList();
+      return decoded.map((item) {
+        final cat = FocusCategoryModel.fromMap(item as Map<String, dynamic>);
+        if (!cat.isCustom) {
+          final defaultMatch = FocusCategoryModel.defaultCategories
+              .where((d) => d.id == cat.id)
+              .firstOrNull;
+          if (defaultMatch != null) {
+            return defaultMatch.copyWith(totalMinutes: cat.totalMinutes);
+          }
+        }
+        return cat;
+      }).toList();
     } catch (_) {
       return FocusCategoryModel.defaultCategories;
     }

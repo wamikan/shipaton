@@ -33,7 +33,7 @@ class CategorySelectorSheet extends ConsumerWidget {
               children: [
                 Text('✨', style: TextStyle(fontSize: 22)),
                 SizedBox(width: 8),
-                Text('新しいカテゴリを作成', style: AppTypography.sectionTitle),
+                Text('Create Focus Category', style: AppTypography.sectionTitle),
               ],
             ),
             content: SingleChildScrollView(
@@ -42,7 +42,7 @@ class CategorySelectorSheet extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'アイコンを選択',
+                    'Select Icon',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 8),
@@ -71,7 +71,7 @@ class CategorySelectorSheet extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    'カテゴリ名',
+                    'Category Name',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 8),
@@ -79,7 +79,7 @@ class CategorySelectorSheet extends ConsumerWidget {
                     controller: nameController,
                     autofocus: true,
                     decoration: InputDecoration(
-                      hintText: '例: プログラミング、英単語...',
+                      hintText: 'e.g. Coding, Reading, Language...',
                       hintStyle: const TextStyle(color: AppColors.textTertiary, fontSize: 14),
                       filled: true,
                       fillColor: AppColors.surfaceSecondary,
@@ -96,7 +96,7 @@ class CategorySelectorSheet extends ConsumerWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogCtx).pop(),
-                child: const Text('キャンセル', style: TextStyle(color: AppColors.textSecondary)),
+                child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -114,7 +114,7 @@ class CategorySelectorSheet extends ConsumerWidget {
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('追加して選択'),
+                child: const Text('Add & Select'),
               ),
             ],
           );
@@ -125,11 +125,11 @@ class CategorySelectorSheet extends ConsumerWidget {
 
   String _formatMinutes(int minutes) {
     if (minutes < 60) {
-      return '$minutes分';
+      return '$minutes mins';
     }
     final hours = minutes ~/ 60;
     final remainingMins = minutes % 60;
-    return remainingMins > 0 ? '$hours時間$remainingMins分' : '$hours時間';
+    return remainingMins > 0 ? '${hours}h ${remainingMins}m' : '${hours}h';
   }
 
   @override
@@ -170,10 +170,10 @@ class CategorySelectorSheet extends ConsumerWidget {
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('作業カテゴリの選択', style: AppTypography.headerTitle),
+                    Text('Focus Category', style: AppTypography.headerTitle),
                     SizedBox(height: 2),
                     Text(
-                      '何に集中するか選ぶと、累計作業時間が記録されます',
+                      'Track total focus minutes per activity',
                       style: AppTypography.bodySmall,
                     ),
                   ],
@@ -256,7 +256,7 @@ class CategorySelectorSheet extends ConsumerWidget {
                                           borderRadius: BorderRadius.circular(4),
                                         ),
                                         child: const Text(
-                                          'カスタム',
+                                          'CUSTOM',
                                           style: TextStyle(
                                             fontSize: 9,
                                             fontWeight: FontWeight.w700,
@@ -269,7 +269,7 @@ class CategorySelectorSheet extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '累計集中時間: ${_formatMinutes(cat.totalMinutes)}',
+                                  'Total Focus: ${_formatMinutes(cat.totalMinutes)}',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: AppColors.textSecondary,
@@ -300,7 +300,7 @@ class CategorySelectorSheet extends ConsumerWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _showAddCategoryDialog(context, ref),
                 icon: const Icon(Icons.add_rounded, size: 20),
-                label: const Text('新しいカテゴリを追加', style: TextStyle(fontWeight: FontWeight.w700)),
+                label: const Text('Add Custom Category', style: TextStyle(fontWeight: FontWeight.w700)),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primaryDark,
                   side: const BorderSide(color: AppColors.primary, width: 1.5),
