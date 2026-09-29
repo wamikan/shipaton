@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shipaton_timer/data/models/character_model.dart';
 import 'package:shipaton_timer/features/gamification/notifiers/coin_notifier.dart';
+import 'package:shipaton_timer/data/services/audio_service.dart';
 import 'package:shipaton_timer/features/timer/models/timer_state.dart';
 import 'package:shipaton_timer/features/timer/notifiers/timer_notifier.dart';
 
@@ -19,6 +20,7 @@ void main() {
     container = ProviderContainer(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
+        audioNotifierProvider.overrideWith((ref) => _FakeAudioNotifier()),
       ],
     );
   });
@@ -85,4 +87,22 @@ void main() {
     expect(state.status, TimerStatus.running);
     expect(state.remainingSeconds, 5);
   });
+}
+
+class _FakeAudioNotifier extends AudioNotifier {
+  _FakeAudioNotifier() : super(_FakeAudioService());
+
+  @override
+  Future<void> togglePlayback() async {}
+
+  @override
+  Future<void> playCompletionAlarm() async {}
+
+  @override
+  Future<void> playCoinChime() async {}
+}
+
+class _FakeAudioService extends AudioService {
+  @override
+  void dispose() {}
 }
