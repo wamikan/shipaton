@@ -508,9 +508,38 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     );
   }
 
+  /// Resolves the character sprite depending on timer status:
+  /// - Enhancer: enhancer_1 (eating) during focus session, enhancer_2 (smiling) when session completed or on break.
+  /// - Suppressant: suppressant_1 (absorbing water) during focus session, suppressant_2 (serene/finished) when completed or on break.
+  /// - Ready state: default character illustration.
+  String _resolveCharacterSprite(CharacterModel char, bool isEnhancer) {
+    final isRunning = widget.state.isRunning;
+    final isCompleted = widget.state.isCompleted || widget.state.remainingSeconds == 0;
+    final isBreak = widget.state.mode != PomodoroMode.focus;
+    final hasStarted = widget.state.remainingSeconds < widget.state.totalSeconds;
+
+    if (isCompleted || isBreak) {
+      return char.completedAssetPath ?? char.assetPath;
+    }
+    if (isRunning || (hasStarted && widget.state.remainingSeconds > 0)) {
+      return char.actionAssetPath ?? char.assetPath;
+    }
+    return char.assetPath;
+  }
+
   /// Builds the frameless hero character without any card box or outline.
   Widget _buildFramelessHero(CharacterModel char, bool isEnhancer, double t) {
     const double spriteSize = 150;
+    final spritePath = _resolveCharacterSprite(char, isEnhancer);
+    final isRunning = widget.state.isRunning;
+
+    // Subtle rhythmic munching/breathing scale during active session
+    final double spriteScale = isRunning
+        ? 1.0 + math.sin(t * math.pi * 2) * 0.02
+        : 1.0;
+    final double spriteBob = isRunning
+        ? math.sin(t * math.pi * 2) * 1.5
+        : 0.0;
 
     return SizedBox(
       width: spriteSize,
@@ -540,28 +569,73 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
             ),
           ),
 
-          // High-Res Frameless Character Sprite
-          Image.asset(
-            char.assetPath,
-            width: spriteSize,
-            height: spriteSize,
-            fit: BoxFit.contain,
-            filterQuality: FilterQuality.high,
-            errorBuilder: (context, error, stackTrace) => Center(
-              child: Text(
-                char.tone == CharacterTone.warm ? '🔥' : '❄️',
-                style: const TextStyle(fontSize: 54),
+          // High-Res Frameless Character Sprite with dynamic state
+          Transform.translate(
+            offset: Offset(0, spriteBob),
+            child: Transform.scale(
+              scale: spriteScale,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: Image.asset(
+                  spritePath,
+                  key: ValueKey(spritePath),
+                  width: spriteSize,
+                  height: spriteSize,
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.high,
+                  errorBuilder: (context, error, stackTrace) => Center(
+                    child: Text(
+                      char.tone == CharacterTone.warm ? '🔥' : '❄️',
+                      style: const TextStyle(fontSize: 54),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
 
-          // Girl Slime Eating Overlay (active consumption on slime head)
-          if (isEnhancer && widget.state.isRunning)
-            _buildGirlEatingOverlay(spriteSize, t),
+          // Girl Slime digestion glow pulse during active focus session
+          if (isEnhancer && isRunning)
+            Positioned(
+              top: spriteSize * 0.04,
+              child: Opacity(
+                opacity: (math.sin(t * math.pi) * 0.45).clamp(0.0, 1.0),
+                child: Container(
+                  width: spriteSize * 0.44,
+                  height: spriteSize * 0.22,
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.25),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.amber,
+                        blurRadius: 12,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
-          // Boy Head Sprout Blooming Overlay (water nourishment bloom)
-          if (!isEnhancer && widget.state.isRunning)
-            _buildBoyBloomingOverlay(spriteSize, t),
+          // Boy Head Sprout water absorption sparkles (when running)
+          if (!isEnhancer && isRunning)
+            Positioned(
+              top: -spriteSize * 0.12,
+              child: Opacity(
+                opacity: (math.sin(t * math.pi) * 0.85).clamp(0.0, 1.0),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('✨', style: TextStyle(fontSize: 13, color: AppColors.primary)),
+                    SizedBox(width: 8),
+                    Text('💧', style: TextStyle(fontSize: 11)),
+                    SizedBox(width: 8),
+                    Text('✨', style: TextStyle(fontSize: 13, color: AppColors.primary)),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

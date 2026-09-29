@@ -529,6 +529,34 @@
     // Character asset relative URLs
     const enhancerImgSrc = 'assets/images/character_enhancer.png';
     const suppressantImgSrc = 'assets/images/character_suppressant.png';
+    const enhancerEatingSrc = 'assets/images/enhancer_1.png';
+    const enhancerSmilingSrc = 'assets/images/enhancer_2.png';
+    const suppressantDrinkingSrc = 'assets/images/suppressant_1.png';
+    const suppressantFinishedSrc = 'assets/images/suppressant_2.png';
+
+    function resolveCharacterSprite(charId = state.activeChar) {
+      const isEnhancer = charId === 'enhancer';
+      const isCompleted = state.remaining === 0;
+      const isBreak = state.mode !== 'focus';
+      const isRunning = state.isRunning;
+      const hasStarted = state.remaining < state.total;
+
+      if (isCompleted || isBreak) {
+        return isEnhancer ? enhancerSmilingSrc : suppressantFinishedSrc;
+      }
+      if (isRunning || (hasStarted && state.remaining > 0)) {
+        return isEnhancer ? enhancerEatingSrc : suppressantDrinkingSrc;
+      }
+      return isEnhancer ? enhancerImgSrc : suppressantImgSrc;
+    }
+
+    function updateCharacterSprite() {
+      const sprite = resolveCharacterSprite();
+      const charImg = document.getElementById('char-img');
+      const stageCharImg = document.getElementById('stage-char-img');
+      if (charImg && charImg.getAttribute('src') !== sprite) charImg.src = sprite;
+      if (stageCharImg && stageCharImg.getAttribute('src') !== sprite) stageCharImg.src = sprite;
+    }
 
     // Food and Nature Item Assets
     const foodList = [
@@ -855,6 +883,7 @@
 
     // Render Timer Digits & Visuals
     function renderTimer() {
+      updateCharacterSprite();
       const minutes = Math.floor(state.remaining / 60);
       const seconds = state.remaining % 60;
       const timeStr = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
@@ -1090,7 +1119,7 @@
         state.sessionsCompleted++;
         updateCoinDisplay();
         document.getElementById('session-badge').innerText = 'SESSION #' + (state.sessionsCompleted + 1);
-        document.getElementById('reward-img').src = state.activeChar === 'enhancer' ? enhancerImgSrc : suppressantImgSrc;
+        document.getElementById('reward-img').src = state.activeChar === 'enhancer' ? enhancerSmilingSrc : suppressantFinishedSrc;
         document.getElementById('modal-reward').classList.remove('hidden');
       } else {
         setMode('focus');
@@ -1166,8 +1195,7 @@
       state.activeChar = charId;
       const isEnhancer = charId === 'enhancer';
 
-      document.getElementById('char-img').src = isEnhancer ? enhancerImgSrc : suppressantImgSrc;
-      document.getElementById('stage-char-img').src = isEnhancer ? enhancerImgSrc : suppressantImgSrc;
+      updateCharacterSprite();
       document.getElementById('char-name').innerText = isEnhancer ? 'Appetite Enhancer' : 'Appetite Suppressant';
       document.getElementById('stage-char-name').innerText = isEnhancer ? 'APPETITE ENHANCER' : 'APPETITE SUPPRESSANT';
       document.getElementById('stage-char-icon').innerText = isEnhancer ? '🔥' : '❄️';

@@ -12,6 +12,8 @@ class CharacterModel {
   final String description;
   final CharacterTone tone;
   final String assetPath;
+  final String? actionAssetPath;
+  final String? completedAssetPath;
   final Color primaryColor;
   final Color backgroundColor;
   final Color borderColor;
@@ -25,6 +27,8 @@ class CharacterModel {
     required this.description,
     required this.tone,
     required this.assetPath,
+    this.actionAssetPath,
+    this.completedAssetPath,
     required this.primaryColor,
     required this.backgroundColor,
     required this.borderColor,
@@ -39,6 +43,8 @@ class CharacterModel {
     String? description,
     CharacterTone? tone,
     String? assetPath,
+    String? actionAssetPath,
+    String? completedAssetPath,
     Color? primaryColor,
     Color? backgroundColor,
     Color? borderColor,
@@ -52,6 +58,8 @@ class CharacterModel {
       description: description ?? this.description,
       tone: tone ?? this.tone,
       assetPath: assetPath ?? this.assetPath,
+      actionAssetPath: actionAssetPath ?? this.actionAssetPath,
+      completedAssetPath: completedAssetPath ?? this.completedAssetPath,
       primaryColor: primaryColor ?? this.primaryColor,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       borderColor: borderColor ?? this.borderColor,
@@ -68,6 +76,8 @@ class CharacterModel {
     description: 'A lively, warm-hearted imp who fills your study sessions with radiant energy.',
     tone: CharacterTone.warm,
     assetPath: AppAssets.characterEnhancer,
+    actionAssetPath: AppAssets.enhancerEating,
+    completedAssetPath: AppAssets.enhancerSmiling,
     primaryColor: AppColors.enhancerPrimary,
     backgroundColor: AppColors.enhancerBg,
     borderColor: AppColors.enhancerBorder,
@@ -82,6 +92,8 @@ class CharacterModel {
     description: 'A serene, composed young imp who brings deep focus and chilly tranquility.',
     tone: CharacterTone.cool,
     assetPath: AppAssets.characterSuppressant,
+    actionAssetPath: AppAssets.suppressantDrinking,
+    completedAssetPath: AppAssets.suppressantFinished,
     primaryColor: AppColors.suppressantPrimary,
     backgroundColor: AppColors.suppressantBg,
     borderColor: AppColors.suppressantBorder,

@@ -106,9 +106,9 @@ class _CompanionAnimatedAvatarState extends State<CompanionAnimatedAvatar>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Base Character Sprite
+          // Base Character Sprite (Switches to eating/drinking when in session)
           Image.asset(
-            char.assetPath,
+            (widget.isRunning ? char.actionAssetPath : null) ?? char.assetPath,
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) => Center(
               child: Text(

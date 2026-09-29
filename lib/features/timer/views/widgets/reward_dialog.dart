@@ -40,7 +40,7 @@ class RewardDialog extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(8),
               child: Image.asset(
-                character.assetPath,
+                character.completedAssetPath ?? character.assetPath,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) => Center(
                   child: Icon(
