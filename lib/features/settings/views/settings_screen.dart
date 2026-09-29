@@ -312,7 +312,7 @@ class SettingsScreen extends ConsumerWidget {
           const SizedBox(height: 28),
 
           // Section: About
-          _buildSectionHeader('ABOUT SHIPATON TIMER'),
+          _buildSectionHeader('ABOUT NORDIC FOCUS'),
           const SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
@@ -326,11 +326,11 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.workspace_premium_rounded,
+                    Icon(Icons.spa_rounded,
                         color: AppColors.primary, size: 24),
                     SizedBox(width: 10),
                     Text(
-                      'Shipaton 2026 Next Gen Award',
+                      'Nordic Focus — Shipaton 2026',
                       style: AppTypography.sectionTitle,
                     ),
                   ],
@@ -350,7 +350,7 @@ class SettingsScreen extends ConsumerWidget {
                     color: AppColors.surfaceSecondary,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Text('Version 1.0.0 (Build 2026.1)',
+                  child: const Text('Version 1.0.0 (Build 2026.9)',
                       style: AppTypography.bodySmall),
                 ),
               ],
