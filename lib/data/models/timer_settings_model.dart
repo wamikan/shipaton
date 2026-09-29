@@ -1,3 +1,10 @@
+/// Modes for background music playback across focus sessions and breaks.
+enum BgmBreakMode {
+  always, // 常時再生 (作業中・休憩中の両方でBGMを再生)
+  focusOnly, // 休憩中のみ鳴らさない (作業中のみBGMを再生)
+  breakOnly, // 休憩中のみ鳴らす (休憩中のみBGMを再生)
+}
+
 /// Configurable timer preferences.
 class TimerSettingsModel {
   final int focusMinutes;
@@ -7,6 +14,7 @@ class TimerSettingsModel {
   final bool autoStartFocus;
   final bool soundAlertsEnabled;
   final bool showFocusAnimation;
+  final BgmBreakMode bgmBreakMode;
 
   const TimerSettingsModel({
     required this.focusMinutes,
@@ -16,6 +24,7 @@ class TimerSettingsModel {
     this.autoStartFocus = false,
     this.soundAlertsEnabled = true,
     this.showFocusAnimation = true,
+    this.bgmBreakMode = BgmBreakMode.always,
   });
 
   factory TimerSettingsModel.defaultSettings() {
@@ -27,6 +36,7 @@ class TimerSettingsModel {
       autoStartFocus: false,
       soundAlertsEnabled: true,
       showFocusAnimation: true,
+      bgmBreakMode: BgmBreakMode.always,
     );
   }
 
@@ -38,6 +48,7 @@ class TimerSettingsModel {
     bool? autoStartFocus,
     bool? soundAlertsEnabled,
     bool? showFocusAnimation,
+    BgmBreakMode? bgmBreakMode,
   }) {
     return TimerSettingsModel(
       focusMinutes: focusMinutes ?? this.focusMinutes,
@@ -47,6 +58,8 @@ class TimerSettingsModel {
       autoStartFocus: autoStartFocus ?? this.autoStartFocus,
       soundAlertsEnabled: soundAlertsEnabled ?? this.soundAlertsEnabled,
       showFocusAnimation: showFocusAnimation ?? this.showFocusAnimation,
+      bgmBreakMode: bgmBreakMode ?? this.bgmBreakMode,
     );
   }
 }
+

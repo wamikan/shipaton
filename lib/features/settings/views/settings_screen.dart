@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_typography.dart';
+import '../../../data/models/timer_settings_model.dart';
 import '../notifiers/settings_notifier.dart';
 
 /// Settings screen allowing users to customize session lengths and preferences.
@@ -96,16 +97,95 @@ class SettingsScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.cardBorder),
             ),
-            child: SwitchListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
-              title: const Text('Sound Alerts on Finish', style: AppTypography.sectionTitle),
-              subtitle: const Text(
-                'Play chime and alarm notifications upon completion',
-                style: AppTypography.bodySmall,
-              ),
-              activeThumbColor: AppColors.primary,
-              value: settings.soundAlertsEnabled,
-              onChanged: (val) => settingsNotifier.toggleSoundAlerts(val),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+                  title: const Text('Sound Alerts on Finish', style: AppTypography.sectionTitle),
+                  subtitle: const Text(
+                    'Play chime and alarm notifications upon completion',
+                    style: AppTypography.bodySmall,
+                  ),
+                  activeThumbColor: AppColors.primary,
+                  value: settings.soundAlertsEnabled,
+                  onChanged: (val) => settingsNotifier.toggleSoundAlerts(val),
+                ),
+                const Divider(height: 1),
+                Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Break BGM Playback', style: AppTypography.sectionTitle),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              switch (settings.bgmBreakMode) {
+                                BgmBreakMode.always => 'ALWAYS',
+                                BgmBreakMode.focusOnly => 'FOCUS ONLY',
+                                BgmBreakMode.breakOnly => 'BREAK ONLY',
+                              },
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primaryDark,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        switch (settings.bgmBreakMode) {
+                          BgmBreakMode.always => 'Music plays seamlessly during both focus and breaks',
+                          BgmBreakMode.focusOnly => 'Music plays during focus; muted during breaks',
+                          BgmBreakMode.breakOnly => 'Music plays during breaks only; muted during focus',
+                        },
+                        style: AppTypography.bodySmall,
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.cardBorder),
+                        ),
+                        child: Row(
+                          children: [
+                            _buildBgmModeOption(
+                              label: 'Always',
+                              selected: settings.bgmBreakMode == BgmBreakMode.always,
+                              onTap: () => settingsNotifier.updateBgmBreakMode(BgmBreakMode.always),
+                            ),
+                            const SizedBox(width: 4),
+                            _buildBgmModeOption(
+                              label: 'Focus Only',
+                              selected: settings.bgmBreakMode == BgmBreakMode.focusOnly,
+                              onTap: () => settingsNotifier.updateBgmBreakMode(BgmBreakMode.focusOnly),
+                            ),
+                            const SizedBox(width: 4),
+                            _buildBgmModeOption(
+                              label: 'Break Only',
+                              selected: settings.bgmBreakMode == BgmBreakMode.breakOnly,
+                              onTap: () => settingsNotifier.updateBgmBreakMode(BgmBreakMode.breakOnly),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -249,6 +329,44 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBgmModeOption({
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.surface : Colors.transparent,
+            borderRadius: BorderRadius.circular(9),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+              color: selected ? AppColors.textPrimary : AppColors.textSecondary,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

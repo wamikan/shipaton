@@ -403,8 +403,9 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
                     ),
 
                   // --- Frameless Hero Character (Standing Freely in Environment) ---
+                  // Anchored from bottom so feet stay grounded and height scales naturally
                   Positioned(
-                    top: isEnhancer ? 20 : 25,
+                    bottom: 48,
                     child: _buildFramelessHero(char, isEnhancer, t),
                   ),
 
@@ -556,8 +557,10 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   }
 
   /// Builds the frameless hero character without any card box or outline.
+  /// Horizontal width is consistently aligned, while vertical height naturally
+  /// scales according to the original illustration aspect ratio without shrinking.
   Widget _buildFramelessHero(CharacterModel char, bool isEnhancer, double t) {
-    const double spriteSize = 150;
+    const double spriteWidth = 150.0;
     final spritePath = _resolveCharacterSprite(char, isEnhancer, t);
     final isFocusRunning =
         widget.state.mode == PomodoroMode.focus && widget.state.isRunning;
@@ -574,17 +577,16 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
         isActionPhase ? math.sin(t * math.pi * 6) * 1.5 : 0.0;
 
     return SizedBox(
-      width: spriteSize,
-      height: spriteSize,
+      width: spriteWidth,
       child: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
         children: [
           // Subtle soft ground contact shadow
           Positioned(
-            bottom: 4,
+            bottom: 0,
             child: Container(
-              width: spriteSize * 0.65,
+              width: spriteWidth * 0.65,
               height: 14,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -602,23 +604,38 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           ),
 
           // High-Res Frameless Character Sprite with dynamic state
+          // Consistent horizontal width, responsive aspect ratio vertical height
           Transform.translate(
             offset: Offset(0, spriteBob),
             child: Transform.scale(
               scale: spriteScale,
+              alignment: Alignment.bottomCenter,
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
+                layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+                  return Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: <Widget>[
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                  );
+                },
                 child: Image.asset(
                   spritePath,
                   key: ValueKey(spritePath),
-                  width: spriteSize,
-                  height: spriteSize,
-                  fit: BoxFit.contain,
+                  width: spriteWidth,
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.bottomCenter,
                   filterQuality: FilterQuality.high,
-                  errorBuilder: (context, error, stackTrace) => Center(
-                    child: Text(
-                      char.tone == CharacterTone.warm ? '🔥' : '❄️',
-                      style: const TextStyle(fontSize: 54),
+                  errorBuilder: (context, error, stackTrace) => SizedBox(
+                    width: spriteWidth,
+                    height: 150,
+                    child: Center(
+                      child: Text(
+                        char.tone == CharacterTone.warm ? '🔥' : '❄️',
+                        style: const TextStyle(fontSize: 54),
+                      ),
                     ),
                   ),
                 ),
@@ -629,12 +646,12 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           // Girl Slime digestion glow pulse during active eating phase
           if (isEnhancer && isActionPhase)
             Positioned(
-              top: spriteSize * 0.04,
+              top: 8,
               child: Opacity(
                 opacity: (math.sin((t - 0.33) / 0.34 * math.pi) * 0.55).clamp(0.0, 1.0),
                 child: Container(
-                  width: spriteSize * 0.44,
-                  height: spriteSize * 0.22,
+                  width: spriteWidth * 0.44,
+                  height: spriteWidth * 0.22,
                   decoration: BoxDecoration(
                     color: Colors.orange.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(16),
@@ -653,7 +670,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           // Boy Head Sprout water absorption sparkles during active absorption phase
           if (!isEnhancer && isActionPhase)
             Positioned(
-              top: -spriteSize * 0.12,
+              top: -16,
               child: Opacity(
                 opacity: (math.sin((t - 0.33) / 0.34 * math.pi) * 0.85).clamp(0.0, 1.0),
                 child: const Row(

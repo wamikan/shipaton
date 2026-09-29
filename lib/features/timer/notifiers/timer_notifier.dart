@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/timer_state.dart';
 import '../../../data/models/character_model.dart';
 import '../../../data/services/audio_service.dart';
+import '../../../data/models/timer_settings_model.dart';
 import '../../gamification/notifiers/coin_notifier.dart';
 import '../../settings/notifiers/settings_notifier.dart';
 
@@ -25,6 +26,16 @@ class TimerNotifier extends StateNotifier<TimerState> {
       PomodoroMode.focus => 10,
       PomodoroMode.shortBreak => 5,
       PomodoroMode.longBreak => 10,
+    };
+  }
+
+  bool _shouldPlayBgmForMode(PomodoroMode mode) {
+    final settings = _ref.read(settingsNotifierProvider);
+    final isFocus = mode == PomodoroMode.focus;
+    return switch (settings.bgmBreakMode) {
+      BgmBreakMode.always => true,
+      BgmBreakMode.focusOnly => isFocus,
+      BgmBreakMode.breakOnly => !isFocus,
     };
   }
 
@@ -56,9 +67,11 @@ class TimerNotifier extends StateNotifier<TimerState> {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
 
-    // Automatically start ambient BGM during focus session
-    if (state.mode == PomodoroMode.focus) {
+    // Ambient BGM playback based on current mode and break settings
+    if (_shouldPlayBgmForMode(state.mode)) {
       _startAmbientBgm();
+    } else {
+      _pauseAmbientBgm();
     }
   }
 
@@ -125,9 +138,12 @@ class TimerNotifier extends StateNotifier<TimerState> {
   /// Triggered when the timer hits zero.
   void _onCompleted() {
     _timer?.cancel();
-    _pauseAmbientBgm();
 
     final settings = _ref.read(settingsNotifierProvider);
+    if (settings.bgmBreakMode == BgmBreakMode.focusOnly) {
+      _pauseAmbientBgm();
+    }
+
     if (settings.soundAlertsEnabled) {
       _ref.read(audioNotifierProvider.notifier).playCompletionAlarm();
     }

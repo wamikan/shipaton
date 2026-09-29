@@ -181,15 +181,16 @@
             </div>
 
             <!-- Frameless Hero Character (No Box/Border) -->
-            <div id="stage-char-frame" class="relative z-20 w-40 h-40 flex items-center justify-center cursor-pointer pointer-events-auto" onclick="toggleCharacter()">
+            <!-- Horizontal width fixed at 150px, vertical height scales naturally with aspect ratio -->
+            <div id="stage-char-frame" class="relative z-20 w-[150px] min-h-[150px] flex flex-col items-center justify-end cursor-pointer pointer-events-auto" onclick="toggleCharacter()">
               <!-- Soft ground contact shadow -->
-              <div id="char-ground-shadow" class="absolute bottom-2 w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none"></div>
+              <div id="char-ground-shadow" class="absolute bottom-1 w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none"></div>
               <!-- Slime Eating Overlay for Enhancer Girl -->
               <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute top-[-10px] w-12 h-12 object-contain pointer-events-none z-30 anim-food-eat" />
               <!-- Sprout Bloom Overlay for Suppressant Boy -->
               <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute top-[-14px] w-12 h-12 object-contain pointer-events-none z-30 anim-bloom-grow" />
               <!-- Base Character Image (Frameless) -->
-              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="w-full h-full object-contain filter drop-shadow-md" />
+              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="w-[150px] h-auto object-contain filter drop-shadow-md" />
             </div>
 
             <!-- Girl: Feast Status Pill -->
@@ -327,6 +328,22 @@
               <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#48D1CC]"></div>
             </label>
           </div>
+
+          <!-- Break BGM Playback Setting -->
+          <div class="py-1 border-b border-[#E2ECEE] pb-3">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <p class="text-xs font-extrabold text-[#162529]">Break BGM Playback</p>
+                <p class="text-[11px] text-[#516970] font-medium">Control music timing across sessions</p>
+              </div>
+              <span id="lbl-settings-bgm-mode" class="text-[10px] font-extrabold text-[#27ABA4] bg-[#48D1CC]/15 px-2 py-0.5 rounded uppercase">ALWAYS</span>
+            </div>
+            <div class="bg-slate-100 p-1 rounded-xl flex gap-1">
+              <button id="btn-set-bgm-always" onclick="setBgmBreakMode('always')" class="flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-xs">Always</button>
+              <button id="btn-set-bgm-focusOnly" onclick="setBgmBreakMode('focusOnly')" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Focus Only</button>
+              <button id="btn-set-bgm-breakOnly" onclick="setBgmBreakMode('breakOnly')" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Break Only</button>
+            </div>
+          </div>
           <div>
             <div class="flex justify-between text-xs font-extrabold mb-1">
               <span class="text-[#162529]">Focus Duration (Test Mode)</span>
@@ -432,6 +449,22 @@
               </div>
             </div>
             <span id="status-silent" class="text-xs font-bold text-slate-400">Select</span>
+          </div>
+        </div>
+
+        <!-- Break BGM Playback Timing -->
+        <div class="pt-3 border-t border-slate-100 mb-3">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <span class="text-xs font-extrabold text-[#162529]">BGM Playback Timing</span>
+              <p id="lbl-bgm-mode-desc" class="text-[10px] text-slate-400">Plays continuously during both focus sessions and breaks.</p>
+            </div>
+            <span id="lbl-bgm-break-mode" class="text-[10px] font-extrabold text-[#27ABA4] bg-[#48D1CC]/15 px-2 py-0.5 rounded uppercase">ALWAYS</span>
+          </div>
+          <div class="bg-slate-100 p-1 rounded-xl flex gap-1">
+            <button id="btn-bgm-mode-always" onclick="setBgmBreakMode('always')" class="flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-xs">Always</button>
+            <button id="btn-bgm-mode-focusOnly" onclick="setBgmBreakMode('focusOnly')" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Focus Only</button>
+            <button id="btn-bgm-mode-breakOnly" onclick="setBgmBreakMode('breakOnly')" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Break Only</button>
           </div>
         </div>
 
@@ -894,12 +927,70 @@
       },
       isRunning: false,
       sessionsCompleted: 0,
-      showFocusAnimation: true
+      showFocusAnimation: true,
+      bgmBreakMode: 'always' // 'always' | 'focusOnly' | 'breakOnly'
     };
 
     let timerInterval = null;
     let itemCycleInterval = null;
     let currentItemIdx = 0;
+
+    function shouldPlayBgm(mode) {
+      if (currentBgmTrack === 'silent') return false;
+      const isFocus = mode === 'focus';
+      if (state.bgmBreakMode === 'always') return true;
+      if (state.bgmBreakMode === 'focusOnly') return isFocus;
+      if (state.bgmBreakMode === 'breakOnly') return !isFocus;
+      return true;
+    }
+
+    function setBgmBreakMode(mode) {
+      state.bgmBreakMode = mode;
+      updateBgmBreakModeUI();
+      if (state.isRunning) {
+        if (shouldPlayBgm(state.mode)) {
+          startBgm();
+        } else {
+          pauseBgm();
+        }
+      }
+    }
+
+    function updateBgmBreakModeUI() {
+      const modes = ['always', 'focusOnly', 'breakOnly'];
+      const labels = {
+        always: { tag: 'ALWAYS', desc: 'Plays continuously during both focus sessions and breaks.' },
+        focusOnly: { tag: 'FOCUS ONLY', desc: 'Plays during focus only; muted during breaks.' },
+        breakOnly: { tag: 'BREAK ONLY', desc: 'Plays during breaks only; muted during focus.' },
+      };
+
+      const current = state.bgmBreakMode;
+      const lblModal = document.getElementById('lbl-bgm-break-mode');
+      const lblDesc = document.getElementById('lbl-bgm-mode-desc');
+      const lblSettings = document.getElementById('lbl-settings-bgm-mode');
+      if (lblModal) lblModal.innerText = labels[current].tag;
+      if (lblDesc) lblDesc.innerText = labels[current].desc;
+      if (lblSettings) lblSettings.innerText = labels[current].tag;
+
+      modes.forEach(m => {
+        const btnM = document.getElementById('btn-bgm-mode-' + m);
+        if (btnM) {
+          if (m === current) {
+            btnM.className = 'flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-xs';
+          } else {
+            btnM.className = 'flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition';
+          }
+        }
+        const btnS = document.getElementById('btn-set-bgm-' + m);
+        if (btnS) {
+          if (m === current) {
+            btnS.className = 'flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-xs';
+          } else {
+            btnS.className = 'flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition';
+          }
+        }
+      });
+    }
 
     // Render Timer Digits & Visuals
     function renderTimer() {
@@ -912,6 +1003,7 @@
       document.getElementById('timer-clock').innerText = timeStr;
       document.getElementById('stage-timer-clock').innerText = timeStr;
 
+      const isEnhancer = state.activeChar === 'enhancer';
       const isFocusMode = state.mode === 'focus';
       const progress = isFocusMode && state.total > 0 ? (state.remaining / state.total) : 0;
 
@@ -923,8 +1015,8 @@
       const mountainContainer = document.getElementById('girl-food-mountain');
       const mountainInner = document.getElementById('mountain-inner');
       if (mountainContainer && mountainInner) {
-        if (!isFocusMode) {
-          mountainContainer.style.display = 'none'; // No food consumed during break!
+        if (!isFocusMode || !isEnhancer) {
+          mountainContainer.style.display = 'none'; // Strictly hidden when not Enhancer or during break!
         } else {
           mountainContainer.style.display = 'flex';
           const sinkY = (1 - progress) * 36;
@@ -962,14 +1054,19 @@
       // Organic Progress 2: Boy's Water Pond Shrinking Seamlessly
       const waterPool = document.getElementById('boy-water-pool');
       if (waterPool) {
-        if (!isFocusMode) {
-          // No water absorbed during break!
-          waterPool.style.transform = 'scale(0.18)';
-          waterPool.style.opacity = '0.35';
+        if (isEnhancer) {
+          waterPool.style.display = 'none'; // Strictly hidden when Enhancer is active!
         } else {
-          const poolScale = 0.16 + 0.84 * progress;
-          waterPool.style.transform = `scale(${poolScale})`;
-          waterPool.style.opacity = Math.max(0.1, progress * 0.9 + 0.1);
+          waterPool.style.display = 'flex';
+          if (!isFocusMode) {
+            // No water absorbed during break!
+            waterPool.style.transform = 'scale(0.18)';
+            waterPool.style.opacity = '0.35';
+          } else {
+            const poolScale = 0.16 + 0.84 * progress;
+            waterPool.style.transform = `scale(${poolScale})`;
+            waterPool.style.opacity = Math.max(0.1, progress * 0.9 + 0.1);
+          }
         }
       }
 
@@ -1003,6 +1100,7 @@
       const girlStatus = document.getElementById('girl-feast-status');
       const boyPool = document.getElementById('boy-water-pool');
       const boyStatus = document.getElementById('boy-water-status');
+      const isFocusMode = state.mode === 'focus';
 
       if (state.showFocusAnimation) {
         // Prominent Center Stage
@@ -1012,15 +1110,15 @@
         switchPill.classList.remove('hidden');
 
         if (isEnhancer) {
-          girlMountain.classList.remove('hidden');
-          girlStatus.classList.remove('hidden');
-          boyPool.classList.add('hidden');
-          boyStatus.classList.add('hidden');
+          girlMountain.style.display = isFocusMode ? 'flex' : 'none';
+          girlStatus.style.display = 'flex';
+          boyPool.style.display = 'none';
+          boyStatus.style.display = 'none';
         } else {
-          girlMountain.classList.add('hidden');
-          girlStatus.classList.add('hidden');
-          boyPool.classList.remove('hidden');
-          boyStatus.classList.remove('hidden');
+          girlMountain.style.display = 'none';
+          girlStatus.style.display = 'none';
+          boyPool.style.display = 'flex';
+          boyStatus.style.display = 'flex';
         }
       } else {
         // Classic Circular Progress Ring
@@ -1128,8 +1226,10 @@
         }, 4500);
       }
 
-      if (state.mode === 'focus' && currentBgmTrack !== 'silent') {
+      if (shouldPlayBgm(state.mode)) {
         startBgm();
+      } else {
+        pauseBgm();
       }
 
       timerInterval = setInterval(() => {
@@ -1179,16 +1279,32 @@
     }
 
     function completeSession() {
-      pauseTimer();
-      state.remaining = 0;
-      renderTimer();
+      state.isRunning = false;
+      clearInterval(timerInterval);
+      document.getElementById('btn-play').classList.replace('bg-[#FF715B]', 'bg-[#48D1CC]');
+      document.getElementById('btn-play').classList.replace('hover:bg-[#e05641]', 'hover:bg-[#27ABA4]');
+      document.getElementById('play-text').innerText = 'RESUME';
+      document.getElementById('play-icon').innerHTML = '<path d="M8 5v14l11-7z"/>';
 
-      pauseBgm();
+      if (focusCycleTimer) {
+        clearInterval(focusCycleTimer);
+        focusCycleTimer = null;
+      }
+      focusCyclePhase = 0;
+
+      // Only pause BGM if break playback is disabled
+      if (state.bgmBreakMode === 'focusOnly') {
+        pauseBgm();
+      }
+
       if (itemCycleInterval) {
         clearInterval(itemCycleInterval);
         itemCycleInterval = null;
       }
+      state.remaining = 0;
+      updateCharacterSprite();
       updateItemOverlay();
+      renderTimer();
       playBellSound();
 
       if (state.mode === 'focus') {
@@ -1411,6 +1527,7 @@
       setActiveCharacter('enhancer');
       setMode('focus');
       updateAnimationModeView();
+      updateBgmBreakModeUI();
     });
   </script>
 </body>

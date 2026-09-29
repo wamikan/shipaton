@@ -10,12 +10,20 @@ class SettingsRepository {
   static const String _keyAutoFocus = 'timer_auto_start_focus';
   static const String _keySoundAlerts = 'timer_sound_alerts_enabled';
   static const String _keyShowFocusAnimation = 'timer_show_focus_animation';
+  static const String _keyBgmBreakMode = 'timer_bgm_break_mode';
 
   final SharedPreferences _prefs;
 
   SettingsRepository(this._prefs);
 
   TimerSettingsModel loadSettings() {
+    final bgmBreakModeString = _prefs.getString(_keyBgmBreakMode);
+    final bgmBreakMode = switch (bgmBreakModeString) {
+      'focusOnly' => BgmBreakMode.focusOnly,
+      'breakOnly' => BgmBreakMode.breakOnly,
+      _ => BgmBreakMode.always,
+    };
+
     return TimerSettingsModel(
       focusMinutes: _prefs.getInt(_keyFocus) ?? 25,
       shortBreakMinutes: _prefs.getInt(_keyShortBreak) ?? 5,
@@ -24,6 +32,7 @@ class SettingsRepository {
       autoStartFocus: _prefs.getBool(_keyAutoFocus) ?? false,
       soundAlertsEnabled: _prefs.getBool(_keySoundAlerts) ?? true,
       showFocusAnimation: _prefs.getBool(_keyShowFocusAnimation) ?? true,
+      bgmBreakMode: bgmBreakMode,
     );
   }
 
@@ -35,5 +44,6 @@ class SettingsRepository {
     await _prefs.setBool(_keyAutoFocus, settings.autoStartFocus);
     await _prefs.setBool(_keySoundAlerts, settings.soundAlertsEnabled);
     await _prefs.setBool(_keyShowFocusAnimation, settings.showFocusAnimation);
+    await _prefs.setString(_keyBgmBreakMode, settings.bgmBreakMode.name);
   }
 }
