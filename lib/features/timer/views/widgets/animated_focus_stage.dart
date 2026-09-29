@@ -574,8 +574,8 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
 
   static const Map<String, Size> _companionOriginalSizes = {
     AppAssets.characterEnhancer: Size(3300, 4050),
-    AppAssets.enhancerEating: Size(4361, 4800),
-    AppAssets.enhancerSmiling: Size(3428, 4050),
+    AppAssets.enhancerEating: Size(4422, 4800),
+    AppAssets.enhancerSmiling: Size(3428, 4134),
     AppAssets.characterSuppressant: Size(3300, 3780),
     AppAssets.suppressantDrinking: Size(3151, 3780),
     AppAssets.suppressantFinished: Size(3365, 4200),

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 enum ShopCategory {
   characters(title: 'Characters'),
-  ambientBgm(title: 'Soundscapes'),
-  accessories(title: 'Accessories');
+  ambientBgm(title: 'Soundscapes');
 
   final String title;
   const ShopCategory({required this.title});
@@ -126,28 +125,6 @@ class ShopItemModel {
           isUnlocked: false,
           isEquipped: false,
           icon: Icons.auto_awesome_rounded,
-        ),
-
-        // Accessories / Outfits
-        const ShopItemModel(
-          id: 'nordic_scarf',
-          name: 'Nordic Wool Scarf',
-          description: 'Hand-knitted warm crimson scarf for your imp companion.',
-          category: ShopCategory.accessories,
-          cost: 100,
-          isUnlocked: false,
-          isEquipped: false,
-          icon: Icons.dry_cleaning_rounded,
-        ),
-        const ShopItemModel(
-          id: 'aurora_crown',
-          name: 'Glacial Aurora Crown',
-          description: 'Shimmering tiara infused with northern lights glow.',
-          category: ShopCategory.accessories,
-          cost: 250,
-          isUnlocked: false,
-          isEquipped: false,
-          icon: Icons.military_tech_rounded,
         ),
       ];
 }
