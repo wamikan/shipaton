@@ -201,6 +201,15 @@ class _CoinPackPaywallSheetState extends ConsumerState<CoinPackPaywallSheet> {
                                     behavior: SnackBarBehavior.floating,
                                   ),
                                 );
+                              } else if (!success && mounted) {
+                                messenger.showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Purchase was not completed.'),
+                                    backgroundColor: AppColors.textSecondary,
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
                               }
                             } finally {
                               if (mounted) {

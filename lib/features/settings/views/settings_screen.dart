@@ -51,7 +51,7 @@ class SettingsScreen extends ConsumerWidget {
                   context: context,
                   label: 'Focus Session',
                   value: settings.focusMinutes.toDouble(),
-                  min: 5,
+                  min: 1,
                   max: 60,
                   suffix: 'mins',
                   accentColor: AppColors.primary,

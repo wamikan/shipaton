@@ -8,8 +8,11 @@ import '../../shop/views/coin_pack_paywall_sheet.dart';
 import '../models/timer_state.dart';
 import '../notifiers/timer_notifier.dart';
 import '../../settings/notifiers/settings_notifier.dart';
+import '../../gamification/notifiers/focus_stats_notifier.dart';
+import '../../gamification/views/fairy_compendium_sheet.dart';
 import 'widgets/ambient_sound_sheet.dart';
 import 'widgets/animated_focus_stage.dart';
+import 'widgets/category_selector_sheet.dart';
 import 'widgets/character_companion_card.dart';
 import 'widgets/coin_balance_badge.dart';
 import 'widgets/reward_dialog.dart';
@@ -27,25 +30,47 @@ class TimerScreen extends ConsumerWidget {
     final timerNotifier = ref.read(timerNotifierProvider.notifier);
     final audioState = ref.watch(audioNotifierProvider);
     final settings = ref.watch(settingsNotifierProvider);
+    final focusStatsState = ref.watch(focusStatsNotifierProvider);
+    final activeCategory = focusStatsState.activeCategory;
     final showAnimation = settings.showFocusAnimation;
 
     // Listen for session completion to display reward celebration dialog
-    ref.listen<TimerState>(timerNotifierProvider, (previous, next) {
+    ref.listen<TimerState>(timerNotifierProvider, (previous, next) async {
       if (next.isCompleted && next.lastRewardedCoins != null) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (dialogContext) => RewardDialog(
-            coinsEarned: next.lastRewardedCoins!,
-            character: next.selectedCharacter,
-            onClaim: () {
-              Navigator.of(dialogContext).pop();
-              timerNotifier.dismissRewardAlert();
-              // Transition to break mode and auto-start immediately
-              timerNotifier.startBreak();
-            },
-          ),
-        );
+        // Record focus session minutes to character and active category
+        final completedMinutes = settings.focusMinutes;
+        final reward = await ref
+            .read(focusStatsNotifierProvider.notifier)
+            .recordFocusSession(
+              characterId: next.selectedCharacter.id,
+              minutes: completedMinutes,
+            );
+
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (dialogContext) => RewardDialog(
+              coinsEarned: next.lastRewardedCoins!,
+              character: next.selectedCharacter,
+              reward: reward,
+              onClaim: () {
+                Navigator.of(dialogContext).pop();
+                timerNotifier.dismissRewardAlert();
+                timerNotifier.startBreak();
+              },
+              onViewCompendium: () {
+                Navigator.of(dialogContext).pop();
+                timerNotifier.dismissRewardAlert();
+                timerNotifier.startBreak();
+                FairyCompendiumSheet.show(
+                  context,
+                  initialCharacterId: next.selectedCharacter.id,
+                );
+              },
+            ),
+          );
+        }
       }
     });
 
@@ -68,6 +93,22 @@ class TimerScreen extends ConsumerWidget {
           ],
         ),
         actions: [
+          // Fairy Message Compendium (言葉の図鑑)
+          IconButton(
+            tooltip: '言葉の図鑑',
+            onPressed: () => FairyCompendiumSheet.show(
+              context,
+              initialCharacterId: timerState.selectedCharacter.id,
+            ),
+            style: IconButton.styleFrom(
+              backgroundColor: AppColors.surface,
+              foregroundColor: timerState.selectedCharacter.primaryColor,
+              side: const BorderSide(color: AppColors.cardBorder),
+            ),
+            icon: const Text('📖', style: TextStyle(fontSize: 16)),
+          ),
+          const SizedBox(width: 6),
+
           // Ambient Soundscape Selector Button
           IconButton(
             tooltip: 'Soundscapes',
@@ -112,6 +153,50 @@ class TimerScreen extends ConsumerWidget {
                   child: Column(
                     children: [
                       if (showAnimation) ...[
+                        const SizedBox(height: 6),
+
+                        // Active Working Category Chip
+                        InkWell(
+                          onTap: () => CategorySelectorSheet.show(context),
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.cardBorder),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.03),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(activeCategory.icon, style: const TextStyle(fontSize: 14)),
+                                const SizedBox(width: 6),
+                                Text(
+                                  activeCategory.name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.arrow_drop_down_rounded,
+                                  size: 18,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
                         const SizedBox(height: 8),
 
                         // Mode Segmented Selector (Focus / Short Break / Long Break)

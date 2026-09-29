@@ -47,45 +47,54 @@ class PurchaseService {
 
         if (currentOffering != null &&
             currentOffering.availablePackages.isNotEmpty) {
-          final package = currentOffering.availablePackages.firstWhere(
-            (p) =>
-                p.identifier == pack.identifier ||
-                p.storeProduct.identifier == pack.identifier,
-            orElse: () => currentOffering.availablePackages.first,
-          );
+          final package = currentOffering.availablePackages
+              .where(
+                (p) =>
+                    p.identifier == pack.identifier ||
+                    p.storeProduct.identifier == pack.identifier,
+              )
+              .firstOrNull;
 
-          final purchaseResult =
-              await Purchases.purchase(PurchaseParams.package(package));
-          developer.log(
-            'Purchase completed via Package: ${purchaseResult.customerInfo}',
-          );
-        } else {
-          // Local StoreKit Configuration fallback: direct StoreProduct lookup
-          final products = await Purchases.getProducts(
-            [pack.identifier],
-            productCategory: ProductCategory.nonSubscription,
-          );
-          if (products.isNotEmpty) {
-            final purchaseResult = await Purchases.purchase(
-              PurchaseParams.storeProduct(products.first),
-            );
+          if (package != null) {
+            final purchaseResult =
+                await Purchases.purchase(PurchaseParams.package(package));
             developer.log(
-              'Purchase completed via StoreProduct: ${purchaseResult.customerInfo}',
+              'Purchase completed via Package: ${purchaseResult.customerInfo}',
             );
-          } else {
-            developer.log(
-              'No StoreProduct found for ${pack.identifier} in StoreKit.',
-            );
+            await _ref.read(coinNotifierProvider.notifier).addCoins(pack.coins);
+            return true;
           }
+        }
+
+        // Local StoreKit Configuration fallback: direct StoreProduct lookup
+        final products = await Purchases.getProducts(
+          [pack.identifier],
+          productCategory: ProductCategory.nonSubscription,
+        );
+        if (products.isNotEmpty) {
+          final purchaseResult = await Purchases.purchase(
+            PurchaseParams.storeProduct(products.first),
+          );
+          developer.log(
+            'Purchase completed via StoreProduct: ${purchaseResult.customerInfo}',
+          );
+          await _ref.read(coinNotifierProvider.notifier).addCoins(pack.coins);
+          return true;
+        } else {
+          developer.log(
+            'No StoreProduct found for ${pack.identifier} in StoreKit.',
+          );
+          return false;
         }
       } catch (e) {
         developer.log(
-          'RevenueCat purchase failed/cancelled: $e. Falling back to dev mode credit.',
+          'RevenueCat purchase cancelled or failed: $e',
         );
+        return false;
       }
     }
 
-    // Credit coins to local repository
+    // Only reached if RevenueCat was not configured at all (mock dev mode)
     await _ref.read(coinNotifierProvider.notifier).addCoins(pack.coins);
     return true;
   }
