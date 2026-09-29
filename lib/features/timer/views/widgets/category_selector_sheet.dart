@@ -239,12 +239,15 @@ class CategorySelectorSheet extends ConsumerWidget {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      cat.name,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                                        color: isSelected ? AppColors.primaryDark : AppColors.textPrimary,
+                                    Flexible(
+                                      child: Text(
+                                        cat.name,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                                          color: isSelected ? AppColors.primaryDark : AppColors.textPrimary,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                     if (cat.isCustom) ...[

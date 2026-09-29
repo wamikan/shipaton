@@ -29,9 +29,9 @@ class RewardDialog extends StatelessWidget {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       backgroundColor: AppColors.surface,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -132,12 +132,14 @@ class RewardDialog extends StatelessWidget {
                   children: [
                     const Text('🎉', style: TextStyle(fontSize: 18)),
                     const SizedBox(width: 8),
-                    Text(
-                      'Friendship reached Lv.${reward!.newAffection.level} [${reward!.newAffection.levelName}]!',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF8A5B00),
+                    Flexible(
+                      child: Text(
+                        'Friendship reached Lv.${reward!.newAffection.level} [${reward!.newAffection.levelName}]!',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF8A5B00),
+                        ),
                       ),
                     ),
                   ],
@@ -158,12 +160,14 @@ class RewardDialog extends StatelessWidget {
                   children: [
                     const Text('✨', style: TextStyle(fontSize: 14)),
                     const SizedBox(width: 6),
-                    Text(
-                      '${reward!.newlyUnlockedMessages.length} new quote(s) unlocked in archive!',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: primaryColor,
+                    Flexible(
+                      child: Text(
+                        '${reward!.newlyUnlockedMessages.length} new quote(s) unlocked in archive!',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: primaryColor,
+                        ),
                       ),
                     ),
                   ],
@@ -181,22 +185,23 @@ class RewardDialog extends StatelessWidget {
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
-                        children: [
-                          Text('🪙', style: TextStyle(fontSize: 18)),
-                          SizedBox(width: 8),
-                          Text(
-                            'Coins Earned',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                      const Text('🪙', style: TextStyle(fontSize: 16)),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Coins Earned',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
                           ),
-                        ],
+                        ),
                       ),
                       Text(
                         '+$coinsEarned Coins',
                         style: const TextStyle(
-                          fontSize: 15,
+                          fontSize: 14,
                           fontWeight: FontWeight.w800,
                           color: AppColors.coinGoldDark,
                         ),
@@ -204,24 +209,24 @@ class RewardDialog extends StatelessWidget {
                     ],
                   ),
                   if (reward != null) ...[
-                    const Divider(height: 16),
+                    const Divider(height: 14),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            const Text('🏷️', style: TextStyle(fontSize: 16)),
-                            const SizedBox(width: 8),
-                            Text(
-                              reward!.categoryName,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textSecondary,
-                              ),
+                        const Text('🏷️', style: TextStyle(fontSize: 16)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            reward!.categoryName,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
                             ),
-                          ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           '+${reward!.minutesGained} mins Focus',
                           style: const TextStyle(
@@ -232,28 +237,28 @@ class RewardDialog extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const Divider(height: 16),
+                    const Divider(height: 14),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Text(isWarm ? '🍓' : '💧', style: const TextStyle(fontSize: 16)),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${character.name} Friendship',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textSecondary,
-                              ),
+                        Text(isWarm ? '🍓' : '💧', style: const TextStyle(fontSize: 16)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            '${character.name} Friendship',
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
                             ),
-                          ],
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Text(
                           'Lv.${reward!.newAffection.level} (${reward!.newAffection.totalMinutes}m)',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w800,
                             color: primaryColor,
                           ),
