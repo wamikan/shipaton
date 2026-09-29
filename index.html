@@ -182,16 +182,16 @@
             </div>
 
             <!-- Frameless Hero Character (No Box/Border) -->
-            <!-- Horizontal width fixed at 150px, vertical height scales naturally with aspect ratio and pose -->
-            <div id="stage-char-frame" class="relative z-20 w-[150px] min-h-[150px] flex flex-col items-center justify-end cursor-pointer pointer-events-auto" onclick="toggleCharacter()">
+            <!-- Displayed at uniform scale 1/22.0 across all images -->
+            <div id="stage-char-frame" class="relative z-20 flex flex-col items-center justify-end cursor-pointer pointer-events-auto" onclick="toggleCharacter()">
               <!-- Soft ground contact shadow -->
-              <div id="char-ground-shadow" class="absolute bottom-1 w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none transition-all duration-300"></div>
+              <div id="char-ground-shadow" class="absolute bottom-1 w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none"></div>
               <!-- Slime Eating Overlay for Enhancer Girl -->
               <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute top-[-10px] w-12 h-12 object-contain pointer-events-none z-30" />
               <!-- Sprout Bloom Overlay for Suppressant Boy -->
               <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute top-[-14px] w-12 h-12 object-contain pointer-events-none z-30" />
               <!-- Base Character Image (Frameless) -->
-              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="w-[150px] h-auto object-contain filter drop-shadow-md transition-all duration-300" style="transform-origin: bottom center;" />
+              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="object-contain filter drop-shadow-md" />
             </div>
 
             <!-- Girl: Feast Status Pill -->
@@ -617,33 +617,37 @@
       return isEnhancer ? enhancerImgSrc : suppressantImgSrc;
     }
 
+    const companionImageSizes = {
+      'assets/images/character_enhancer.png': { w: 3300, h: 4050 },
+      'assets/images/enhancer_1.png': { w: 4361, h: 4800 },
+      'assets/images/enhancer_2.png': { w: 3428, h: 4050 },
+      'assets/images/character_suppressant.png': { w: 3300, h: 3780 },
+      'assets/images/suppressant_1.png': { w: 3151, h: 3780 },
+      'assets/images/suppressant_2.png': { w: 3365, h: 4200 }
+    };
+    const companionUniformScale = 1.0 / 22.0;
+
     function updateCharacterSprite() {
       const sprite = resolveCharacterSprite();
       const charImg = document.getElementById('char-img');
       const stageCharImg = document.getElementById('stage-char-img');
-      const groundShadow = document.getElementById('char-ground-shadow');
-
-      const isBreak = state.mode !== 'focus';
-      const isCompleted = state.remaining === 0;
-      const isSmilePose = isBreak || isCompleted || (state.isRunning && focusCyclePhase === 2);
-      const isActionPose = state.isRunning && focusCyclePhase === 1;
-
-      // Prominent vertical height scaling as requested by user:
-      // Smile pose (enhancer_2 / suppressant_2): 1.25x (tall, celebratory, joyful)
-      // Action pose (enhancer_1 / suppressant_1): 1.16x (eating / absorbing)
-      // Standard idle: 1.0x
-      const poseScale = isSmilePose ? 1.25 : (isActionPose ? 1.16 : 1.0);
+      const stageCharFrame = document.getElementById('stage-char-frame');
 
       if (charImg && charImg.getAttribute('src') !== sprite) {
         charImg.src = sprite;
       }
       if (stageCharImg) {
         if (stageCharImg.getAttribute('src') !== sprite) stageCharImg.src = sprite;
-        stageCharImg.style.transform = `scale(${poseScale})`;
-        stageCharImg.style.transformOrigin = 'bottom center';
-      }
-      if (groundShadow) {
-        groundShadow.style.transform = `scale(${poseScale})`;
+        const dims = companionImageSizes[sprite] || { w: 3300, h: 4050 };
+        const dw = Math.round(dims.w * companionUniformScale * 10) / 10;
+        const dh = Math.round(dims.h * companionUniformScale * 10) / 10;
+        stageCharImg.style.width = dw + 'px';
+        stageCharImg.style.height = dh + 'px';
+        stageCharImg.style.transform = 'none'; // Strictly uniform, no code-based scaling
+        if (stageCharFrame) {
+          stageCharFrame.style.width = dw + 'px';
+          stageCharFrame.style.height = dh + 'px';
+        }
       }
     }
 

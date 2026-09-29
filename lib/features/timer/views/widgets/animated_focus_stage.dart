@@ -404,7 +404,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
                   // --- Frameless Hero Character (Standing Freely in Environment) ---
                   // Anchored from bottom so feet stay grounded and height scales naturally
                   Positioned(
-                    bottom: 48,
+                    bottom: 44,
                     child: _buildFramelessHero(char, isEnhancer, t),
                   ),
 
@@ -555,41 +555,39 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     return char.assetPath;
   }
 
+  /// Constant scale factor relative to original image pixel dimensions.
+  /// Exactly 1/22.0 across ALL companion images (zero per-image size adjustments).
+  static const double _uniformCompanionScale = 1.0 / 22.0;
+
+  static const Map<String, Size> _companionOriginalSizes = {
+    AppAssets.characterEnhancer: Size(3300, 4050),
+    AppAssets.enhancerEating: Size(4361, 4800),
+    AppAssets.enhancerSmiling: Size(3428, 4050),
+    AppAssets.characterSuppressant: Size(3300, 3780),
+    AppAssets.suppressantDrinking: Size(3151, 3780),
+    AppAssets.suppressantFinished: Size(3365, 4200),
+  };
+
   /// Builds the frameless hero character without any card box or outline.
-  /// Horizontal width is consistently aligned, while vertical height naturally
-  /// scales prominently larger during eating and smiling poses as requested.
+  /// Displayed at the exact uniform scale factor (1/22.0) across all images,
+  /// preserving the original proportional dimensions without any per-image scaling.
   Widget _buildFramelessHero(CharacterModel char, bool isEnhancer, double t) {
-    const double spriteWidth = 150.0;
     final spritePath = _resolveCharacterSprite(char, isEnhancer, t);
     final isFocusRunning =
         widget.state.mode == PomodoroMode.focus && widget.state.isRunning;
-    final isBreak = widget.state.mode != PomodoroMode.focus;
-    final isCompleted =
-        widget.state.isCompleted || widget.state.remainingSeconds == 0;
-
     final isActionPhase = isFocusRunning && (t >= 0.18 && t < 0.62);
-    final isSmilePhase = isBreak || isCompleted || (isFocusRunning && t >= 0.62);
-
-    // Height scaling factor:
-    // Standard idle: 1.0 (w=150, h=172-184)
-    // Action pose: 1.16 (enhancer_1/suppressant_1, w=174, h=195-208)
-    // Smile pose: 1.25 (enhancer_2/suppressant_2, w=188, h=220-230)
-    final double poseScale = isSmilePhase ? 1.25 : (isActionPhase ? 1.16 : 1.0);
     final double actionPhaseT =
         isActionPhase ? ((t - 0.18) / 0.44).clamp(0.0, 1.0) : 0.0;
 
-    // Subtle rhythmic munching/breathing scale during active eating/drinking phase
-    final double spriteScale = poseScale * (isFocusRunning
-        ? 1.0 +
-            (isActionPhase
-                ? math.sin(actionPhaseT * math.pi * 6) * 0.02
-                : math.sin(t * math.pi * 2) * 0.01)
-        : 1.0);
-    final double spriteBob =
-        isActionPhase ? math.sin(actionPhaseT * math.pi * 6) * 1.5 : 0.0;
+    // Display size derived strictly from original image dimensions multiplied by uniform scale
+    final originalSize =
+        _companionOriginalSizes[spritePath] ?? const Size(3300, 4050);
+    final double spriteWidth = originalSize.width * _uniformCompanionScale;
+    final double spriteHeight = originalSize.height * _uniformCompanionScale;
 
     return SizedBox(
       width: spriteWidth,
+      height: spriteHeight,
       child: Stack(
         alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
@@ -598,7 +596,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           Positioned(
             bottom: 0,
             child: Container(
-              width: spriteWidth * 0.65 * poseScale,
+              width: 150.0 * 0.65,
               height: 14,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -615,41 +613,22 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
             ),
           ),
 
-          // High-Res Frameless Character Sprite with dynamic state
-          // Consistent horizontal width, responsive aspect ratio vertical height
-          Transform.translate(
-            offset: Offset(0, spriteBob),
-            child: Transform.scale(
-              scale: spriteScale,
-              alignment: Alignment.bottomCenter,
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-                  return Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: <Widget>[
-                      ...previousChildren,
-                      if (currentChild != null) currentChild,
-                    ],
-                  );
-                },
-                child: Image.asset(
-                  spritePath,
-                  key: ValueKey(spritePath),
-                  width: spriteWidth,
-                  fit: BoxFit.fitWidth,
-                  alignment: Alignment.bottomCenter,
-                  filterQuality: FilterQuality.high,
-                  errorBuilder: (context, error, stackTrace) => SizedBox(
-                    width: spriteWidth,
-                    height: 150,
-                    child: Center(
-                      child: Text(
-                        char.tone == CharacterTone.warm ? '🔥' : '❄️',
-                        style: const TextStyle(fontSize: 54),
-                      ),
-                    ),
-                  ),
+          // High-Res Frameless Character Sprite (exact uniform scale, no per-image adjustments)
+          Image.asset(
+            spritePath,
+            key: ValueKey(spritePath),
+            width: spriteWidth,
+            height: spriteHeight,
+            fit: BoxFit.fill,
+            alignment: Alignment.bottomCenter,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (context, error, stackTrace) => SizedBox(
+              width: spriteWidth,
+              height: spriteHeight,
+              child: Center(
+                child: Text(
+                  char.tone == CharacterTone.warm ? '🔥' : '❄️',
+                  style: const TextStyle(fontSize: 54),
                 ),
               ),
             ),
@@ -657,21 +636,21 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
 
           // Slime Eating Overlay for Enhancer Girl (Phase 1)
           if (isEnhancer && isActionPhase)
-            _buildGirlEatingOverlay(spriteWidth * poseScale, actionPhaseT),
+            _buildGirlEatingOverlay(actionPhaseT),
 
           // Sprout Bloom Overlay for Suppressant Boy (Phase 1)
           if (!isEnhancer && isActionPhase)
-            _buildBoyBloomingOverlay(spriteWidth * poseScale, actionPhaseT),
+            _buildBoyBloomingOverlay(actionPhaseT),
 
           // Girl Slime digestion glow pulse during active eating phase
           if (isEnhancer && isActionPhase)
             Positioned(
-              top: 6,
+              top: 10,
               child: Opacity(
-                opacity: (math.sin(actionPhaseT * math.pi) * 0.60).clamp(0.0, 1.0),
+                opacity: (math.sin(actionPhaseT * math.pi) * 0.55).clamp(0.0, 1.0),
                 child: Container(
-                  width: spriteWidth * poseScale * 0.46,
-                  height: spriteWidth * poseScale * 0.22,
+                  width: 72,
+                  height: 36,
                   decoration: BoxDecoration(
                     color: Colors.orange.withValues(alpha: 0.28),
                     borderRadius: BorderRadius.circular(16),
@@ -713,21 +692,21 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   /// Girl (食欲増進ちゃん): Slime head swallowing active food.
   /// Guaranteed to completely swallow and fade to opacity 0 by 84% of Phase 1,
   /// so she transitions into the smile pose with food 100% swallowed.
-  Widget _buildGirlEatingOverlay(double spriteSize, double phaseT) {
+  Widget _buildGirlEatingOverlay(double phaseT) {
     final currentFood = _activeFoods[_itemIndex % _activeFoods.length]['path']!;
 
     double foodScale = 1.0;
     double foodOpacity = 1.0;
-    double foodY = -spriteSize * 0.40;
+    double foodY = -24.0;
 
     if (phaseT < 0.22) {
       final subT = phaseT / 0.22;
-      foodY += subT * 12.0;
+      foodY += subT * 14.0;
       foodScale = 0.85 + subT * 0.20;
       foodOpacity = (subT * 1.5).clamp(0.0, 1.0);
     } else if (phaseT < 0.84) {
       final sinkT = (phaseT - 0.22) / 0.62;
-      foodY += 12.0 + sinkT * 32.0;
+      foodY += 14.0 + sinkT * 32.0;
       foodScale = (1.05 - sinkT * 0.85).clamp(0.1, 1.05);
       foodOpacity = (1.0 - sinkT * 1.15).clamp(0.0, 1.0);
     } else {
@@ -740,16 +719,19 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
       return const SizedBox.shrink();
     }
 
-    return Transform.translate(
-      offset: Offset(0, foodY),
-      child: Transform.scale(
-        scale: foodScale,
-        child: Opacity(
-          opacity: foodOpacity,
-          child: SizedBox(
-            width: spriteSize * 0.42,
-            height: spriteSize * 0.42,
-            child: Image.asset(currentFood, fit: BoxFit.contain),
+    return Positioned(
+      top: 0,
+      child: Transform.translate(
+        offset: Offset(0, foodY),
+        child: Transform.scale(
+          scale: foodScale,
+          child: Opacity(
+            opacity: foodOpacity,
+            child: SizedBox(
+              width: 54,
+              height: 54,
+              child: Image.asset(currentFood, fit: BoxFit.contain),
+            ),
           ),
         ),
       ),
@@ -759,12 +741,12 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   /// Boy (食欲減退君): Sprout blooming on head as water is absorbed.
   /// Flower / Berry blossoms gloriously and dissolves into aura by 92% of Phase 1,
   /// so he transitions into the smiling pose with water absorption fully finished.
-  Widget _buildBoyBloomingOverlay(double spriteSize, double phaseT) {
+  Widget _buildBoyBloomingOverlay(double phaseT) {
     final currentBloom = _blooms[_itemIndex % _blooms.length];
 
     double bloomScale = 0.0;
     double bloomOpacity = 0.0;
-    final double bloomY = -spriteSize * 0.44;
+    double bloomY = -28.0;
 
     if (phaseT < 0.25) {
       final subT = phaseT / 0.25;
@@ -786,16 +768,19 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
       return const SizedBox.shrink();
     }
 
-    return Transform.translate(
-      offset: Offset(0, bloomY),
-      child: Transform.scale(
-        scale: bloomScale,
-        child: Opacity(
-          opacity: bloomOpacity,
-          child: SizedBox(
-            width: spriteSize * 0.42,
-            height: spriteSize * 0.42,
-            child: Image.asset(currentBloom, fit: BoxFit.contain),
+    return Positioned(
+      top: 0,
+      child: Transform.translate(
+        offset: Offset(0, bloomY),
+        child: Transform.scale(
+          scale: bloomScale,
+          child: Opacity(
+            opacity: bloomOpacity,
+            child: SizedBox(
+              width: 52,
+              height: 52,
+              child: Image.asset(currentBloom, fit: BoxFit.contain),
+            ),
           ),
         ),
       ),
