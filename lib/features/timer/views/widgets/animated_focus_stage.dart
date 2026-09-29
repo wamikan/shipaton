@@ -259,7 +259,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     super.initState();
     _cycleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3200),
+      duration: const Duration(milliseconds: 4500),
     );
 
     _cycleController.addStatusListener((status) {
@@ -267,13 +267,13 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
         setState(() {
           _itemIndex = (_itemIndex + 1) % _activeFoods.length;
         });
-        if (widget.state.isRunning) {
+        if (widget.state.isRunning && widget.state.mode == PomodoroMode.focus) {
           _cycleController.forward(from: 0.0);
         }
       }
     });
 
-    if (widget.state.isRunning) {
+    if (widget.state.isRunning && widget.state.mode == PomodoroMode.focus) {
       _cycleController.forward();
     }
   }
@@ -281,8 +281,10 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   @override
   void didUpdateWidget(covariant AnimatedFocusStage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final shouldAnimate = widget.state.isRunning;
-    final wasAnimating = oldWidget.state.isRunning;
+    final shouldAnimate =
+        widget.state.isRunning && widget.state.mode == PomodoroMode.focus;
+    final wasAnimating =
+        oldWidget.state.isRunning && oldWidget.state.mode == PomodoroMode.focus;
 
     if (shouldAnimate && !wasAnimating) {
       _cycleController.forward(from: 0.0);
@@ -370,14 +372,16 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
             animation: _cycleController,
             builder: (context, child) {
               final t = _cycleController.value;
-              final progress = widget.state.progress;
+              final isFocusMode = widget.state.mode == PomodoroMode.focus;
+              final isBreak = !isFocusMode;
+              final progress = isFocusMode ? widget.state.progress : 0.0;
 
               return Stack(
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: [
-                  // --- GIRL (ENHANCER): Stacked Mountain of Food Behind Her ---
-                  if (isEnhancer)
+                  // --- GIRL (ENHANCER): Stacked Mountain of Food Behind Her (Focus mode only) ---
+                  if (isEnhancer && isFocusMode)
                     Positioned(
                       top: 60,
                       child: _buildFoodMountain(progress, t),
@@ -392,7 +396,8 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
                         painter: _SeamlessWaterPondPainter(
                           progress: progress,
                           cycle: t,
-                          isRunning: widget.state.isRunning,
+                          isRunning: isFocusMode && widget.state.isRunning,
+                          isAbsorbing: isFocusMode && widget.state.isRunning,
                         ),
                       ),
                     ),
@@ -403,18 +408,22 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
                     child: _buildFramelessHero(char, isEnhancer, t),
                   ),
 
-                  // --- Girl: Serving Plate with Active Delicacy at her Feet ---
+                  // --- Girl: Serving Plate with Active Delicacy or Break Relaxation Status ---
                   if (isEnhancer)
                     Positioned(
                       bottom: 4,
-                      child: _buildGirlFeastStatus(progress),
+                      child: isBreak
+                          ? _buildGirlBreakStatus()
+                          : _buildGirlFeastStatus(progress),
                     ),
 
-                  // --- Boy: Seamless Water Purification Status ---
+                  // --- Boy: Seamless Water Purification Status or Break Relaxation Status ---
                   if (!isEnhancer)
                     Positioned(
                       bottom: 4,
-                      child: _buildBoyWaterStatus(progress),
+                      child: isBreak
+                          ? _buildBoyBreakStatus()
+                          : _buildBoyWaterStatus(progress),
                     ),
                 ],
               );
@@ -509,37 +518,60 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   }
 
   /// Resolves the character sprite depending on timer status:
-  /// - Enhancer: enhancer_1 (eating) during focus session, enhancer_2 (smiling) when session completed or on break.
-  /// - Suppressant: suppressant_1 (absorbing water) during focus session, suppressant_2 (serene/finished) when completed or on break.
-  /// - Ready state: default character illustration.
-  String _resolveCharacterSprite(CharacterModel char, bool isEnhancer) {
-    final isRunning = widget.state.isRunning;
-    final isCompleted = widget.state.isCompleted || widget.state.remainingSeconds == 0;
+  /// - Break mode: Always smiling (enhancer_2 / suppressant_2), resting without consuming.
+  /// - Focus session completed: Celebration smiling (enhancer_2 / suppressant_2).
+  /// - Focus session running: Loops through Standard -> Action (eating/drinking) -> Smile.
+  /// - Normal / Idle / Paused: Fixed at Standard default illustration.
+  String _resolveCharacterSprite(CharacterModel char, bool isEnhancer, double t) {
     final isBreak = widget.state.mode != PomodoroMode.focus;
-    final hasStarted = widget.state.remainingSeconds < widget.state.totalSeconds;
+    final isRunning = widget.state.isRunning;
+    final isCompleted =
+        widget.state.isCompleted || widget.state.remainingSeconds == 0;
 
-    if (isCompleted || isBreak) {
+    // 1. 休憩中 (Break mode): Always smiling
+    if (isBreak) {
       return char.completedAssetPath ?? char.assetPath;
     }
-    if (isRunning || (hasStarted && widget.state.remainingSeconds > 0)) {
-      return char.actionAssetPath ?? char.assetPath;
+
+    // 2. セッション完了 (Completed): Celebration smiling pose
+    if (isCompleted) {
+      return char.completedAssetPath ?? char.assetPath;
     }
+
+    // 3. 作業用タイマー実行中 (Focus mode running):
+    // ループ: 標準状態 -> 食材捕食・水分吸収 -> 笑顔
+    if (isRunning) {
+      if (t < 0.33) {
+        return char.assetPath; // 1. 標準状態
+      } else if (t < 0.67) {
+        return char.actionAssetPath ?? char.assetPath; // 2. 食材捕食・水分吸収
+      } else {
+        return char.completedAssetPath ?? char.assetPath; // 3. 笑顔
+      }
+    }
+
+    // 4. 通常時 (Normal / Idle / Paused in focus mode):
+    // 標準状態のまま
     return char.assetPath;
   }
 
   /// Builds the frameless hero character without any card box or outline.
   Widget _buildFramelessHero(CharacterModel char, bool isEnhancer, double t) {
     const double spriteSize = 150;
-    final spritePath = _resolveCharacterSprite(char, isEnhancer);
-    final isRunning = widget.state.isRunning;
+    final spritePath = _resolveCharacterSprite(char, isEnhancer, t);
+    final isFocusRunning =
+        widget.state.mode == PomodoroMode.focus && widget.state.isRunning;
+    final isActionPhase = isFocusRunning && (t >= 0.33 && t < 0.67);
 
-    // Subtle rhythmic munching/breathing scale during active session
-    final double spriteScale = isRunning
-        ? 1.0 + math.sin(t * math.pi * 2) * 0.02
+    // Subtle rhythmic munching/breathing scale during active eating/drinking phase
+    final double spriteScale = isFocusRunning
+        ? 1.0 +
+            (isActionPhase
+                ? math.sin(t * math.pi * 6) * 0.025
+                : math.sin(t * math.pi * 2) * 0.01)
         : 1.0;
-    final double spriteBob = isRunning
-        ? math.sin(t * math.pi * 2) * 1.5
-        : 0.0;
+    final double spriteBob =
+        isActionPhase ? math.sin(t * math.pi * 6) * 1.5 : 0.0;
 
     return SizedBox(
       width: spriteSize,
@@ -594,12 +626,12 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
             ),
           ),
 
-          // Girl Slime digestion glow pulse during active focus session
-          if (isEnhancer && isRunning)
+          // Girl Slime digestion glow pulse during active eating phase
+          if (isEnhancer && isActionPhase)
             Positioned(
               top: spriteSize * 0.04,
               child: Opacity(
-                opacity: (math.sin(t * math.pi) * 0.45).clamp(0.0, 1.0),
+                opacity: (math.sin((t - 0.33) / 0.34 * math.pi) * 0.55).clamp(0.0, 1.0),
                 child: Container(
                   width: spriteSize * 0.44,
                   height: spriteSize * 0.22,
@@ -618,12 +650,12 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
               ),
             ),
 
-          // Boy Head Sprout water absorption sparkles (when running)
-          if (!isEnhancer && isRunning)
+          // Boy Head Sprout water absorption sparkles during active absorption phase
+          if (!isEnhancer && isActionPhase)
             Positioned(
               top: -spriteSize * 0.12,
               child: Opacity(
-                opacity: (math.sin(t * math.pi) * 0.85).clamp(0.0, 1.0),
+                opacity: (math.sin((t - 0.33) / 0.34 * math.pi) * 0.85).clamp(0.0, 1.0),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -758,10 +790,85 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     );
   }
 
+  /// Girl: Break relaxation status pill (Smiling, no feast consumed)
+  Widget _buildGirlBreakStatus() {
+    final isShort = widget.state.mode == PomodoroMode.shortBreak;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.enhancerBorder, width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.orange.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(isShort ? '☕' : '🌿', style: const TextStyle(fontSize: 13)),
+          const SizedBox(width: 8),
+          Text(
+            isShort ? 'SHORT BREAK: RELAX & SMILE' : 'LONG BREAK: PEACEFUL RECHARGE',
+            style: const TextStyle(
+              color: AppColors.enhancerPrimary,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Boy: Break relaxation status pill (Smiling, no water absorbed)
+  Widget _buildBoyBreakStatus() {
+    final isShort = widget.state.mode == PomodoroMode.shortBreak;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.4), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(isShort ? '☕' : '🌿', style: const TextStyle(fontSize: 13)),
+          const SizedBox(width: 6),
+          Text(
+            isShort
+                ? 'SHORT BREAK: TRANQUILITY (NO ABSORPTION)'
+                : 'LONG BREAK: TRANQUILITY (NO ABSORPTION)',
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// Girl: Feast status pill with active dish and percentage
   Widget _buildGirlFeastStatus(double progress) {
     final percent = (progress * 100).toInt();
     final activeFood = _activeFoods[_itemIndex % _activeFoods.length];
+    final isRunning = widget.state.isRunning;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -788,7 +895,9 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           const SizedBox(width: 8),
           Text(
             percent > 0
-                ? 'FEAST IN PROGRESS: $percent% REMAINING'
+                ? (isRunning
+                    ? 'FEAST IN PROGRESS: $percent% REMAINING'
+                    : 'FEAST: $percent% REMAINING (READY)')
                 : '🎉 ALL FEAST DEVOURED! FOCUS COMPLETE',
             style: TextStyle(
               color: percent > 0 ? AppColors.enhancerPrimary : AppColors.primaryDark,
@@ -805,6 +914,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   /// Boy: Water level status pill with seamless percentage
   Widget _buildBoyWaterStatus(double progress) {
     final waterPercent = (progress * 100).toInt();
+    final isRunning = widget.state.isRunning;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -827,7 +937,9 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           const SizedBox(width: 6),
           Text(
             waterPercent > 0
-                ? 'WATER LEVEL: $waterPercent% (ABSORBING)'
+                ? (isRunning
+                    ? 'WATER LEVEL: $waterPercent% (ABSORBING)'
+                    : 'WATER LEVEL: $waterPercent% (READY)')
                 : '✨ PURIFICATION COMPLETE! TRANQUILITY ACHIEVED',
             style: const TextStyle(
               color: AppColors.primaryDark,
@@ -923,11 +1035,13 @@ class _SeamlessWaterPondPainter extends CustomPainter {
   final double progress; // 1.0 down to 0.0 (smoothly continuous)
   final double cycle;
   final bool isRunning;
+  final bool isAbsorbing;
 
   _SeamlessWaterPondPainter({
     required this.progress,
     required this.cycle,
     required this.isRunning,
+    this.isAbsorbing = true,
   });
 
   @override
@@ -976,7 +1090,7 @@ class _SeamlessWaterPondPainter extends CustomPainter {
     canvas.drawOval(poolRect, borderPaint);
 
     // 4. Inward Water Absorption Waves (smoothly flowing towards cape center)
-    if (isRunning && progress > 0.03) {
+    if (isRunning && isAbsorbing && progress > 0.03) {
       for (int i = 0; i < 4; i++) {
         final rippleT = (cycle + i / 4.0) % 1.0;
         final rippleScale = (1.0 - rippleT * 0.78).clamp(0.15, 1.0);

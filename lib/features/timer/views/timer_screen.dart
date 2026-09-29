@@ -140,6 +140,7 @@ class TimerScreen extends ConsumerWidget {
                         CharacterCompanionCard(
                           character: timerState.selectedCharacter,
                           isRunning: timerState.isRunning,
+                          mode: timerState.mode,
                           onSwitchCharacter: () =>
                               _toggleCharacter(ref, timerState),
                         ),

@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_typography.dart';
 import '../../../../data/models/character_model.dart';
 import '../../../settings/notifiers/settings_notifier.dart';
+import '../../models/timer_state.dart';
 import 'companion_animated_avatar.dart';
 
 /// Character Companion card.
@@ -13,12 +14,14 @@ import 'companion_animated_avatar.dart';
 class CharacterCompanionCard extends ConsumerWidget {
   final CharacterModel character;
   final bool isRunning;
+  final PomodoroMode mode;
   final VoidCallback? onSwitchCharacter;
 
   const CharacterCompanionCard({
     super.key,
     required this.character,
     required this.isRunning,
+    this.mode = PomodoroMode.focus,
     this.onSwitchCharacter,
   });
 
@@ -27,6 +30,7 @@ class CharacterCompanionCard extends ConsumerWidget {
     final char = character;
     final isWarm = char.tone == CharacterTone.warm;
     final settings = ref.watch(settingsNotifierProvider);
+    final isBreak = mode != PomodoroMode.focus;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -49,6 +53,7 @@ class CharacterCompanionCard extends ConsumerWidget {
           CompanionAnimatedAvatar(
             character: char,
             isRunning: isRunning,
+            mode: mode,
             showAnimation: settings.showFocusAnimation,
             size: 68,
           ),
@@ -90,12 +95,16 @@ class CharacterCompanionCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  isRunning ? 'STATUS: IN SESSION' : 'STATUS: READY',
+                  isBreak
+                      ? 'STATUS: BREAK RELAXATION'
+                      : (isRunning ? 'STATUS: IN SESSION' : 'STATUS: READY'),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.4,
-                    color: isRunning ? AppColors.primaryDark : AppColors.textTertiary,
+                    color: isBreak
+                        ? AppColors.shortBreakMode
+                        : (isRunning ? AppColors.primaryDark : AppColors.textTertiary),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

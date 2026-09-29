@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../data/models/character_model.dart';
+import '../../models/timer_state.dart';
 
 /// Animated avatar widget for the focus timer companion.
 /// When timer is running and animation is enabled, displays:
@@ -12,13 +13,15 @@ class CompanionAnimatedAvatar extends StatefulWidget {
   final bool isRunning;
   final bool showAnimation;
   final double size;
+  final PomodoroMode mode;
 
   const CompanionAnimatedAvatar({
     super.key,
     required this.character,
-    required this.isRunning,
+    this.isRunning = false,
     this.showAnimation = true,
     this.size = 68,
+    this.mode = PomodoroMode.focus,
   });
 
   @override
@@ -47,7 +50,7 @@ class _CompanionAnimatedAvatarState extends State<CompanionAnimatedAvatar>
     super.initState();
     _cycleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 3200),
+      duration: const Duration(milliseconds: 4500),
     );
 
     _cycleController.addStatusListener((status) {
@@ -55,13 +58,17 @@ class _CompanionAnimatedAvatarState extends State<CompanionAnimatedAvatar>
         setState(() {
           _itemIndex = (_itemIndex + 1) % 3;
         });
-        if (widget.isRunning && widget.showAnimation) {
+        if (widget.isRunning &&
+            widget.mode == PomodoroMode.focus &&
+            widget.showAnimation) {
           _cycleController.forward(from: 0.0);
         }
       }
     });
 
-    if (widget.isRunning && widget.showAnimation) {
+    if (widget.isRunning &&
+        widget.mode == PomodoroMode.focus &&
+        widget.showAnimation) {
       _cycleController.forward();
     }
   }
@@ -69,8 +76,12 @@ class _CompanionAnimatedAvatarState extends State<CompanionAnimatedAvatar>
   @override
   void didUpdateWidget(covariant CompanionAnimatedAvatar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final shouldAnimate = widget.isRunning && widget.showAnimation;
-    final wasAnimating = oldWidget.isRunning && oldWidget.showAnimation;
+    final shouldAnimate = widget.isRunning &&
+        widget.mode == PomodoroMode.focus &&
+        widget.showAnimation;
+    final wasAnimating = oldWidget.isRunning &&
+        oldWidget.mode == PomodoroMode.focus &&
+        oldWidget.showAnimation;
 
     if (shouldAnimate && !wasAnimating) {
       _cycleController.forward(from: 0.0);
@@ -91,7 +102,9 @@ class _CompanionAnimatedAvatarState extends State<CompanionAnimatedAvatar>
     final char = widget.character;
     final isWarm = char.tone == CharacterTone.warm;
     final isEnhancer = char.id == 'enhancer';
-    final shouldAnimate = widget.isRunning && widget.showAnimation;
+    final isBreak = widget.mode != PomodoroMode.focus;
+    final shouldAnimate =
+        widget.isRunning && widget.mode == PomodoroMode.focus && widget.showAnimation;
 
     return Container(
       width: widget.size,
@@ -103,35 +116,52 @@ class _CompanionAnimatedAvatarState extends State<CompanionAnimatedAvatar>
       ),
       padding: const EdgeInsets.all(4),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Base Character Sprite (Switches to eating/drinking when in session)
-          Image.asset(
-            (widget.isRunning ? char.actionAssetPath : null) ?? char.assetPath,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) => Center(
-              child: Text(
-                isWarm ? '🔥' : '❄️',
-                style: TextStyle(fontSize: widget.size * 0.4),
-              ),
-            ),
-          ),
+      child: AnimatedBuilder(
+        animation: _cycleController,
+        builder: (context, child) {
+          final t = _cycleController.value;
+          String sprite;
+          if (isBreak) {
+            sprite = char.completedAssetPath ?? char.assetPath;
+          } else if (widget.isRunning && widget.mode == PomodoroMode.focus) {
+            if (t < 0.33) {
+              sprite = char.assetPath;
+            } else if (t < 0.67) {
+              sprite = char.actionAssetPath ?? char.assetPath;
+            } else {
+              sprite = char.completedAssetPath ?? char.assetPath;
+            }
+          } else {
+            sprite = char.assetPath;
+          }
 
-          // Animated Overlay Elements when IN SESSION
-          if (shouldAnimate)
-            AnimatedBuilder(
-              animation: _cycleController,
-              builder: (context, child) {
-                final t = _cycleController.value;
-                if (isEnhancer) {
-                  return _buildEnhancerEatingLayer(t);
-                } else {
-                  return _buildSuppressantWaterLayer(t);
-                }
-              },
-            ),
-        ],
+          final isActionPhase = widget.isRunning &&
+              widget.mode == PomodoroMode.focus &&
+              (t >= 0.33 && t < 0.67);
+
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Base Character Sprite
+              Image.asset(
+                sprite,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) => Center(
+                  child: Text(
+                    isWarm ? '🔥' : '❄️',
+                    style: TextStyle(fontSize: widget.size * 0.4),
+                  ),
+                ),
+              ),
+
+              // Animated Overlay Elements when IN ACTION PHASE OF FOCUS SESSION
+              if (shouldAnimate && isActionPhase)
+                isEnhancer
+                    ? _buildEnhancerEatingLayer(t)
+                    : _buildSuppressantWaterLayer(t),
+            ],
+          );
+        },
       ),
     );
   }

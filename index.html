@@ -534,19 +534,39 @@
     const suppressantDrinkingSrc = 'assets/images/suppressant_1.png';
     const suppressantFinishedSrc = 'assets/images/suppressant_2.png';
 
+    let focusCyclePhase = 0; // 0: standard, 1: action (eating/drinking), 2: smile
+    let focusCycleTimer = null;
+
     function resolveCharacterSprite(charId = state.activeChar) {
       const isEnhancer = charId === 'enhancer';
       const isCompleted = state.remaining === 0;
       const isBreak = state.mode !== 'focus';
       const isRunning = state.isRunning;
-      const hasStarted = state.remaining < state.total;
 
-      if (isCompleted || isBreak) {
+      // 1. 休憩中 (Break mode): Always smiling
+      if (isBreak) {
         return isEnhancer ? enhancerSmilingSrc : suppressantFinishedSrc;
       }
-      if (isRunning || (hasStarted && state.remaining > 0)) {
-        return isEnhancer ? enhancerEatingSrc : suppressantDrinkingSrc;
+
+      // 2. セッション完了 (Completed): Celebration smiling pose
+      if (isCompleted) {
+        return isEnhancer ? enhancerSmilingSrc : suppressantFinishedSrc;
       }
+
+      // 3. 作業用タイマー実行中 (Focus session running):
+      // ループ: 標準状態 -> 食材捕食・水分吸収 -> 笑顔
+      if (isRunning) {
+        if (focusCyclePhase === 0) {
+          return isEnhancer ? enhancerImgSrc : suppressantImgSrc; // 標準状態
+        } else if (focusCyclePhase === 1) {
+          return isEnhancer ? enhancerEatingSrc : suppressantDrinkingSrc; // 食材捕食・水分吸収
+        } else {
+          return isEnhancer ? enhancerSmilingSrc : suppressantFinishedSrc; // 笑顔
+        }
+      }
+
+      // 4. 通常時 (Normal / Idle / Paused in focus mode):
+      // 標準状態のまま
       return isEnhancer ? enhancerImgSrc : suppressantImgSrc;
     }
 
@@ -892,57 +912,77 @@
       document.getElementById('timer-clock').innerText = timeStr;
       document.getElementById('stage-timer-clock').innerText = timeStr;
 
-      // Progress fraction (1.0 down to 0.0)
-      const progress = state.total > 0 ? (state.remaining / state.total) : 0;
+      const isFocusMode = state.mode === 'focus';
+      const progress = isFocusMode && state.total > 0 ? (state.remaining / state.total) : 0;
 
       // Circular ring offset (for Classic Mode)
-      const strokeOffset = 100 * (1 - progress);
+      const strokeOffset = 100 * (1 - (state.total > 0 ? (state.remaining / state.total) : 0));
       document.getElementById('progress-arc').style.strokeDashoffset = strokeOffset;
 
       // Organic Progress 1: Girl's Food Mountain Sinking & Fading
+      const mountainContainer = document.getElementById('girl-food-mountain');
       const mountainInner = document.getElementById('mountain-inner');
-      if (mountainInner) {
-        const sinkY = (1 - progress) * 36;
-        mountainInner.style.transform = `translateY(${sinkY}px)`;
-        mountainConfig.forEach((item, idx) => {
-          const el = document.getElementById('mtn-food-' + idx);
-          if (!el) return;
-          let opacity = 1.0;
-          if (progress >= item.fadeStart) opacity = 1.0;
-          else if (progress <= item.fadeEnd) opacity = 0.0;
-          else opacity = (progress - item.fadeEnd) / (item.fadeStart - item.fadeEnd);
-          el.style.opacity = Math.max(0, opacity);
-        });
+      if (mountainContainer && mountainInner) {
+        if (!isFocusMode) {
+          mountainContainer.style.display = 'none'; // No food consumed during break!
+        } else {
+          mountainContainer.style.display = 'flex';
+          const sinkY = (1 - progress) * 36;
+          mountainInner.style.transform = `translateY(${sinkY}px)`;
+          mountainConfig.forEach((item, idx) => {
+            const el = document.getElementById('mtn-food-' + idx);
+            if (!el) return;
+            let opacity = 1.0;
+            if (progress >= item.fadeStart) opacity = 1.0;
+            else if (progress <= item.fadeEnd) opacity = 0.0;
+            else opacity = (progress - item.fadeEnd) / (item.fadeStart - item.fadeEnd);
+            el.style.opacity = Math.max(0, opacity);
+          });
+        }
       }
 
       const feastPct = Math.round(progress * 100);
       const feastLabel = document.getElementById('feast-status-text');
       const foodIcon = document.getElementById('active-food-icon');
       if (foodIcon) {
-        foodIcon.innerText = foodList[currentItemIdx % foodList.length].icon;
+        foodIcon.innerText = isFocusMode ? foodList[currentItemIdx % foodList.length].icon : (state.mode === 'shortBreak' ? '☕' : '🌿');
       }
       if (feastLabel) {
-        if (state.remaining === 0) {
+        if (!isFocusMode) {
+          feastLabel.innerText = '☕ ' + (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': REST & SMILE';
+        } else if (state.remaining === 0) {
           feastLabel.innerText = '🎉 ALL FEAST DEVOURED! FOCUS COMPLETE';
+        } else if (state.isRunning) {
+          feastLabel.innerText = 'FEAST IN PROGRESS: ' + feastPct + '% REMAINING';
         } else {
-          feastLabel.innerText = 'FEAST: ' + feastPct + '% REMAINING';
+          feastLabel.innerText = 'FEAST: ' + feastPct + '% REMAINING (READY)';
         }
       }
 
       // Organic Progress 2: Boy's Water Pond Shrinking Seamlessly
       const waterPool = document.getElementById('boy-water-pool');
       if (waterPool) {
-        // Continuous seamless scaling
-        const poolScale = 0.16 + 0.84 * progress;
-        waterPool.style.transform = `scale(${poolScale})`;
-        waterPool.style.opacity = Math.max(0.1, progress * 0.9 + 0.1);
+        if (!isFocusMode) {
+          // No water absorbed during break!
+          waterPool.style.transform = 'scale(0.18)';
+          waterPool.style.opacity = '0.35';
+        } else {
+          const poolScale = 0.16 + 0.84 * progress;
+          waterPool.style.transform = `scale(${poolScale})`;
+          waterPool.style.opacity = Math.max(0.1, progress * 0.9 + 0.1);
+        }
       }
 
       const waterLabel = document.getElementById('water-level-text');
       if (waterLabel) {
         const waterPct = Math.round(progress * 100);
-        if (waterPct > 0) {
-          waterLabel.innerText = '💧 WATER LEVEL: ' + waterPct + '% (ABSORBING)';
+        if (!isFocusMode) {
+          waterLabel.innerText = '🌿 ' + (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': TRANQUILITY (NO ABSORPTION)';
+          waterLabel.className = 'text-[10px] font-extrabold text-[#27ABA4]';
+        } else if (waterPct > 0) {
+          waterLabel.innerText = state.isRunning
+            ? '💧 WATER LEVEL: ' + waterPct + '% (ABSORBING)'
+            : '💧 WATER LEVEL: ' + waterPct + '% (READY)';
           waterLabel.className = 'text-[10px] font-extrabold text-[#27ABA4]';
         } else {
           waterLabel.innerText = '✨ PURIFICATION COMPLETE! TRANQUILITY ACHIEVED';
@@ -1006,7 +1046,9 @@
       const stageBloomOverlay = document.getElementById('stage-bloom-overlay');
 
       const isEnhancer = state.activeChar === 'enhancer';
-      const shouldAnimate = state.isRunning && state.showFocusAnimation;
+      const isFocus = state.mode === 'focus';
+      const isActionPhase = state.isRunning && isFocus && focusCyclePhase === 1;
+      const shouldAnimate = isActionPhase && state.showFocusAnimation;
 
       if (shouldAnimate) {
         if (isEnhancer) {
@@ -1051,15 +1093,39 @@
       document.getElementById('btn-play').classList.replace('hover:bg-[#27ABA4]', 'hover:bg-[#e05641]');
       document.getElementById('play-text').innerText = 'PAUSE';
       document.getElementById('play-icon').innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-      document.getElementById('char-status').innerText = 'STATUS: IN SESSION';
-      document.getElementById('char-status').className = 'text-[11px] font-extrabold text-[#27ABA4] tracking-wide mt-0.5 uppercase';
 
+      const isBreak = state.mode !== 'focus';
+      document.getElementById('char-status').innerText = isBreak
+        ? 'STATUS: BREAK RELAXATION'
+        : 'STATUS: IN SESSION';
+      document.getElementById('char-status').className = isBreak
+        ? 'text-[11px] font-extrabold text-[#5AB693] tracking-wide mt-0.5 uppercase'
+        : 'text-[11px] font-extrabold text-[#27ABA4] tracking-wide mt-0.5 uppercase';
+
+      // Focus Mode Cycle Loop: Standard (1.5s) -> Action (1.5s) -> Smile (1.5s) -> repeat
+      if (state.mode === 'focus') {
+        if (focusCycleTimer) clearInterval(focusCycleTimer);
+        focusCyclePhase = 0;
+        focusCycleTimer = setInterval(() => {
+          focusCyclePhase = (focusCyclePhase + 1) % 3;
+          updateCharacterSprite();
+          updateItemOverlay();
+        }, 1500);
+      } else {
+        if (focusCycleTimer) {
+          clearInterval(focusCycleTimer);
+          focusCycleTimer = null;
+        }
+        focusCyclePhase = 0;
+      }
+
+      updateCharacterSprite();
       updateItemOverlay();
       if (!itemCycleInterval) {
         itemCycleInterval = setInterval(() => {
           currentItemIdx++;
           updateItemOverlay();
-        }, 3200);
+        }, 4500);
       }
 
       if (state.mode === 'focus' && currentBgmTrack !== 'silent') {
@@ -1083,14 +1149,25 @@
       document.getElementById('btn-play').classList.replace('hover:bg-[#e05641]', 'hover:bg-[#27ABA4]');
       document.getElementById('play-text').innerText = 'RESUME';
       document.getElementById('play-icon').innerHTML = '<path d="M8 5v14l11-7z"/>';
-      document.getElementById('char-status').innerText = 'STATUS: READY';
+
+      const isBreak = state.mode !== 'focus';
+      document.getElementById('char-status').innerText = isBreak
+        ? 'STATUS: BREAK RELAXATION'
+        : 'STATUS: READY';
       document.getElementById('char-status').className = 'text-[11px] font-bold text-slate-400 tracking-wide mt-0.5 uppercase';
+
+      if (focusCycleTimer) {
+        clearInterval(focusCycleTimer);
+        focusCycleTimer = null;
+      }
+      focusCyclePhase = 0;
 
       pauseBgm();
       if (itemCycleInterval) {
         clearInterval(itemCycleInterval);
         itemCycleInterval = null;
       }
+      updateCharacterSprite();
       updateItemOverlay();
       renderTimer();
     }
