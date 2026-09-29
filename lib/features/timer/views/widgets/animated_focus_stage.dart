@@ -585,9 +585,10 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     final double spriteWidth = originalSize.width * _uniformCompanionScale;
     final double spriteHeight = originalSize.height * _uniformCompanionScale;
 
+    // Stable 220x220 bounding box with strictly pinned bottom baseline
     return SizedBox(
-      width: spriteWidth,
-      height: spriteHeight,
+      width: 220,
+      height: 220,
       child: Stack(
         alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
@@ -613,22 +614,26 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
             ),
           ),
 
-          // High-Res Frameless Character Sprite (exact uniform scale, no per-image adjustments)
-          Image.asset(
-            spritePath,
-            key: ValueKey(spritePath),
-            width: spriteWidth,
-            height: spriteHeight,
-            fit: BoxFit.fill,
-            alignment: Alignment.bottomCenter,
-            filterQuality: FilterQuality.high,
-            errorBuilder: (context, error, stackTrace) => SizedBox(
+          // High-Res Frameless Character Sprite (exact uniform scale, pinned to bottom:0, instant swap)
+          Positioned(
+            bottom: 0,
+            child: Image.asset(
+              spritePath,
+              key: ValueKey(spritePath),
               width: spriteWidth,
               height: spriteHeight,
-              child: Center(
-                child: Text(
-                  char.tone == CharacterTone.warm ? '🔥' : '❄️',
-                  style: const TextStyle(fontSize: 54),
+              fit: BoxFit.fill,
+              alignment: Alignment.bottomCenter,
+              filterQuality: FilterQuality.high,
+              gaplessPlayback: true,
+              errorBuilder: (context, error, stackTrace) => SizedBox(
+                width: spriteWidth,
+                height: spriteHeight,
+                child: Center(
+                  child: Text(
+                    char.tone == CharacterTone.warm ? '🔥' : '❄️',
+                    style: const TextStyle(fontSize: 54),
+                  ),
                 ),
               ),
             ),
@@ -645,7 +650,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           // Girl Slime digestion glow pulse during active eating phase
           if (isEnhancer && isActionPhase)
             Positioned(
-              top: 10,
+              bottom: 218.18 - 36,
               child: Opacity(
                 opacity: (math.sin(actionPhaseT * math.pi) * 0.55).clamp(0.0, 1.0),
                 child: Container(
@@ -669,7 +674,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           // Boy Head Sprout water absorption sparkles during active absorption phase
           if (!isEnhancer && isActionPhase)
             Positioned(
-              top: -18,
+              bottom: 171.82 + 4,
               child: Opacity(
                 opacity: (math.sin(actionPhaseT * math.pi) * 0.85).clamp(0.0, 1.0),
                 child: const Row(
@@ -720,7 +725,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     }
 
     return Positioned(
-      top: 0,
+      bottom: 218.18 - 28,
       child: Transform.translate(
         offset: Offset(0, foodY),
         child: Transform.scale(
@@ -769,7 +774,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     }
 
     return Positioned(
-      top: 0,
+      bottom: 171.82 - 20,
       child: Transform.translate(
         offset: Offset(0, bloomY),
         child: Transform.scale(

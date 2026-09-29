@@ -162,17 +162,17 @@
         <!-- CENTER AREA A: ANIMATED FOCUS STAGE (Frameless, Atmospheric, Giant Water / Food Mountain) -->
         <div id="stage-container" class="my-auto flex flex-col items-center justify-center relative w-full overflow-visible">
           <!-- Animation Visual Stage Box -->
-          <div class="relative w-full h-64 flex flex-col items-center justify-center overflow-visible">
+          <div class="relative w-full h-64 overflow-visible">
             
             <!-- GIRL: Stacked Food Mountain Behind Her (Sinks & Fades) -->
-            <div id="girl-food-mountain" class="absolute inset-0 flex items-center justify-center pointer-events-none transition-all duration-700 ease-out z-0">
+            <div id="girl-food-mountain" class="absolute bottom-[58px] inset-x-0 flex items-center justify-center pointer-events-none transition-all duration-700 ease-out z-0">
               <div id="mountain-inner" class="relative w-[320px] h-[180px] transition-all duration-500">
                 <!-- Stacked food elements injected dynamically -->
               </div>
             </div>
 
             <!-- BOY: Massive Arctic Water Pond (Under Cape, Shrinking Seamlessly) -->
-            <div id="boy-water-pool" class="hidden absolute top-[148px] inset-x-0 mx-auto w-[350px] h-[92px] rounded-[100%] bg-gradient-to-r from-[#1E8D87]/90 via-[#48D1CC]/85 to-[#1E8D87]/90 shadow-[0_0_36px_rgba(72,209,204,0.7)] border-2 border-[#6DEBE6] transition-all duration-300 ease-out flex items-center justify-center overflow-hidden pointer-events-none z-0">
+            <div id="boy-water-pool" class="hidden absolute bottom-[18px] inset-x-0 mx-auto w-[350px] h-[92px] rounded-[100%] bg-gradient-to-r from-[#1E8D87]/90 via-[#48D1CC]/85 to-[#1E8D87]/90 shadow-[0_0_36px_rgba(72,209,204,0.7)] border-2 border-[#6DEBE6] transition-all duration-300 ease-out flex items-center justify-center overflow-hidden pointer-events-none z-0">
               <!-- Water Ripple Concentric Circles -->
               <div class="absolute w-[280px] h-[68px] rounded-[100%] border border-white/60 anim-ripple"></div>
               <div class="absolute w-[200px] h-[50px] rounded-[100%] border border-white/50 anim-ripple-delay-1"></div>
@@ -181,27 +181,37 @@
               <div class="absolute w-[56px] h-[18px] rounded-[100%] border border-white/80"></div>
             </div>
 
-            <!-- Frameless Hero Character (No Box/Border) -->
-            <!-- Displayed at uniform scale 1/22.0 across all images -->
-            <div id="stage-char-frame" class="relative z-20 flex flex-col items-center justify-end cursor-pointer pointer-events-auto" onclick="toggleCharacter()">
-              <!-- Soft ground contact shadow -->
-              <div id="char-ground-shadow" class="absolute bottom-1 w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none"></div>
-              <!-- Slime Eating Overlay for Enhancer Girl -->
-              <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute top-[-10px] w-12 h-12 object-contain pointer-events-none z-30" />
-              <!-- Sprout Bloom Overlay for Suppressant Boy -->
-              <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute top-[-14px] w-12 h-12 object-contain pointer-events-none z-30" />
-              <!-- Base Character Image (Frameless) -->
-              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="object-contain filter drop-shadow-md" />
+            <!-- Soft ground contact shadow strictly pinned at feet base -->
+            <div id="char-ground-shadow" class="absolute bottom-[38px] inset-x-0 mx-auto w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none z-10"></div>
+
+            <!-- Pre-rendered Frameless Hero Sprites (Strictly pinned to baseline bottom-[44px]) -->
+            <div id="stage-character-layer" class="absolute bottom-[44px] inset-x-0 flex justify-center items-end pointer-events-none z-20">
+              <div class="relative w-[220px] h-[220px] flex justify-center items-end pointer-events-auto cursor-pointer" onclick="toggleCharacter()">
+                <!-- Enhancer Sprites (Girl) -->
+                <img id="hero-enhancer-std" src="assets/images/character_enhancer.png" alt="Enhancer Normal" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 150px; height: 184.1px; display: block;" />
+                <img id="hero-enhancer-eat" src="assets/images/enhancer_1.png" alt="Enhancer Eating" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 198.2px; height: 218.2px; display: none;" />
+                <img id="hero-enhancer-smile" src="assets/images/enhancer_2.png" alt="Enhancer Smiling" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 155.8px; height: 184.1px; display: none;" />
+
+                <!-- Suppressant Sprites (Boy) -->
+                <img id="hero-suppressant-std" src="assets/images/character_suppressant.png" alt="Suppressant Normal" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 150px; height: 171.8px; display: none;" />
+                <img id="hero-suppressant-drink" src="assets/images/suppressant_1.png" alt="Suppressant Drinking" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 143.2px; height: 171.8px; display: none;" />
+                <img id="hero-suppressant-smile" src="assets/images/suppressant_2.png" alt="Suppressant Finished" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 153px; height: 190.9px; display: none;" />
+
+                <!-- Slime Eating Overlay for Enhancer Girl (Top of head: ~196px above feet) -->
+                <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute bottom-[196px] w-12 h-12 object-contain pointer-events-none z-30" />
+                <!-- Sprout Bloom Overlay for Suppressant Boy (Top of head: ~158px above feet) -->
+                <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute bottom-[158px] w-12 h-12 object-contain pointer-events-none z-30" />
+              </div>
             </div>
 
             <!-- Girl: Feast Status Pill -->
-            <div id="girl-feast-status" class="relative z-30 mt-2 bg-white/95 rounded-full px-3.5 py-1 border border-[#FF715B]/30 shadow-sm text-[10px] font-extrabold text-[#FF715B] flex items-center gap-1.5">
+            <div id="girl-feast-status" class="absolute bottom-[6px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#FF715B]/30 shadow-sm text-[10px] font-extrabold text-[#FF715B] flex items-center gap-1.5 pointer-events-none">
               <span id="active-food-icon" class="text-xs">🍎</span>
               <span id="feast-status-text">FEAST: 100% REMAINING</span>
             </div>
 
             <!-- Suppressant: Water Absorption Status Subtitle -->
-            <div id="boy-water-status" class="hidden relative z-30 mt-2 bg-white/95 rounded-full px-3.5 py-1 border border-[#48D1CC]/40 shadow-sm text-[10px] font-extrabold text-[#27ABA4] flex items-center gap-1.5">
+            <div id="boy-water-status" class="hidden absolute bottom-[6px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#48D1CC]/40 shadow-sm text-[10px] font-extrabold text-[#27ABA4] flex items-center gap-1.5 pointer-events-none">
               <span id="water-level-text">💧 WATER LEVEL: 100% (ABSORBING)</span>
             </div>
 
@@ -617,36 +627,29 @@
       return isEnhancer ? enhancerImgSrc : suppressantImgSrc;
     }
 
-    const companionImageSizes = {
-      'assets/images/character_enhancer.png': { w: 3300, h: 4050 },
-      'assets/images/enhancer_1.png': { w: 4361, h: 4800 },
-      'assets/images/enhancer_2.png': { w: 3428, h: 4050 },
-      'assets/images/character_suppressant.png': { w: 3300, h: 3780 },
-      'assets/images/suppressant_1.png': { w: 3151, h: 3780 },
-      'assets/images/suppressant_2.png': { w: 3365, h: 4200 }
+    const spriteToHeroId = {
+      'assets/images/character_enhancer.png': 'hero-enhancer-std',
+      'assets/images/enhancer_1.png': 'hero-enhancer-eat',
+      'assets/images/enhancer_2.png': 'hero-enhancer-smile',
+      'assets/images/character_suppressant.png': 'hero-suppressant-std',
+      'assets/images/suppressant_1.png': 'hero-suppressant-drink',
+      'assets/images/suppressant_2.png': 'hero-suppressant-smile'
     };
-    const companionUniformScale = 1.0 / 22.0;
 
     function updateCharacterSprite() {
       const sprite = resolveCharacterSprite();
       const charImg = document.getElementById('char-img');
-      const stageCharImg = document.getElementById('stage-char-img');
-      const stageCharFrame = document.getElementById('stage-char-frame');
-
       if (charImg && charImg.getAttribute('src') !== sprite) {
         charImg.src = sprite;
       }
-      if (stageCharImg) {
-        if (stageCharImg.getAttribute('src') !== sprite) stageCharImg.src = sprite;
-        const dims = companionImageSizes[sprite] || { w: 3300, h: 4050 };
-        const dw = Math.round(dims.w * companionUniformScale * 10) / 10;
-        const dh = Math.round(dims.h * companionUniformScale * 10) / 10;
-        stageCharImg.style.width = dw + 'px';
-        stageCharImg.style.height = dh + 'px';
-        stageCharImg.style.transform = 'none'; // Strictly uniform, no code-based scaling
-        if (stageCharFrame) {
-          stageCharFrame.style.width = dw + 'px';
-          stageCharFrame.style.height = dh + 'px';
+
+      // Pre-rendered instant sprite toggle: 0ms switch, zero momentary stretch, zero baseline shift
+      const targetHeroId = spriteToHeroId[sprite];
+      for (const key in spriteToHeroId) {
+        const id = spriteToHeroId[key];
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.display = (id === targetHeroId) ? 'block' : 'none';
         }
       }
     }
