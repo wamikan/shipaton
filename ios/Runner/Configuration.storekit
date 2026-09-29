@@ -1,0 +1,192 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "E2B7A810",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "C0100001",
+      "localizations" : [
+        {
+          "description" : "Quick boost for unlocking premium BGM soundscapes",
+          "displayName" : "Handful of Coins",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "プレミアムBGMやアイテム解放用のコイン100枚",
+          "displayName" : "コインパック (100枚)",
+          "locale" : "ja"
+        }
+      ],
+      "productID" : "coin_pack_100",
+      "referenceName" : "Handful of Coins",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "3.99",
+      "familyShareable" : false,
+      "internalID" : "C0100002",
+      "localizations" : [
+        {
+          "description" : "Unlock Appetite Suppressant and ambient tracks",
+          "displayName" : "Pouch of Coins",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "食欲減退くん（300コイン）やBGM解放用コイン500枚",
+          "displayName" : "コインポーチ (500枚)",
+          "locale" : "ja"
+        }
+      ],
+      "productID" : "coin_pack_500",
+      "referenceName" : "Pouch of Coins",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "7.99",
+      "familyShareable" : false,
+      "internalID" : "C0100003",
+      "localizations" : [
+        {
+          "description" : "Best Value! Unlock all characters, outfits, and future BGM",
+          "displayName" : "Chest of Coins",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "全キャラクター・衣装・BGMコンプリート用コイン1200枚",
+          "displayName" : "コインチェスト (1200枚)",
+          "locale" : "ja"
+        }
+      ],
+      "productID" : "coin_pack_1200",
+      "referenceName" : "Chest of Coins",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "49.99",
+      "familyShareable" : true,
+      "internalID" : "C0100004",
+      "localizations" : [
+        {
+          "description" : "Lifetime access to Nordic Focus Pro",
+          "displayName" : "Lifetime Pro",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Nordic Focus Pro 買い切り無期限プラン",
+          "displayName" : "生涯買い切りプラン",
+          "locale" : "ja"
+        }
+      ],
+      "productID" : "lifetime",
+      "referenceName" : "Lifetime Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "ja_JP",
+    "_storefront" : "JPN",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "7096FF01",
+      "localizations" : [
+        {
+          "description" : "Nordic Focus Pro Subscription",
+          "displayName" : "Nordic Focus Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "name" : "Nordic Focus Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "FF459F01",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Monthly access to Nordic Focus Pro",
+              "displayName" : "Monthly Pro",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Nordic Focus Pro 月額プラン",
+              "displayName" : "月額プラン",
+              "locale" : "ja"
+            }
+          ],
+          "productID" : "monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Monthly Subscription",
+          "subscriptionGroupID" : "7096FF01",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "FF459F02",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Yearly access to Nordic Focus Pro",
+              "displayName" : "Yearly Pro",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Nordic Focus Pro 年額プラン",
+              "displayName" : "年額プラン",
+              "locale" : "ja"
+            }
+          ],
+          "productID" : "yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Yearly Subscription",
+          "subscriptionGroupID" : "7096FF01",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

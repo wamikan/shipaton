@@ -45,17 +45,43 @@ class PurchaseService {
         final offerings = await Purchases.getOfferings();
         final currentOffering = offerings.current;
 
-        if (currentOffering != null) {
+        if (currentOffering != null &&
+            currentOffering.availablePackages.isNotEmpty) {
           final package = currentOffering.availablePackages.firstWhere(
-            (p) => p.identifier == pack.identifier,
+            (p) =>
+                p.identifier == pack.identifier ||
+                p.storeProduct.identifier == pack.identifier,
             orElse: () => currentOffering.availablePackages.first,
           );
 
-          final customerInfo = await Purchases.purchasePackage(package);
-          developer.log('Purchase completed: $customerInfo');
+          final purchaseResult =
+              await Purchases.purchase(PurchaseParams.package(package));
+          developer.log(
+            'Purchase completed via Package: ${purchaseResult.customerInfo}',
+          );
+        } else {
+          // Local StoreKit Configuration fallback: direct StoreProduct lookup
+          final products = await Purchases.getProducts(
+            [pack.identifier],
+            productCategory: ProductCategory.nonSubscription,
+          );
+          if (products.isNotEmpty) {
+            final purchaseResult = await Purchases.purchase(
+              PurchaseParams.storeProduct(products.first),
+            );
+            developer.log(
+              'Purchase completed via StoreProduct: ${purchaseResult.customerInfo}',
+            );
+          } else {
+            developer.log(
+              'No StoreProduct found for ${pack.identifier} in StoreKit.',
+            );
+          }
         }
       } catch (e) {
-        developer.log('RevenueCat purchase failed: $e. Falling back to dev mode credit.');
+        developer.log(
+          'RevenueCat purchase failed/cancelled: $e. Falling back to dev mode credit.',
+        );
       }
     }
 
