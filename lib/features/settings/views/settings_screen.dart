@@ -58,7 +58,39 @@ class SettingsScreen extends ConsumerWidget {
                   onChanged: (val) =>
                       settingsNotifier.updateFocusMinutes(val.round()),
                 ),
-                const Divider(),
+                const SizedBox(height: 6),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [1, 5, 15, 25, 45, 60].map((m) {
+                      final isSelected = settings.focusMinutes == m;
+                      return InkWell(
+                        onTap: () => settingsNotifier.updateFocusMinutes(m),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.surfaceSecondary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            m == 1 ? '1 min (Quick Test)' : '$m mins',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const Divider(height: 24),
                 _buildDurationSlider(
                   context: context,
                   label: 'Short Break',
@@ -70,17 +102,81 @@ class SettingsScreen extends ConsumerWidget {
                   onChanged: (val) =>
                       settingsNotifier.updateShortBreakMinutes(val.round()),
                 ),
-                const Divider(),
+                const SizedBox(height: 6),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [1, 3, 5, 10, 15].map((m) {
+                      final isSelected = settings.shortBreakMinutes == m;
+                      return InkWell(
+                        onTap: () => settingsNotifier.updateShortBreakMinutes(m),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.shortBreakMode
+                                : AppColors.surfaceSecondary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            m == 1 ? '1 min' : '$m mins',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const Divider(height: 24),
                 _buildDurationSlider(
                   context: context,
                   label: 'Long Break',
                   value: settings.longBreakMinutes.toDouble(),
-                  min: 5,
+                  min: 1,
                   max: 45,
                   suffix: 'mins',
                   accentColor: AppColors.longBreakMode,
                   onChanged: (val) =>
                       settingsNotifier.updateLongBreakMinutes(val.round()),
+                ),
+                const SizedBox(height: 6),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [1, 5, 10, 15, 20, 30].map((m) {
+                      final isSelected = settings.longBreakMinutes == m;
+                      return InkWell(
+                        onTap: () => settingsNotifier.updateLongBreakMinutes(m),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.longBreakMode
+                                : AppColors.surfaceSecondary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            m == 1 ? '1 min' : '$m mins',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ],
             ),

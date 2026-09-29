@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../data/models/character_model.dart';
+import '../../../data/models/timer_settings_model.dart';
 import '../../../data/services/audio_service.dart';
 import '../../shop/views/coin_pack_paywall_sheet.dart';
 import '../models/timer_state.dart';
@@ -206,6 +207,10 @@ class TimerScreen extends ConsumerWidget {
                             timerNotifier.switchMode(mode);
                           },
                         ),
+                        if (!timerState.isRunning) ...[
+                          const SizedBox(height: 6),
+                          _buildQuickDurationBar(ref, timerState.mode, settings),
+                        ],
 
                         const Spacer(flex: 1),
 
@@ -239,6 +244,10 @@ class TimerScreen extends ConsumerWidget {
                             timerNotifier.switchMode(mode);
                           },
                         ),
+                        if (!timerState.isRunning) ...[
+                          const SizedBox(height: 6),
+                          _buildQuickDurationBar(ref, timerState.mode, settings),
+                        ],
 
                         const Spacer(flex: 1),
 
@@ -285,5 +294,74 @@ class TimerScreen extends ConsumerWidget {
         ? CharacterModel.suppressant
         : CharacterModel.enhancer;
     ref.read(timerNotifierProvider.notifier).selectCharacter(nextCharacter);
+  }
+
+  Widget _buildQuickDurationBar(WidgetRef ref, PomodoroMode mode, TimerSettingsModel settings) {
+    final List<int> presets = switch (mode) {
+      PomodoroMode.focus => [1, 5, 15, 25, 45, 60],
+      PomodoroMode.shortBreak => [1, 3, 5, 10],
+      PomodoroMode.longBreak => [1, 5, 15, 30],
+    };
+    final int currentVal = switch (mode) {
+      PomodoroMode.focus => settings.focusMinutes,
+      PomodoroMode.shortBreak => settings.shortBreakMinutes,
+      PomodoroMode.longBreak => settings.longBreakMinutes,
+    };
+    final Color activeColor = switch (mode) {
+      PomodoroMode.focus => AppColors.primary,
+      PomodoroMode.shortBreak => AppColors.shortBreakMode,
+      PomodoroMode.longBreak => AppColors.longBreakMode,
+    };
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: presets.map((m) {
+          final isSelected = currentVal == m;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3),
+            child: InkWell(
+              onTap: () {
+                final notifier = ref.read(settingsNotifierProvider.notifier);
+                switch (mode) {
+                  case PomodoroMode.focus:
+                    notifier.updateFocusMinutes(m);
+                    break;
+                  case PomodoroMode.shortBreak:
+                    notifier.updateShortBreakMinutes(m);
+                    break;
+                  case PomodoroMode.longBreak:
+                    notifier.updateLongBreakMinutes(m);
+                    break;
+                }
+                ref.read(timerNotifierProvider.notifier).reset();
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isSelected ? activeColor.withValues(alpha: 0.15) : AppColors.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected ? activeColor : AppColors.cardBorder,
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Text(
+                  m == 1 ? '⚡ 1m' : '$m min',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    color: isSelected ? activeColor : AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
   }
 }

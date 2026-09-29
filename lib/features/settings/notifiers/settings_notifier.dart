@@ -14,7 +14,7 @@ class SettingsNotifier extends StateNotifier<TimerSettingsModel> {
   SettingsNotifier(this._repository) : super(_repository.loadSettings());
 
   Future<void> updateFocusMinutes(int minutes) async {
-    final updated = state.copyWith(focusMinutes: minutes.clamp(5, 90));
+    final updated = state.copyWith(focusMinutes: minutes.clamp(1, 90));
     await _repository.saveSettings(updated);
     state = updated;
   }
@@ -26,7 +26,7 @@ class SettingsNotifier extends StateNotifier<TimerSettingsModel> {
   }
 
   Future<void> updateLongBreakMinutes(int minutes) async {
-    final updated = state.copyWith(longBreakMinutes: minutes.clamp(5, 60));
+    final updated = state.copyWith(longBreakMinutes: minutes.clamp(1, 60));
     await _repository.saveSettings(updated);
     state = updated;
   }
