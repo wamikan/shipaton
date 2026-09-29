@@ -24,8 +24,8 @@ class AppAssets {
   // Ambient Sounds
   static const String ambientForest = 'assets/audio/ambient/forest.mp3';
   static const String ambientRain = 'assets/audio/ambient/rain.mp3';
-  static const String ambientRiver = 'assets/audio/ambient/river.mp3';
-  static const String ambientWhiteNoise = 'assets/audio/ambient/white_noise.mp3';
+  static const String ambientRainNature = 'assets/audio/ambient/rainnature.mp3';
+  static const String ambientPositive = 'assets/audio/ambient/positive.mp3';
 
   // SFX Sounds
   static const String sfxBell = 'assets/audio/sfx/bell.mp3';

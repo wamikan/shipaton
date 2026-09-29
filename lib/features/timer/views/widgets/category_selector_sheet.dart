@@ -17,7 +17,7 @@ class CategorySelectorSheet extends ConsumerWidget {
     );
   }
 
-  void _showAddCategoryDialog(BuildContext context, WidgetRef ref) {
+  static void showAddCategoryDialog(BuildContext context, WidgetRef ref) {
     final nameController = TextEditingController();
     String selectedEmoji = '📝';
     const emojis = ['📝', '📐', '📚', '💻', '🎨', '🏃', '🔬', '🎸', '🗣️', '☕'];
@@ -298,7 +298,7 @@ class CategorySelectorSheet extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _showAddCategoryDialog(context, ref),
+                onPressed: () => showAddCategoryDialog(context, ref),
                 icon: const Icon(Icons.add_rounded, size: 20),
                 label: const Text('Add Custom Category', style: TextStyle(fontWeight: FontWeight.w700)),
                 style: OutlinedButton.styleFrom(

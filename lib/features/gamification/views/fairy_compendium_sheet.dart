@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_typography.dart';
 import '../../../data/constants/fairy_messages_catalog.dart';
 import '../../../data/models/focus_stats_model.dart';
+import '../../timer/views/widgets/category_selector_sheet.dart';
 import '../notifiers/focus_stats_notifier.dart';
 
 /// Modal bottom sheet displaying the Fairy Message Compendium (Quote Archive).
@@ -33,12 +34,12 @@ class FairyCompendiumSheet extends ConsumerStatefulWidget {
 }
 
 class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
-  late String _selectedCharId;
+  late String _selectedTab;
 
   @override
   void initState() {
     super.initState();
-    _selectedCharId = widget.initialCharacterId;
+    _selectedTab = widget.initialCharacterId;
   }
 
   String _formatMinutes(int minutes) {
@@ -62,14 +63,6 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
   @override
   Widget build(BuildContext context) {
     final statsState = ref.watch(focusStatsNotifierProvider);
-    final affectionInfo = statsState.getAffection(_selectedCharId);
-    final isEnhancer = _selectedCharId == 'enhancer';
-    final charName = isEnhancer ? 'Appetite Enhancer' : 'Appetite Suppressant';
-    final primaryColor = isEnhancer ? AppColors.enhancerPrimary : AppColors.suppressantPrimary;
-    final bgColor = isEnhancer ? AppColors.enhancerBg : AppColors.suppressantBg;
-
-    final allMessages = FairyMessagesCatalog.getMessagesForCharacter(_selectedCharId);
-    final unlockedCount = allMessages.where((m) => m.requiredLevel <= affectionInfo.level).length;
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.88,
@@ -113,7 +106,7 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                 ),
                 const SizedBox(height: 8),
 
-                // Character Tab Selector
+                // 3-Tab Selector
                 Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
@@ -123,20 +116,29 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: _buildCharTab(
+                        child: _buildTab(
                           id: 'enhancer',
                           label: '🍓 Enhancer',
-                          isSelected: isEnhancer,
+                          isSelected: _selectedTab == 'enhancer',
                           activeColor: AppColors.enhancerPrimary,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Expanded(
-                        child: _buildCharTab(
+                        child: _buildTab(
                           id: 'suppressant',
                           label: '💧 Suppressant',
-                          isSelected: !isEnhancer,
+                          isSelected: _selectedTab == 'suppressant',
                           activeColor: AppColors.suppressantPrimary,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: _buildTab(
+                          id: 'categories',
+                          label: '📊 Categories',
+                          isSelected: _selectedTab == 'categories',
+                          activeColor: AppColors.primaryDark,
                         ),
                       ),
                     ],
@@ -149,186 +151,26 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
 
           // Scrollable Body
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              physics: const BouncingScrollPhysics(),
-              children: [
-                // Affection Status Card
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    borderRadius: BorderRadius.circular(22),
-                    border: Border.all(color: primaryColor.withValues(alpha: 0.3)),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: primaryColor, width: 2),
-                            ),
-                            child: ClipOval(
-                              child: Image.asset(
-                                isEnhancer ? AppAssets.characterEnhancer : AppAssets.characterSuppressant,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      charName,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w800,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: primaryColor,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        'Lv.${affectionInfo.level} ${affectionInfo.levelName}',
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  'Total Focus: ${_formatMinutes(affectionInfo.totalMinutes)}',
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Level Progress Bar
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                affectionInfo.nextLevelThreshold != null
-                                    ? 'To Friendship Lv.${affectionInfo.level + 1}'
-                                    : 'MAX Friendship (Lv.5) Reached!',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                              Text(
-                                affectionInfo.nextLevelThreshold != null
-                                    ? '${affectionInfo.totalMinutes} / ${affectionInfo.nextLevelThreshold} mins'
-                                    : 'MAX',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: primaryColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: LinearProgressIndicator(
-                              value: affectionInfo.progressToNext,
-                              minHeight: 8,
-                              backgroundColor: AppColors.surface,
-                              valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Collection Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Unlocked Quotes', style: AppTypography.sectionTitle),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceSecondary,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        'Collected: $unlockedCount / ${allMessages.length}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: unlockedCount == allMessages.length ? primaryColor : AppColors.textSecondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Messages List
-                ...allMessages.map((msg) {
-                  final isUnlocked = msg.requiredLevel <= affectionInfo.level;
-                  return _buildMessageCard(
-                    message: msg,
-                    isUnlocked: isUnlocked,
-                    primaryColor: primaryColor,
-                    isEnhancer: isEnhancer,
-                  );
-                }),
-                const SizedBox(height: 24),
-              ],
-            ),
+            child: _selectedTab == 'categories'
+                ? _buildCategoriesBody(context, ref, statsState)
+                : _buildFairyBody(context, ref, statsState, _selectedTab),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCharTab({
+  Widget _buildTab({
     required String id,
     required String label,
     required bool isSelected,
     required Color activeColor,
   }) {
     return InkWell(
-      onTap: () => setState(() => _selectedCharId = id),
+      onTap: () => setState(() => _selectedTab = id),
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 9),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isSelected ? AppColors.surface : Colors.transparent,
@@ -345,13 +187,466 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
         ),
         child: Text(
           label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
             color: isSelected ? activeColor : AppColors.textSecondary,
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFairyBody(
+    BuildContext context,
+    WidgetRef ref,
+    FocusStatsState statsState,
+    String characterId,
+  ) {
+    final affectionInfo = statsState.getAffection(characterId);
+    final isEnhancer = characterId == 'enhancer';
+    final charName = isEnhancer ? 'Appetite Enhancer' : 'Appetite Suppressant';
+    final primaryColor = isEnhancer ? AppColors.enhancerPrimary : AppColors.suppressantPrimary;
+    final bgColor = isEnhancer ? AppColors.enhancerBg : AppColors.suppressantBg;
+
+    final allMessages = FairyMessagesCatalog.getMessagesForCharacter(characterId);
+    final unlockedCount = allMessages.where((m) => m.requiredLevel <= affectionInfo.level).length;
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      physics: const BouncingScrollPhysics(),
+      children: [
+        // Affection Status Card
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: primaryColor.withValues(alpha: 0.3)),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: primaryColor, width: 2),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        isEnhancer ? AppAssets.characterEnhancer : AppAssets.characterSuppressant,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [
+                            Text(
+                              charName,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: primaryColor,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Text(
+                                'Lv.${affectionInfo.level} ${affectionInfo.levelName}',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Total Focus: ${_formatMinutes(affectionInfo.totalMinutes)}',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // Level Progress Bar
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          affectionInfo.nextLevelThreshold != null
+                              ? 'To Friendship Lv.${affectionInfo.level + 1}'
+                              : 'MAX Friendship (Lv.5) Reached!',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        affectionInfo.nextLevelThreshold != null
+                            ? '${affectionInfo.totalMinutes} / ${affectionInfo.nextLevelThreshold} mins'
+                            : 'MAX',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      value: affectionInfo.progressToNext,
+                      minHeight: 8,
+                      backgroundColor: AppColors.surface,
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Collection Header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Unlocked Quotes', style: AppTypography.sectionTitle),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSecondary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                'Collected: $unlockedCount / ${allMessages.length}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: unlockedCount == allMessages.length ? primaryColor : AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // Messages List
+        ...allMessages.map((msg) {
+          final isUnlocked = msg.requiredLevel <= affectionInfo.level;
+          return _buildMessageCard(
+            message: msg,
+            isUnlocked: isUnlocked,
+            primaryColor: primaryColor,
+            isEnhancer: isEnhancer,
+          );
+        }),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildCategoriesBody(
+    BuildContext context,
+    WidgetRef ref,
+    FocusStatsState statsState,
+  ) {
+    final totalCategoryMinutes = statsState.categories.fold<int>(
+      0,
+      (sum, c) => sum + c.totalMinutes,
+    );
+
+    return ListView(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      physics: const BouncingScrollPhysics(),
+      children: [
+        // Total Category Focus Overview Card
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: AppColors.primarySubtle,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.timelapse_rounded, color: Colors.white, size: 26),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Total Categorized Focus',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _formatMinutes(totalCategoryMinutes),
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.primaryDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Tracked across ${statsState.categories.length} activity categories. Time automatically accumulates whenever you complete a focus session.',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+
+        // Section Header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Focus by Category', style: AppTypography.sectionTitle),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceSecondary,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${statsState.categories.length} Categories',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+
+        // List of Categories
+        ...statsState.categories.map((cat) {
+          final isActive = cat.id == statsState.activeCategoryId;
+          final double ratio = totalCategoryMinutes > 0
+              ? (cat.totalMinutes / totalCategoryMinutes).clamp(0.0, 1.0)
+              : 0.0;
+          final percent = (ratio * 100).toStringAsFixed(0);
+
+          return InkWell(
+            onTap: () {
+              ref.read(focusStatsNotifierProvider.notifier).selectCategory(cat.id);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Selected "${cat.name}" as active category!'),
+                  duration: const Duration(seconds: 1),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isActive
+                      ? AppColors.primary.withValues(alpha: 0.5)
+                      : AppColors.cardBorder.withValues(alpha: 0.6),
+                  width: isActive ? 1.5 : 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.03),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 42,
+                        height: 42,
+                        decoration: const BoxDecoration(
+                          color: AppColors.surfaceSecondary,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(cat.icon, style: const TextStyle(fontSize: 20)),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    cat.name,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (isActive) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      'ACTIVE',
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.primaryDark,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                if (cat.isCustom) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceSecondary,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      'CUSTOM',
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${_formatMinutes(cat.totalMinutes)} focused  ($percent%)',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: ratio,
+                      minHeight: 6,
+                      backgroundColor: AppColors.surfaceSecondary,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        isActive ? AppColors.primary : AppColors.primaryDark.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+        const SizedBox(height: 12),
+
+        // Add Custom Category Button
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => CategorySelectorSheet.showAddCategoryDialog(context, ref),
+            icon: const Icon(Icons.add_rounded, size: 20),
+            label: const Text('Add Custom Category', style: TextStyle(fontWeight: FontWeight.w700)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primaryDark,
+              side: const BorderSide(color: AppColors.primary, width: 1.5),
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
     );
   }
 
@@ -432,23 +727,29 @@ class _FairyCompendiumSheetState extends ConsumerState<FairyCompendiumSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Text(
-                    isEnhancer ? '🍓' : '💧',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    message.title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
+              Expanded(
+                child: Row(
+                  children: [
+                    Text(
+                      isEnhancer ? '🍓' : '💧',
+                      style: const TextStyle(fontSize: 16),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        message.title,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
