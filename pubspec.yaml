@@ -14,7 +14,7 @@ dependencies:
   flutter_riverpod: ^2.5.1
   shared_preferences: ^2.3.2
   just_audio: ^0.9.40
-  purchases_flutter: ^8.0.0
+  purchases_flutter: ^10.13.2
 
 dev_dependencies:
   flutter_test:
