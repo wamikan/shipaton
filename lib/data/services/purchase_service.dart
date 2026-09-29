@@ -6,8 +6,8 @@ import '../../features/gamification/notifiers/coin_notifier.dart';
 import '../../features/shop/models/coin_pack_model.dart';
 
 /// Configuration key for RevenueCat.
-/// Replace with your actual RevenueCat public API key when publishing.
-const String kRevenueCatApiKey = '';
+/// Public/Test API key configured from RevenueCat dashboard.
+const String kRevenueCatApiKey = 'test_rRcJQxBcsXQvDezpzkXJFWPpTir';
 
 /// Service managing In-App Purchases (RevenueCat) for Coin Packs.
 class PurchaseService {
