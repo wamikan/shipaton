@@ -299,10 +299,10 @@
                 <span class="text-[9px] font-extrabold bg-[#27ABA4]/15 text-[#27ABA4] px-1.5 py-0.5 rounded uppercase">❄️ COOL SAGE</span>
                 <h3 class="text-xs font-extrabold text-[#162529] mt-0.5">Appetite Suppressant (Boy)</h3>
                 <p class="text-[11px] font-semibold text-[#516970]">Absorbs water for deep calm</p>
-                <span id="cost-suppressant" class="text-[11px] font-extrabold text-[#D98209]">🪙 300 Coins</span>
+                <span id="cost-suppressant" class="text-[11px] font-semibold text-[#27ABA4]">✓ Unlocked</span>
               </div>
             </div>
-            <button id="btn-buy-suppressant" onclick="buyOrEquipSuppressant()" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#48D1CC] text-white shadow-sm hover:bg-[#27ABA4] active:scale-95 transition">Unlock</button>
+            <button id="btn-buy-suppressant" onclick="buyOrEquipSuppressant()" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition">Equip</button>
           </div>
 
           <!-- Item 3: Glacier Stream Soundscape -->
@@ -957,7 +957,7 @@
     // App State
     const state = {
       coins: 100,
-      suppressantUnlocked: false,
+      suppressantUnlocked: true,
       streamUnlocked: false,
       activeChar: 'enhancer',
       mode: 'focus',
@@ -1455,21 +1455,8 @@
     }
 
     function buyOrEquipSuppressant() {
-      if (state.suppressantUnlocked) {
-        setActiveCharacter('suppressant');
-        switchTab('timer');
-      } else {
-        if (state.coins >= 300) {
-          state.coins -= 300;
-          state.suppressantUnlocked = true;
-          updateCoinDisplay();
-          setActiveCharacter('suppressant');
-          playCoinChime();
-          switchTab('timer');
-        } else {
-          openPaywallSheet();
-        }
-      }
+      setActiveCharacter('suppressant');
+      switchTab('timer');
     }
 
     function buySound(trackId, cost) {

@@ -97,8 +97,8 @@ class CharacterModel {
     primaryColor: AppColors.suppressantPrimary,
     backgroundColor: AppColors.suppressantBg,
     borderColor: AppColors.suppressantBorder,
-    unlockCost: 300,
-    isUnlocked: false,
+    unlockCost: 0,
+    isUnlocked: true,
   );
 
   static List<CharacterModel> get defaultRoster => [enhancer, suppressant];

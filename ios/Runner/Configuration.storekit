@@ -40,12 +40,12 @@
       "internalID" : "C0100002",
       "localizations" : [
         {
-          "description" : "Unlock Appetite Suppressant and ambient tracks",
+          "description" : "Unlock premium soundscapes and future companions",
           "displayName" : "Pouch of Coins",
           "locale" : "en_US"
         },
         {
-          "description" : "食欲減退くん（300コイン）やBGM解放用コイン500枚",
+          "description" : "プレミアムBGMや追加妖精の解放用コイン500枚",
           "displayName" : "コインポーチ (500枚)",
           "locale" : "ja"
         }

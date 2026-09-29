@@ -4,7 +4,7 @@
 ## 1. Overview
 The **Shipaton Pomodoro Timer** implements a gamified Nordic in-app economy powered by the **RevenueCat SDK (`purchases_flutter: ^8.0.0`)**.
 
-Users can earn currency (**Coins**) either organically by completing Pomodoro focus sessions (e.g. 10 Coins per session) or instantly through **Consumable Coin Packs** via In-App Purchases. Coins are spent in the **In-App Shop** to unlock character companions (such as *Appetite Suppressant* for 300 Coins) and premium ambient soundscapes.
+Users can earn currency (**Coins**) either organically by completing Pomodoro focus sessions (e.g. 10 Coins per session) or instantly through **Consumable Coin Packs** via In-App Purchases. Coins are spent in the **In-App Shop** to unlock premium ambient soundscapes and future character companions.
 
 ---
 
@@ -13,8 +13,8 @@ Users can earn currency (**Coins**) either organically by completing Pomodoro fo
 | Product Title | Product Identifier | Price | Coins Credited | Target Value Proposition |
 | :--- | :--- | :--- | :--- | :--- |
 | **Handful of Coins** | `coin_pack_100` | $0.99 | +100 Coins | Quick top-up for soundscapes |
-| **Pouch of Coins** (Popular) | `coin_pack_500` | $3.99 | +500 Coins | Instantly unlock companion Imp (300 Coins) |
-| **Chest of Coins** (Best Value) | `coin_pack_1200` | $7.99 | +1,200 Coins | Complete catalog & all characters |
+| **Pouch of Coins** (Popular) | `coin_pack_500` | $3.99 | +500 Coins | Unlock premium soundscapes & future companions |
+| **Chest of Coins** (Best Value) | `coin_pack_1200` | $7.99 | +1,200 Coins | Complete catalog & all items |
 
 ---
 

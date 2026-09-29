@@ -12,11 +12,12 @@ class ShopRepository {
   /// Retrieves list of unlocked item IDs.
   Set<String> getUnlockedItemIds() {
     final list = _prefs.getStringList(_unlockedItemsKey);
-    if (list == null || list.isEmpty) {
-      // Default free items
-      return {'enhancer', 'rain', 'forest'};
-    }
-    return list.toSet();
+    final items = list != null && list.isNotEmpty
+        ? list.toSet()
+        : <String>{};
+    // Default starter fairies & ambient tracks are always unlocked
+    items.addAll({'enhancer', 'suppressant', 'rain', 'forest'});
+    return items;
   }
 
   /// Persists a newly unlocked item ID.

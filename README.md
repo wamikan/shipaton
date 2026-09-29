@@ -18,9 +18,9 @@
    - **Seamless Auto-Rest Transition**: When claiming focus session rewards, the app automatically transitions and starts the rest break countdown without friction.
 
 2. **Charming Imp Companions**
-   - **Appetite Enhancer** (Warm tones, playful): Default companion celebrating deep focus streaks.
-   - **Appetite Suppressant** (Cool cyan tones, serene): Unlockable companion in the shop for 300 Coins.
-   - Character artwork embedded directly with floating/breathing feedback and celebratory dialogs.
+   - **Appetite Enhancer** (Warm tones, playful): Lively imp celebrating focus with delicious Nordic forest treats.
+   - **Appetite Suppressant** (Cool cyan tones, serene): Calming imp absorbing ripples of water for deep serenity.
+   - Switch freely between companions on the timer screen or shop, and build friendship affection with both!
 
 3. **Multi-Track Audio Player**
    - Ambient soundscape loops: Nordic Rain, Mountain River, Pine Forest, and Deep Concentration White Noise.

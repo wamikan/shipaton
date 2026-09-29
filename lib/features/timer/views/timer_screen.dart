@@ -5,6 +5,7 @@ import '../../../core/constants/app_typography.dart';
 import '../../../data/models/character_model.dart';
 import '../../../data/models/timer_settings_model.dart';
 import '../../../data/services/audio_service.dart';
+import '../../shop/notifiers/shop_notifier.dart';
 import '../../shop/views/coin_pack_paywall_sheet.dart';
 import '../models/timer_state.dart';
 import '../notifiers/timer_notifier.dart';
@@ -293,7 +294,7 @@ class TimerScreen extends ConsumerWidget {
     final nextCharacter = state.selectedCharacter.id == 'enhancer'
         ? CharacterModel.suppressant
         : CharacterModel.enhancer;
-    ref.read(timerNotifierProvider.notifier).selectCharacter(nextCharacter);
+    ref.read(shopNotifierProvider.notifier).equipCharacter(nextCharacter.id);
   }
 
   Widget _buildQuickDurationBar(WidgetRef ref, PomodoroMode mode, TimerSettingsModel settings) {

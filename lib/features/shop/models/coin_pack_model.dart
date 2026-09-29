@@ -34,7 +34,7 @@ class CoinPackModel {
       title: 'Pouch of Coins',
       coins: 500,
       priceString: '\$3.99',
-      description: 'Unlock Appetite Suppressant (300 Coins) and ambient tracks',
+      description: 'Unlock premium ambient tracks and future companions',
       isPopular: true,
       icon: Icons.savings_outlined,
     ),
