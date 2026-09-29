@@ -68,9 +68,20 @@
     .anim-ripple-delay-2 {
       animation: rippleIn 2.6s ease-out infinite 1.7s;
     }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
 <body class="bg-slate-100 flex items-center justify-center min-h-screen p-4 font-sans text-slate-800 antialiased">
+
+  <!-- Hidden HTML5 Audio Element for Local MP3 playback -->
+  <audio id="bgm-audio-player" loop preload="auto"></audio>
 
   <!-- Mobile Device Shell (Apple HIG Geometry) -->
   <div class="w-full max-w-[390px] h-[820px] bg-[#F6F9FA] rounded-[44px] shadow-2xl border-[6px] border-slate-800 flex flex-col overflow-hidden relative select-none">
@@ -82,22 +93,26 @@
     </div>
 
     <!-- Main Screen Content Area -->
-    <div class="flex-1 flex flex-col overflow-y-auto relative pb-20 pt-2">
+    <div class="flex-1 flex flex-col overflow-y-auto relative pb-20 pt-2 no-scrollbar">
       
       <!-- SCREEN 1: TIMER (FOCUS) -->
       <div id="tab-timer" class="flex-1 flex flex-col px-5">
         <!-- App Bar Header -->
-        <div class="flex items-center justify-between mt-2 mb-2">
+        <div class="flex items-center justify-between mt-2 mb-1.5">
           <div>
             <div class="flex items-center gap-1.5">
               <h1 class="text-xl font-extrabold tracking-tight text-[#162529]">Nordic Focus</h1>
-              <span class="text-[9px] font-extrabold bg-[#48D1CC]/20 text-[#27ABA4] px-1.5 py-0.5 rounded">10s TEST</span>
+              <span id="test-mode-badge" onclick="toggleTestModeSpeed()" class="text-[9px] font-extrabold bg-[#48D1CC]/20 text-[#27ABA4] px-1.5 py-0.5 rounded cursor-pointer hover:bg-[#48D1CC]/30 transition" title="Click to toggle standard minutes vs 10s speed">10s DEMO</span>
             </div>
             <p id="session-badge" class="text-xs font-bold text-[#8BA2A8] tracking-wider uppercase">SESSION #1</p>
           </div>
-          <div class="flex items-center space-x-2">
-            <!-- Soundscape / BGM Button -->
-            <button id="btn-sound-toggle" onclick="openSoundSheet()" class="h-9 px-2.5 rounded-full bg-white border border-[#E2ECEE] flex items-center justify-center gap-1.5 text-slate-600 hover:text-[#27ABA4] shadow-sm transition active:scale-95" title="BGM Soundscapes">
+          <div class="flex items-center space-x-1.5">
+            <!-- 📖 Fairy Compendium / Archive Button -->
+            <button onclick="openCompendium()" class="w-9 h-9 rounded-full bg-white border border-[#E2ECEE] flex items-center justify-center text-slate-700 hover:text-[#27ABA4] shadow-sm transition active:scale-95" title="Fairy Archive">
+              <span class="text-sm">📖</span>
+            </button>
+            <!-- 🎵 Soundscape / BGM Button -->
+            <button id="btn-sound-toggle" onclick="openSoundSheet()" class="h-9 px-2.5 rounded-full bg-white border border-[#E2ECEE] flex items-center justify-center gap-1.5 text-slate-600 hover:text-[#27ABA4] shadow-sm transition active:scale-95" title="Soundscapes">
               <span id="eq-visualizer" class="hidden flex items-end gap-0.5 h-3.5">
                 <span class="w-1 bg-[#27ABA4] rounded-full eq-bar-1"></span>
                 <span class="w-1 bg-[#27ABA4] rounded-full eq-bar-2"></span>
@@ -105,8 +120,8 @@
               </span>
               <svg id="icon-sound" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
             </button>
-            <!-- Coin Balance Badge -->
-            <div onclick="openPaywallSheet()" class="flex items-center space-x-1.5 bg-[#FFF3DB] border border-[#F5A623]/40 px-3 py-1 rounded-full cursor-pointer hover:scale-105 transition active:scale-95 shadow-sm">
+            <!-- 🪙 Coin Balance Badge -->
+            <div onclick="openPaywallSheet()" class="flex items-center space-x-1 bg-[#FFF3DB] border border-[#F5A623]/40 px-2.5 py-1 rounded-full cursor-pointer hover:scale-105 transition active:scale-95 shadow-sm">
               <span class="text-xs">🪙</span>
               <span id="coin-display" class="text-xs font-extrabold text-[#D98209]">100</span>
               <span class="text-[#D98209] text-xs font-black">+</span>
@@ -114,58 +129,72 @@
           </div>
         </div>
 
-        <!-- Classic Companion Card (Visible ONLY when animation is OFF) -->
-        <div id="char-card" class="bg-white rounded-2xl p-3.5 border border-[#E2ECEE] shadow-sm flex items-center mt-1">
-          <div id="char-frame" class="w-16 h-16 rounded-2xl bg-[#FFF1ED] p-1.5 shrink-0 flex items-center justify-center overflow-hidden border border-[#FFDDD5] relative">
-            <img id="char-item-overlay" src="" class="hidden absolute w-7 h-7 object-contain pointer-events-none z-10" />
-            <img id="char-img" src="" alt="Companion" class="w-full h-full object-contain" />
-          </div>
-          <div class="ml-3.5 flex-1 min-w-0">
-            <span id="char-badge" class="inline-block px-2 py-0.5 text-[10px] font-extrabold tracking-wide uppercase rounded-md bg-[#FF715B]/15 text-[#FF715B]">🔥 WARM IMP</span>
-            <h2 id="char-name" class="text-sm font-extrabold text-[#162529] mt-0.5 truncate">Appetite Enhancer</h2>
-            <p id="char-status" class="text-[11px] font-bold text-slate-400 tracking-wide mt-0.5 uppercase">STATUS: READY</p>
-          </div>
-          <button onclick="toggleCharacter()" class="w-9 h-9 rounded-full bg-[#F6F9FA] border border-[#E2ECEE] flex items-center justify-center text-slate-700 hover:bg-[#EEF4F5] shadow-sm ml-1 shrink-0 active:scale-90 transition" title="Switch Companion">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+        <!-- 🏷️ Active Working Category Selector Chip -->
+        <div class="flex justify-center my-1">
+          <button onclick="openCategorySheet()" class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-[#E2ECEE] shadow-2xs hover:border-[#48D1CC] active:scale-95 transition">
+            <span id="active-category-icon" class="text-xs">🎸</span>
+            <span id="active-category-name" class="text-xs font-extrabold text-[#162529]">Guitar</span>
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
           </button>
         </div>
 
-        <!-- Compact Switch Pill (Visible when animation stage is ON) -->
-        <div id="char-switch-pill" class="flex justify-center my-0.5">
-          <button onclick="toggleCharacter()" class="px-4 py-1 rounded-full bg-white border border-[#E2ECEE] shadow-sm flex items-center gap-2 hover:bg-[#EEF4F5] active:scale-95 transition">
-            <span id="stage-char-icon" class="text-xs">🔥</span>
-            <span id="stage-char-name" class="text-xs font-extrabold text-[#162529] tracking-wide">APPETITE ENHANCER</span>
-            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+        <!-- Classic Companion Card (Visible ONLY when animation is OFF) -->
+        <div id="char-card" class="bg-white rounded-2xl p-3 border border-[#E2ECEE] shadow-sm flex items-center mt-1">
+          <div id="char-frame" class="w-14 h-14 rounded-2xl bg-[#FFF1ED] p-1 shrink-0 flex items-center justify-center overflow-hidden border border-[#FFDDD5] relative">
+            <img id="char-item-overlay" src="" class="hidden absolute w-6 h-6 object-contain pointer-events-none z-10" />
+            <img id="char-img" src="" alt="Companion" class="w-full h-full object-contain" />
+          </div>
+          <div class="ml-3 flex-1 min-w-0">
+            <span id="char-badge" class="inline-block px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide uppercase rounded-md bg-[#FF715B]/15 text-[#FF715B]">🔥 WARM IMP</span>
+            <h2 id="char-name" class="text-xs font-extrabold text-[#162529] mt-0.5 truncate">Appetite Enhancer</h2>
+            <p id="char-status" class="text-[10px] font-bold text-slate-400 tracking-wide uppercase">STATUS: READY</p>
+          </div>
+          <button onclick="toggleCharacter()" class="w-8 h-8 rounded-full bg-[#F6F9FA] border border-[#E2ECEE] flex items-center justify-center text-slate-700 hover:bg-[#EEF4F5] shadow-sm ml-1 shrink-0 active:scale-90 transition" title="Switch Companion">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
           </button>
         </div>
 
         <!-- Mode Segmented Selector (M3 Pill Geometry) -->
-        <div class="flex justify-center mt-2 mb-1">
+        <div class="flex justify-center mt-1.5 mb-1">
           <div class="bg-[#EEF4F5] p-1 rounded-full border border-[#E2ECEE] flex space-x-1">
-            <button id="mode-focus" onclick="setMode('focus')" class="px-3.5 py-1.5 rounded-full text-xs font-extrabold transition bg-white text-[#162529] shadow-sm">Focus (10s)</button>
-            <button id="mode-short" onclick="setMode('shortBreak')" class="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#8BA2A8] transition hover:text-slate-700">Short Break (5s)</button>
-            <button id="mode-long" onclick="setMode('longBreak')" class="px-3.5 py-1.5 rounded-full text-xs font-bold text-[#8BA2A8] transition hover:text-slate-700">Long Break (10s)</button>
+            <button id="mode-focus" onclick="setMode('focus')" class="px-3.5 py-1 rounded-full text-xs font-extrabold transition bg-white text-[#162529] shadow-sm">Focus</button>
+            <button id="mode-short" onclick="setMode('shortBreak')" class="px-3.5 py-1 rounded-full text-xs font-bold text-[#8BA2A8] transition hover:text-slate-700">Short Break</button>
+            <button id="mode-long" onclick="setMode('longBreak')" class="px-3.5 py-1 rounded-full text-xs font-bold text-[#8BA2A8] transition hover:text-slate-700">Long Break</button>
           </div>
         </div>
 
+        <!-- ⚡ Quick Duration Presets Bar (Hidden when running) -->
+        <div id="quick-preset-bar" class="flex justify-center items-center gap-1.5 my-1 overflow-x-auto no-scrollbar py-0.5">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Compact Switch Pill (Visible when animation stage is ON) -->
+        <div id="char-switch-pill" class="flex justify-center my-0.5">
+          <button onclick="toggleCharacter()" class="px-3.5 py-0.5 rounded-full bg-white border border-[#E2ECEE] shadow-2xs flex items-center gap-1.5 hover:bg-[#EEF4F5] active:scale-95 transition">
+            <span id="stage-char-icon" class="text-xs">🔥</span>
+            <span id="stage-char-name" class="text-[11px] font-extrabold text-[#162529] tracking-wide">APPETITE ENHANCER</span>
+            <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          </button>
+        </div>
+
         <!-- BGM Status Banner (Minimal Functional Indicator) -->
-        <div class="flex justify-center mb-1">
-          <div onclick="openSoundSheet()" id="bgm-status-banner" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E4F8F7] border border-[#48D1CC]/30 text-[#27ABA4] text-[11px] font-bold hover:bg-[#d5f4f2] active:scale-95 transition shadow-sm">
+        <div class="flex justify-center mb-0.5">
+          <div onclick="openSoundSheet()" id="bgm-status-banner" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#E4F8F7] border border-[#48D1CC]/30 text-[#27ABA4] text-[10px] font-bold hover:bg-[#d5f4f2] active:scale-95 transition shadow-2xs">
             <span class="relative flex h-2 w-2">
               <span id="bgm-pulse" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-[#48D1CC] opacity-75"></span>
               <span id="bgm-dot" class="relative inline-flex rounded-full h-2 w-2 bg-[#27ABA4]"></span>
             </span>
-            <span id="bgm-banner-text">🎵 BGM: Nordic Rain & Piano (Ready)</span>
+            <span id="bgm-banner-text">🎵 BGM: Nordic Rain (Ready)</span>
           </div>
         </div>
 
         <!-- CENTER AREA A: ANIMATED FOCUS STAGE (Frameless, Atmospheric, Giant Water / Food Mountain) -->
         <div id="stage-container" class="my-auto flex flex-col items-center justify-center relative w-full overflow-visible">
           <!-- Animation Visual Stage Box -->
-          <div class="relative w-full h-64 overflow-visible">
+          <div class="relative w-full h-60 overflow-visible">
             
             <!-- GIRL: Stacked Food Mountain Behind Her (Sinks & Fades) -->
-            <div id="girl-food-mountain" class="absolute bottom-[58px] inset-x-0 flex items-center justify-center pointer-events-none transition-all duration-700 ease-out z-0">
+            <div id="girl-food-mountain" class="absolute bottom-[54px] inset-x-0 flex items-center justify-center pointer-events-none transition-all duration-700 ease-out z-0">
               <div id="mountain-inner" class="relative w-[320px] h-[180px] transition-all duration-500">
                 <!-- Stacked food elements injected dynamically -->
               </div>
@@ -173,19 +202,17 @@
 
             <!-- BOY: Massive Arctic Water Pond (Under Cape, Shrinking Seamlessly) -->
             <div id="boy-water-pool" class="hidden absolute bottom-[18px] inset-x-0 mx-auto w-[350px] h-[92px] rounded-[100%] bg-gradient-to-r from-[#1E8D87]/90 via-[#48D1CC]/85 to-[#1E8D87]/90 shadow-[0_0_36px_rgba(72,209,204,0.7)] border-2 border-[#6DEBE6] transition-all duration-300 ease-out flex items-center justify-center overflow-hidden pointer-events-none z-0">
-              <!-- Water Ripple Concentric Circles -->
               <div class="absolute w-[280px] h-[68px] rounded-[100%] border border-white/60 anim-ripple"></div>
               <div class="absolute w-[200px] h-[50px] rounded-[100%] border border-white/50 anim-ripple-delay-1"></div>
               <div class="absolute w-[130px] h-[32px] rounded-[100%] border border-white/40 anim-ripple-delay-2"></div>
-              <!-- Contact Rim right under cape hem -->
               <div class="absolute w-[56px] h-[18px] rounded-[100%] border border-white/80"></div>
             </div>
 
             <!-- Soft ground contact shadow strictly pinned at feet base -->
-            <div id="char-ground-shadow" class="absolute bottom-[38px] inset-x-0 mx-auto w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none z-10"></div>
+            <div id="char-ground-shadow" class="absolute bottom-[36px] inset-x-0 mx-auto w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none z-10"></div>
 
-            <!-- Pre-rendered Frameless Hero Sprites (Strictly pinned to baseline bottom-[44px]) -->
-            <div id="stage-character-layer" class="absolute bottom-[44px] inset-x-0 flex justify-center items-end pointer-events-none z-20">
+            <!-- Pre-rendered Frameless Hero Sprites (Strictly pinned to baseline bottom-[42px]) -->
+            <div id="stage-character-layer" class="absolute bottom-[42px] inset-x-0 flex justify-center items-end pointer-events-none z-20">
               <div class="relative w-[220px] h-[220px] flex justify-center items-end pointer-events-auto cursor-pointer" onclick="toggleCharacter()">
                 <!-- Enhancer Sprites (Girl) -->
                 <img id="hero-enhancer-std" src="assets/images/character_enhancer.png" alt="Enhancer Normal" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 150px; height: 184.1px; display: block;" />
@@ -197,29 +224,29 @@
                 <img id="hero-suppressant-drink" src="assets/images/suppressant_1.png" alt="Suppressant Drinking" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 143.2px; height: 171.8px; display: none;" />
                 <img id="hero-suppressant-smile" src="assets/images/suppressant_2.png" alt="Suppressant Finished" class="absolute bottom-0 object-contain filter drop-shadow-md select-none pointer-events-none" style="width: 153px; height: 190.9px; display: none;" />
 
-                <!-- Slime Eating Overlay for Enhancer Girl (Top of head: ~196px above feet) -->
+                <!-- Slime Eating Overlay for Enhancer Girl -->
                 <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute bottom-[196px] w-12 h-12 object-contain pointer-events-none z-30" />
-                <!-- Sprout Bloom Overlay for Suppressant Boy (Top of head: ~158px above feet) -->
+                <!-- Sprout Bloom Overlay for Suppressant Boy -->
                 <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute bottom-[158px] w-12 h-12 object-contain pointer-events-none z-30" />
               </div>
             </div>
 
             <!-- Girl: Feast Status Pill -->
-            <div id="girl-feast-status" class="absolute bottom-[6px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#FF715B]/30 shadow-sm text-[10px] font-extrabold text-[#FF715B] flex items-center gap-1.5 pointer-events-none">
+            <div id="girl-feast-status" class="absolute bottom-[4px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#FF715B]/30 shadow-sm text-[10px] font-extrabold text-[#FF715B] flex items-center gap-1.5 pointer-events-none">
               <span id="active-food-icon" class="text-xs">🍎</span>
               <span id="feast-status-text">FEAST: 100% REMAINING</span>
             </div>
 
             <!-- Suppressant: Water Absorption Status Subtitle -->
-            <div id="boy-water-status" class="hidden absolute bottom-[6px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#48D1CC]/40 shadow-sm text-[10px] font-extrabold text-[#27ABA4] flex items-center gap-1.5 pointer-events-none">
+            <div id="boy-water-status" class="hidden absolute bottom-[4px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#48D1CC]/40 shadow-sm text-[10px] font-extrabold text-[#27ABA4] flex items-center gap-1.5 pointer-events-none">
               <span id="water-level-text">💧 WATER LEVEL: 100% (ABSORBING)</span>
             </div>
 
           </div>
 
-          <!-- Non-Overlapping Countdown Section (Cleanly Below the Character Stage) -->
-          <div class="mt-2 flex flex-col items-center justify-center">
-            <span id="stage-timer-mode-tag" class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#48D1CC]/15 text-[#27ABA4]">FOCUS</span>
+          <!-- Countdown Section Below Character Stage -->
+          <div class="mt-1 flex flex-col items-center justify-center">
+            <span id="stage-timer-mode-tag" class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#48D1CC]/15 text-[#27ABA4]">FOCUS</span>
             <span id="stage-timer-clock" class="text-5xl font-extrabold tracking-tight text-[#162529] my-0.5 font-mono">00:10</span>
             <span id="stage-timer-sub" class="text-xs font-extrabold text-[#D98209] flex items-center gap-1.5">
               <span>🪙</span> +10 COINS
@@ -229,14 +256,14 @@
 
         <!-- CENTER AREA B: CIRCULAR TIMER (Visible ONLY when Companion Animation is OFF) -->
         <div id="timer-circular-container" class="hidden my-auto flex flex-col items-center justify-center relative">
-          <svg viewBox="0 0 36 36" class="circular-chart w-56 h-56">
+          <svg viewBox="0 0 36 36" class="circular-chart w-52 h-52">
             <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
             <path id="progress-arc" class="circle-progress" stroke-dasharray="100, 100" stroke-dashoffset="0" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
           </svg>
           
           <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span id="timer-mode-tag" class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#48D1CC]/15 text-[#27ABA4]">FOCUS</span>
-            <span id="timer-clock" class="text-6xl font-extrabold tracking-tight text-[#162529] my-1 font-mono">00:10</span>
+            <span id="timer-mode-tag" class="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#48D1CC]/15 text-[#27ABA4]">FOCUS</span>
+            <span id="timer-clock" class="text-5xl font-extrabold tracking-tight text-[#162529] my-1 font-mono">00:10</span>
             <span id="timer-sub" class="text-xs font-extrabold text-[#D98209] flex items-center gap-1.5">
               <span>🪙</span> +10 COINS
             </span>
@@ -244,17 +271,17 @@
         </div>
 
         <!-- Controls Bar -->
-        <div class="flex items-center justify-center space-x-4 mb-4 mt-auto">
-          <button onclick="resetTimer()" title="Reset" class="w-12 h-12 rounded-full bg-white border border-[#E2ECEE] shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-800 active:scale-90 transition">
+        <div class="flex items-center justify-center space-x-3 mb-3 mt-auto">
+          <button onclick="resetTimer()" title="Reset" class="w-11 h-11 rounded-full bg-white border border-[#E2ECEE] shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-800 active:scale-90 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
           </button>
 
-          <button id="btn-play" onclick="toggleTimer()" class="flex-1 h-13 py-3.5 px-6 rounded-full bg-[#48D1CC] text-white font-extrabold text-sm tracking-wider shadow-md hover:bg-[#27ABA4] active:scale-95 transition flex items-center justify-center space-x-2">
-            <svg id="play-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <button id="btn-play" onclick="toggleTimer()" class="flex-1 h-12 py-3 px-6 rounded-full bg-[#48D1CC] text-white font-extrabold text-sm tracking-wider shadow-md hover:bg-[#27ABA4] active:scale-95 transition flex items-center justify-center space-x-2">
+            <svg id="play-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             <span id="play-text">START (10s)</span>
           </button>
 
-          <button onclick="skipTimer()" title="Skip" class="w-12 h-12 rounded-full bg-white border border-[#E2ECEE] shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-800 active:scale-90 transition">
+          <button onclick="skipTimer()" title="Skip" class="w-11 h-11 rounded-full bg-white border border-[#E2ECEE] shadow-sm flex items-center justify-center text-slate-500 hover:text-slate-800 active:scale-90 transition">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
           </button>
         </div>
@@ -274,65 +301,115 @@
         </div>
 
         <div class="space-y-3">
-          <!-- Item 1: Appetite Enhancer (Girl) -->
+          <!-- Characters Section Header -->
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">CHARACTERS</div>
+
+          <!-- Character 1: Appetite Enhancer (Girl) -->
           <div class="bg-white rounded-2xl p-3 border border-[#E2ECEE] shadow-sm flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="w-14 h-14 rounded-2xl bg-[#FFF1ED] p-1 border border-[#FFDDD5] flex items-center justify-center">
-                <img id="shop-enhancer-img" src="assets/images/character_enhancer.png" alt="Enhancer" class="w-full h-full object-contain" />
+              <div class="w-12 h-12 rounded-2xl bg-[#FFF1ED] p-1 border border-[#FFDDD5] flex items-center justify-center">
+                <img src="assets/images/character_enhancer.png" alt="Enhancer" class="w-full h-full object-contain" />
               </div>
               <div>
                 <span class="text-[9px] font-extrabold bg-[#FF715B]/15 text-[#FF715B] px-1.5 py-0.5 rounded uppercase">🔥 WARM IMP</span>
-                <h3 class="text-xs font-extrabold text-[#162529] mt-0.5">Appetite Enhancer (Girl)</h3>
-                <p class="text-[11px] font-semibold text-[#516970]">Active companion</p>
+                <h3 class="text-xs font-extrabold text-[#162529] mt-0.5">Appetite Enhancer</h3>
+                <p class="text-[10px] font-semibold text-[#516970]">Warm & cheerful companion</p>
               </div>
             </div>
             <button id="btn-equip-enhancer" onclick="setActiveCharacter('enhancer')" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default">Equipped</button>
           </div>
 
-          <!-- Item 2: Appetite Suppressant (Boy) -->
+          <!-- Character 2: Appetite Suppressant (Boy) -->
           <div class="bg-white rounded-2xl p-3 border border-[#E2ECEE] shadow-sm flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="w-14 h-14 rounded-2xl bg-[#E4F8F7] p-1 border border-[#48D1CC]/30 flex items-center justify-center">
-                <img id="shop-suppressant-img" src="assets/images/character_suppressant.png" alt="Suppressant" class="w-full h-full object-contain" />
+              <div class="w-12 h-12 rounded-2xl bg-[#E4F8F7] p-1 border border-[#48D1CC]/30 flex items-center justify-center">
+                <img src="assets/images/character_suppressant.png" alt="Suppressant" class="w-full h-full object-contain" />
               </div>
               <div>
                 <span class="text-[9px] font-extrabold bg-[#27ABA4]/15 text-[#27ABA4] px-1.5 py-0.5 rounded uppercase">❄️ COOL SAGE</span>
-                <h3 class="text-xs font-extrabold text-[#162529] mt-0.5">Appetite Suppressant (Boy)</h3>
-                <p class="text-[11px] font-semibold text-[#516970]">Absorbs water for deep calm</p>
-                <span id="cost-suppressant" class="text-[11px] font-semibold text-[#27ABA4]">✓ Unlocked</span>
+                <h3 class="text-xs font-extrabold text-[#162529] mt-0.5">Appetite Suppressant</h3>
+                <p class="text-[10px] font-semibold text-[#516970]">Absorbs water for deep calm</p>
+                <span class="text-[10px] font-semibold text-[#27ABA4]">✓ Unlocked</span>
               </div>
             </div>
-            <button id="btn-buy-suppressant" onclick="buyOrEquipSuppressant()" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition">Equip</button>
+            <button id="btn-buy-suppressant" onclick="setActiveCharacter('suppressant')" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition">Equip</button>
           </div>
 
-          <!-- Item 3: Glacier Stream Soundscape -->
+          <!-- Soundscapes Section Header -->
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1 pt-2">AMBIENT SOUNDSCAPES</div>
+
+          <!-- Sound 1: Nordic Rain -->
           <div class="bg-white rounded-2xl p-3 border border-[#E2ECEE] shadow-sm flex items-center justify-between">
-            <div>
-              <span class="text-[9px] font-extrabold bg-[#5AB693]/20 text-[#5AB693] px-1.5 py-0.5 rounded uppercase">BGM SOUNDSCAPE</span>
-              <h4 class="text-xs font-extrabold text-[#162529]">Glacier Stream BGM</h4>
-              <p class="text-[11px] font-semibold text-[#516970]">Arctic water over mountain stones</p>
-              <span id="cost-stream" class="text-[11px] font-extrabold text-[#D98209]">🪙 150 Coins</span>
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🌧️</span>
+              <div>
+                <span class="text-[9px] font-extrabold bg-[#48D1CC]/20 text-[#27ABA4] px-1.5 py-0.5 rounded uppercase">FREE</span>
+                <h4 class="text-xs font-extrabold text-[#162529] mt-0.5">Nordic Rain</h4>
+                <p class="text-[10px] font-semibold text-[#516970]">Gentle raindrops falling on pine needles</p>
+              </div>
             </div>
-            <button id="btn-stream" onclick="buySound('river_drone', 150)" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#48D1CC] text-white shadow-sm hover:bg-[#27ABA4] active:scale-95 transition">Unlock</button>
+            <button id="btn-shop-rain" onclick="equipSoundFromShop('rain')" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default">Equipped</button>
+          </div>
+
+          <!-- Sound 2: Pine Forest -->
+          <div class="bg-white rounded-2xl p-3 border border-[#E2ECEE] shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🌲</span>
+              <div>
+                <span class="text-[9px] font-extrabold bg-[#48D1CC]/20 text-[#27ABA4] px-1.5 py-0.5 rounded uppercase">FREE</span>
+                <h4 class="text-xs font-extrabold text-[#162529] mt-0.5">Pine Forest</h4>
+                <p class="text-[10px] font-semibold text-[#516970]">Morning breeze through Nordic evergreens</p>
+              </div>
+            </div>
+            <button id="btn-shop-forest" onclick="equipSoundFromShop('forest')" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition">Equip</button>
+          </div>
+
+          <!-- Sound 3: Rain & Nature (On-Jin) -->
+          <div class="bg-white rounded-2xl p-3 border border-[#E2ECEE] shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">🌾</span>
+              <div>
+                <span class="text-[9px] font-extrabold bg-[#F5A623]/20 text-[#D98209] px-1.5 py-0.5 rounded uppercase">ON-JIN (音人)</span>
+                <h4 class="text-xs font-extrabold text-[#162529] mt-0.5">Rain & Nature</h4>
+                <p class="text-[10px] font-semibold text-[#516970]">Gentle forest rain with woodland ambience</p>
+                <span id="cost-rain_nature" class="text-[10px] font-extrabold text-[#D98209]">🪙 150 Coins</span>
+              </div>
+            </div>
+            <button id="btn-shop-rain_nature" onclick="buyOrEquipTrack('rain_nature', 150)" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#48D1CC] text-white shadow-sm hover:bg-[#27ABA4] active:scale-95 transition">Unlock</button>
+          </div>
+
+          <!-- Sound 4: Positive Flow (tunee.ai) -->
+          <div class="bg-white rounded-2xl p-3 border border-[#E2ECEE] shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-2xl">✨</span>
+              <div>
+                <span class="text-[9px] font-extrabold bg-[#A78BFA]/20 text-[#7C3AED] px-1.5 py-0.5 rounded uppercase">TUNEE.AI</span>
+                <h4 class="text-xs font-extrabold text-[#162529] mt-0.5">Positive Flow</h4>
+                <p class="text-[10px] font-semibold text-[#516970]">Uplifting acoustic harmonies for motivation</p>
+                <span id="cost-positive" class="text-[10px] font-extrabold text-[#D98209]">🪙 200 Coins</span>
+              </div>
+            </div>
+            <button id="btn-shop-positive" onclick="buyOrEquipTrack('positive', 200)" class="text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#48D1CC] text-white shadow-sm hover:bg-[#27ABA4] active:scale-95 transition">Unlock</button>
           </div>
         </div>
       </div>
 
       <!-- SCREEN 3: SETTINGS -->
-      <div id="tab-settings" class="hidden flex-1 flex flex-col px-5">
-        <div class="flex items-center justify-between mt-2 mb-4">
+      <div id="tab-settings" class="hidden flex-1 flex flex-col px-5 pb-6">
+        <div class="flex items-center justify-between mt-2 mb-3">
           <div>
             <h1 class="text-xl font-extrabold tracking-tight text-[#162529]">Preferences</h1>
-            <p class="text-xs font-semibold text-[#8BA2A8]">Timer custom durations</p>
+            <p class="text-xs font-semibold text-[#8BA2A8]">Timer & companion settings</p>
           </div>
           <button onclick="resetSettings()" class="text-xs font-extrabold text-[#27ABA4] hover:underline">Reset</button>
         </div>
 
-        <div class="bg-white rounded-2xl p-4 border border-[#E2ECEE] shadow-sm space-y-4">
-          <div class="flex items-center justify-between py-1 border-b border-[#E2ECEE] pb-3">
+        <div class="space-y-4">
+          <!-- Animation Toggle -->
+          <div class="bg-white rounded-2xl p-3.5 border border-[#E2ECEE] shadow-sm flex items-center justify-between">
             <div>
               <p class="text-xs font-extrabold text-[#162529]">Focus Companion Animation</p>
-              <p class="text-[11px] text-[#516970] font-medium">Eating food & water absorption animations</p>
+              <p class="text-[10px] text-[#516970] font-medium">Eating treats & water absorption stage</p>
             </div>
             <label class="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" id="toggle-anim" checked onchange="toggleAnimationSetting(this.checked)" class="sr-only peer">
@@ -341,42 +418,74 @@
           </div>
 
           <!-- Break BGM Playback Setting -->
-          <div class="py-1 border-b border-[#E2ECEE] pb-3">
+          <div class="bg-white rounded-2xl p-3.5 border border-[#E2ECEE] shadow-sm">
             <div class="flex items-center justify-between mb-2">
               <div>
                 <p class="text-xs font-extrabold text-[#162529]">Break BGM Playback</p>
-                <p class="text-[11px] text-[#516970] font-medium">Control music timing across sessions</p>
+                <p class="text-[10px] text-[#516970] font-medium">Control music timing across sessions</p>
               </div>
-              <span id="lbl-settings-bgm-mode" class="text-[10px] font-extrabold text-[#27ABA4] bg-[#48D1CC]/15 px-2 py-0.5 rounded uppercase">ALWAYS</span>
+              <span id="lbl-settings-bgm-mode" class="text-[9px] font-extrabold text-[#27ABA4] bg-[#48D1CC]/15 px-2 py-0.5 rounded uppercase">ALWAYS</span>
             </div>
             <div class="bg-slate-100 p-1 rounded-xl flex gap-1">
-              <button id="btn-set-bgm-always" onclick="setBgmBreakMode('always')" class="flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-xs">Always</button>
-              <button id="btn-set-bgm-focusOnly" onclick="setBgmBreakMode('focusOnly')" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Focus Only</button>
-              <button id="btn-set-bgm-breakOnly" onclick="setBgmBreakMode('breakOnly')" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Break Only</button>
+              <button id="btn-set-bgm-always" onclick="setBgmBreakMode('always')" class="flex-1 py-1 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-2xs">Always</button>
+              <button id="btn-set-bgm-focusOnly" onclick="setBgmBreakMode('focusOnly')" class="flex-1 py-1 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Focus Only</button>
+              <button id="btn-set-bgm-breakOnly" onclick="setBgmBreakMode('breakOnly')" class="flex-1 py-1 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Break Only</button>
             </div>
-          </div>
-          <div>
-            <div class="flex justify-between text-xs font-extrabold mb-1">
-              <span class="text-[#162529]">Focus Duration (Test Mode)</span>
-              <span id="lbl-focus" class="text-[#27ABA4] bg-[#48D1CC]/15 px-2 py-0.5 rounded">10 secs</span>
-            </div>
-            <input type="range" min="5" max="60" value="10" id="slider-focus" oninput="updateDuration('focus', this.value)" class="w-full accent-[#48D1CC]" />
           </div>
 
-          <div>
-            <div class="flex justify-between text-xs font-extrabold mb-1">
-              <span class="text-[#162529]">Short Break</span>
-              <span id="lbl-short" class="text-[#5AB693] bg-[#5AB693]/15 px-2 py-0.5 rounded">5 secs</span>
+          <!-- Duration Sliders -->
+          <div class="bg-white rounded-2xl p-4 border border-[#E2ECEE] shadow-sm space-y-3">
+            <div>
+              <div class="flex justify-between text-xs font-extrabold mb-1">
+                <span class="text-[#162529]">Focus Duration</span>
+                <span id="lbl-focus" class="text-[#27ABA4] bg-[#48D1CC]/15 px-2 py-0.5 rounded">1 min</span>
+              </div>
+              <input type="range" min="1" max="60" value="1" id="slider-focus" oninput="updateDuration('focus', this.value)" class="w-full accent-[#48D1CC]" />
             </div>
-            <input type="range" min="1" max="20" value="5" id="slider-short" oninput="updateDuration('short', this.value)" class="w-full accent-[#5AB693]" />
+
+            <div>
+              <div class="flex justify-between text-xs font-extrabold mb-1">
+                <span class="text-[#162529]">Short Break</span>
+                <span id="lbl-short" class="text-[#5AB693] bg-[#5AB693]/15 px-2 py-0.5 rounded">5 mins</span>
+              </div>
+              <input type="range" min="1" max="20" value="5" id="slider-short" oninput="updateDuration('short', this.value)" class="w-full accent-[#5AB693]" />
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-extrabold mb-1">
+                <span class="text-[#162529]">Long Break</span>
+                <span id="lbl-long" class="text-[#8BA2A8] bg-slate-100 px-2 py-0.5 rounded">15 mins</span>
+              </div>
+              <input type="range" min="5" max="30" value="15" id="slider-long" oninput="updateDuration('long', this.value)" class="w-full accent-slate-400" />
+            </div>
           </div>
 
-          <div>
-            <div class="flex justify-between text-xs font-extrabold mb-1">
-              <span class="text-[#162529]">Long Break</span>
-              <span id="lbl-long" class="text-[#8BA2A8] bg-slate-100 px-2 py-0.5 rounded">10 secs</span>
+          <!-- Section: About Nordic Focus -->
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">ABOUT NORDIC FOCUS</div>
+          <div class="bg-white rounded-2xl p-4 border border-[#E2ECEE] shadow-sm">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-lg">🌿</span>
+              <h3 class="text-xs font-extrabold text-[#162529]">Nordic Focus — Shipaton 2026</h3>
             </div>
-            <input type="range" min="5" max="30" value="10" id="slider-long" oninput="updateDuration('long', this.value)" class="w-full accent-slate-400" />
+            <p class="text-[11px] text-[#516970] leading-relaxed">
+              Blending serene Nordic minimalism with rewarding gamification companions. Crafted for pure focus and creative flow.
+            </p>
+            <div class="mt-2 inline-block px-2.5 py-0.5 bg-slate-100 rounded-lg text-[10px] font-semibold text-slate-600">
+              Version 1.0.0 (Build 2026.9)
+            </div>
+          </div>
+
+          <!-- Section: Audio Credits & Licenses Tile -->
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1">AUDIO CREDITS & LICENSES</div>
+          <div onclick="openCreditsModal()" class="bg-white rounded-2xl p-3.5 border border-[#E2ECEE] shadow-sm flex items-center justify-between cursor-pointer hover:border-[#48D1CC] active:scale-98 transition">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-[#E4F8F7] text-[#27ABA4] flex items-center justify-center text-base">🎵</div>
+              <div>
+                <p class="text-xs font-extrabold text-[#162529]">Sound Track Attributions</p>
+                <p class="text-[10px] text-[#516970]">Attribution notices for On-Jin, tunee.ai & soundscapes</p>
+              </div>
+            </div>
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
           </div>
         </div>
       </div>
@@ -403,64 +512,18 @@
 
     <!-- MODAL 1: BGM SOUNDSCAPE SHEET -->
     <div id="modal-sound" class="hidden absolute inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end">
-      <div class="w-full bg-white rounded-t-[32px] p-5 border-t border-[#E2ECEE] shadow-2xl max-h-[85%] overflow-y-auto">
+      <div class="w-full bg-white rounded-t-[32px] p-5 border-t border-[#E2ECEE] shadow-2xl max-h-[85%] overflow-y-auto no-scrollbar">
         <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center justify-between mb-3">
           <div>
             <h3 class="text-base font-extrabold text-[#162529]">Nordic Soundscapes</h3>
-            <p class="text-xs text-[#8BA2A8]">Synthesized Web Audio ambient drones</p>
+            <p class="text-xs text-[#8BA2A8]">Ambient focus sounds & nature audio</p>
           </div>
           <button onclick="closeSoundSheet()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold hover:bg-slate-200">✕</button>
         </div>
 
-        <div class="space-y-2 mb-4">
-          <!-- Track 1: Rain & Piano -->
-          <div id="track-rain_piano" onclick="selectBgmTrack('rain_piano')" class="p-3 rounded-2xl border-2 border-[#48D1CC] bg-[#E4F8F7]/60 flex items-center justify-between cursor-pointer transition">
-            <div class="flex items-center space-x-3">
-              <span class="text-lg">🌧️</span>
-              <div>
-                <p class="text-xs font-extrabold text-[#162529]">Nordic Rain & Lo-fi Piano</p>
-                <p class="text-[10px] text-[#516970]">Warm Rhodes chords with soft rain noise</p>
-              </div>
-            </div>
-            <span id="status-rain_piano" class="text-xs font-extrabold text-[#27ABA4]">Selected</span>
-          </div>
-
-          <!-- Track 2: Pine Forest & Chimes -->
-          <div id="track-forest_chimes" onclick="selectBgmTrack('forest_chimes')" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
-            <div class="flex items-center space-x-3">
-              <span class="text-lg">🌲</span>
-              <div>
-                <p class="text-xs font-extrabold text-[#162529]">Pine Forest & Crystal Bells</p>
-                <p class="text-[10px] text-[#516970]">Soothing chimes + mountain wind harmonics</p>
-              </div>
-            </div>
-            <span id="status-forest_chimes" class="text-xs font-bold text-slate-400">Select</span>
-          </div>
-
-          <!-- Track 3: Glacier Stream -->
-          <div id="track-river_drone" onclick="selectBgmTrack('river_drone')" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
-            <div class="flex items-center space-x-3">
-              <span class="text-lg">🌊</span>
-              <div>
-                <p class="text-xs font-extrabold text-[#162529]">Glacier Stream (Deep Focus)</p>
-                <p class="text-[10px] text-[#516970]">Water current rushing over arctic stones</p>
-              </div>
-            </div>
-            <span id="status-river_drone" class="text-xs font-bold text-slate-400">Select</span>
-          </div>
-
-          <!-- Track 4: Mute / Silence -->
-          <div id="track-silent" onclick="selectBgmTrack('silent')" class="p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition">
-            <div class="flex items-center space-x-3">
-              <span class="text-lg">🔕</span>
-              <div>
-                <p class="text-xs font-extrabold text-[#162529]">Mute (Silent Focus)</p>
-                <p class="text-[10px] text-[#516970]">Standard Pomodoro bells only</p>
-              </div>
-            </div>
-            <span id="status-silent" class="text-xs font-bold text-slate-400">Select</span>
-          </div>
+        <div id="soundscape-list" class="space-y-2 mb-4">
+          <!-- Injected via renderSoundSheetList() -->
         </div>
 
         <!-- Break BGM Playback Timing -->
@@ -473,7 +536,7 @@
             <span id="lbl-bgm-break-mode" class="text-[10px] font-extrabold text-[#27ABA4] bg-[#48D1CC]/15 px-2 py-0.5 rounded uppercase">ALWAYS</span>
           </div>
           <div class="bg-slate-100 p-1 rounded-xl flex gap-1">
-            <button id="btn-bgm-mode-always" onclick="setBgmBreakMode('always')" class="flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-xs">Always</button>
+            <button id="btn-bgm-mode-always" onclick="setBgmBreakMode('always')" class="flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-2xs">Always</button>
             <button id="btn-bgm-mode-focusOnly" onclick="setBgmBreakMode('focusOnly')" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Focus Only</button>
             <button id="btn-bgm-mode-breakOnly" onclick="setBgmBreakMode('breakOnly')" class="flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition">Break Only</button>
           </div>
@@ -493,29 +556,182 @@
       </div>
     </div>
 
-    <!-- MODAL 2: SESSION COMPLETE REWARD DIALOG -->
-    <div id="modal-reward" class="hidden absolute inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-      <div class="bg-white rounded-3xl p-6 border border-[#E2ECEE] shadow-2xl w-full max-w-xs text-center flex flex-col items-center">
-        <div class="w-20 h-20 rounded-2xl bg-[#FFF8F5] p-2 border border-[#FFDDD5] flex items-center justify-center mb-3">
-          <img id="reward-img" src="assets/images/character_enhancer.png" alt="Reward Companion" class="w-full h-full object-contain" />
-        </div>
-        <h3 class="text-lg font-black text-[#162529]">Focus Cycle Ended</h3>
-        <p class="text-xs font-semibold text-[#516970] mt-1">25-minute focus period completed. Break begins next.</p>
+    <!-- MODAL 2: 📖 FAIRY COMPENDIUM / ARCHIVE MODAL -->
+    <div id="modal-compendium" class="hidden absolute inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end">
+      <div class="w-full h-[88%] bg-white rounded-t-[32px] p-5 border-t border-[#E2ECEE] shadow-2xl flex flex-col overflow-hidden">
+        <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-3 shrink-0"></div>
         
-        <div class="my-4 bg-[#FFF3DB] border border-[#F5A623]/40 rounded-2xl py-2 px-4 flex items-center space-x-2">
-          <span class="text-lg">🪙</span>
-          <span class="text-sm font-extrabold text-[#D98209]">+10 Focus Coins Earned</span>
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-3 shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📖</span>
+            <h3 class="text-base font-extrabold text-[#162529]">Fairy Archive</h3>
+          </div>
+          <button onclick="closeCompendium()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold hover:bg-slate-200">✕</button>
         </div>
 
-        <button onclick="claimReward()" class="w-full py-3 rounded-full bg-[#48D1CC] text-white font-extrabold text-xs tracking-wider shadow-md hover:bg-[#27ABA4] active:scale-95 transition">
-          COLLECT & START BREAK
+        <!-- 3 Tabs: Enhancer / Suppressant / Categories -->
+        <div class="bg-slate-100 p-1 rounded-2xl flex gap-1 mb-3 shrink-0">
+          <button id="compendium-tab-enhancer" onclick="switchCompendiumTab('enhancer')" class="flex-1 py-1.5 rounded-xl text-xs font-extrabold transition bg-white text-[#FF715B] shadow-2xs">🍓 Enhancer</button>
+          <button id="compendium-tab-suppressant" onclick="switchCompendiumTab('suppressant')" class="flex-1 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition">💧 Suppressant</button>
+          <button id="compendium-tab-categories" onclick="switchCompendiumTab('categories')" class="flex-1 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition">📊 Categories</button>
+        </div>
+
+        <!-- Tab Body Container (Scrollable) -->
+        <div id="compendium-body" class="flex-1 overflow-y-auto no-scrollbar space-y-3 pb-4">
+          <!-- Injected via renderCompendiumContent() -->
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 3: 🏷️ WORKING CATEGORY SELECTOR SHEET -->
+    <div id="modal-category-sheet" class="hidden absolute inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end">
+      <div class="w-full bg-white rounded-t-[32px] p-5 border-t border-[#E2ECEE] shadow-2xl max-h-[82%] overflow-y-auto no-scrollbar flex flex-col">
+        <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-3 shrink-0"></div>
+        
+        <div class="flex items-center justify-between mb-2 shrink-0">
+          <div>
+            <h3 class="text-base font-extrabold text-[#162529]">Select Focus Activity</h3>
+            <p class="text-xs text-[#8BA2A8]">Accumulate time per category</p>
+          </div>
+          <button onclick="closeCategorySheet()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold hover:bg-slate-200">✕</button>
+        </div>
+
+        <div id="category-sheet-list" class="space-y-2 my-2">
+          <!-- Injected dynamically -->
+        </div>
+
+        <button onclick="openAddCategoryModal()" class="w-full mt-3 py-2.5 rounded-xl border-2 border-dashed border-[#48D1CC] text-[#27ABA4] font-extrabold text-xs tracking-wider hover:bg-[#E4F8F7] active:scale-95 transition flex items-center justify-center gap-1.5">
+          <span>✨</span> + Add Custom Category
         </button>
       </div>
     </div>
 
-    <!-- MODAL 3: REVENUECAT PAYWALL SHEET -->
+    <!-- MODAL 4: ✨ CREATE CUSTOM CATEGORY DIALOG -->
+    <div id="modal-add-category" class="hidden absolute inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-6">
+      <div class="bg-white rounded-3xl p-5 border border-[#E2ECEE] shadow-2xl w-full max-w-xs flex flex-col">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xl">✨</span>
+          <h3 class="text-sm font-extrabold text-[#162529]">Create Focus Category</h3>
+        </div>
+
+        <p class="text-[11px] font-semibold text-slate-500 mb-2">Select Emoji Icon</p>
+        <div id="add-cat-emoji-picker" class="flex flex-wrap gap-2 mb-3">
+          <!-- Emojis populated by JS -->
+        </div>
+
+        <p class="text-[11px] font-semibold text-slate-500 mb-1">Category Name</p>
+        <input type="text" id="add-cat-name-input" placeholder="e.g. Guitar, Coding, Japanese..." class="w-full px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs font-semibold focus:outline-none focus:border-[#48D1CC] mb-4" />
+
+        <div class="flex gap-2">
+          <button onclick="closeAddCategoryModal()" class="flex-1 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs hover:bg-slate-200 transition">Cancel</button>
+          <button onclick="saveNewCategory()" class="flex-1 py-2 rounded-xl bg-[#48D1CC] text-white font-extrabold text-xs hover:bg-[#27ABA4] active:scale-95 transition">Create</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 5: 📜 AUDIO CREDITS & LICENSES MODAL -->
+    <div id="modal-credits" class="hidden absolute inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-5">
+      <div class="bg-white rounded-3xl p-5 border border-[#E2ECEE] shadow-2xl w-full max-w-xs max-h-[85%] flex flex-col">
+        <div class="flex items-center justify-between mb-3 shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🎵</span>
+            <h3 class="text-sm font-extrabold text-[#162529]">Audio Credits & Licenses</h3>
+          </div>
+          <button onclick="closeCreditsModal()" class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold hover:bg-slate-200 text-xs">✕</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto no-scrollbar space-y-3 pr-1 text-left">
+          <!-- Rain & Nature (On-Jin) -->
+          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-[#162529]">Rain & Nature (rainnature.mp3)</span>
+              <span class="text-[9px] font-black bg-[#F5A623]/20 text-[#D98209] px-1.5 py-0.5 rounded">ON-JIN</span>
+            </div>
+            <p class="text-[10px] font-bold text-[#27ABA4] mt-0.5">Source: On-Jin ～音人～ (https://on-jin.com/)</p>
+            <p class="text-[10px] text-slate-600 mt-1 leading-relaxed">
+              Used under On-Jin's embedded work guidelines. All copyright and neighboring rights are retained by On-Jin ～音人～.
+            </p>
+            <p class="text-[9px] text-slate-400 mt-1">※当アプリ内の音源の二次配布、無断利用、および抽出利用は固く禁止されています。</p>
+          </div>
+
+          <!-- Positive Flow (tunee.ai) -->
+          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-[#162529]">Positive Flow (positive.mp3)</span>
+              <span class="text-[9px] font-black bg-[#A78BFA]/20 text-[#7C3AED] px-1.5 py-0.5 rounded">TUNEE.AI</span>
+            </div>
+            <p class="text-[10px] font-bold text-[#7C3AED] mt-0.5">Source: tunee.ai (https://tunee.ai/)</p>
+            <p class="text-[10px] text-slate-600 mt-1 leading-relaxed">
+              AI-assisted ambient concentration track composed with tunee.ai for deep focus and uplifting motivation.
+            </p>
+          </div>
+
+          <!-- Nordic Ambient & SFX -->
+          <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200">
+            <span class="text-xs font-extrabold text-[#162529]">Nordic Ambient & SFX</span>
+            <p class="text-[10px] text-slate-600 mt-1 leading-relaxed">
+              Nordic Rain & Piano, Pine Forest & Bells, 528Hz Temple Bell completion chime, and Coin audio SFX.
+            </p>
+          </div>
+        </div>
+
+        <button onclick="closeCreditsModal()" class="w-full mt-3 py-2 rounded-xl bg-[#48D1CC] text-white font-extrabold text-xs shadow-sm hover:bg-[#27ABA4] transition shrink-0">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 6: 🔔 SESSION COMPLETE REWARD DIALOG -->
+    <div id="modal-reward" class="hidden absolute inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-5">
+      <div class="bg-white rounded-3xl p-5 border border-[#E2ECEE] shadow-2xl w-full max-w-xs text-center flex flex-col items-center max-h-[90%] overflow-y-auto no-scrollbar">
+        <div id="reward-frame" class="w-18 h-18 rounded-2xl bg-[#FFF8F5] p-2 border border-[#FFDDD5] flex items-center justify-center mb-2 shrink-0">
+          <img id="reward-img" src="assets/images/enhancer_2.png" alt="Reward Companion" class="w-14 h-14 object-contain" />
+        </div>
+        <h3 class="text-base font-black text-[#162529]">Session Completed 🔔</h3>
+        <p class="text-[11px] font-semibold text-[#516970] mt-0.5">Focus period complete! Time for a well-deserved break.</p>
+        
+        <!-- Fairy Quote Bubble -->
+        <div id="reward-quote-box" class="w-full my-3 p-3 rounded-2xl bg-[#FFF1ED] border border-[#FF715B]/25 text-left">
+          <p id="reward-quote-text" class="text-xs font-semibold text-[#FF715B] italic leading-snug">"Meals after deep focus taste a hundred times better, don't you think?"</p>
+          <p id="reward-quote-author" class="text-[10px] font-extrabold text-[#FF715B]/80 text-right mt-1">— Appetite Enhancer</p>
+        </div>
+
+        <!-- Level Up / Unlock Alerts -->
+        <div id="reward-levelup-banner" class="hidden w-full mb-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-800 text-[11px] font-extrabold flex items-center gap-1.5 justify-center">
+          <span>🎉</span>
+          <span id="reward-levelup-text">Friendship reached Lv.2!</span>
+        </div>
+
+        <!-- Rewards Breakdown Grid -->
+        <div class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 space-y-1.5 text-xs text-left mb-3">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-600 flex items-center gap-1"><span>🪙</span> Coins Earned</span>
+            <span class="font-extrabold text-[#D98209]">+10 Coins</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-600 flex items-center gap-1"><span>🏷️</span> <span id="reward-cat-name">Guitar</span></span>
+            <span id="reward-cat-mins" class="font-extrabold text-[#27ABA4]">+1 min Focus</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-600 flex items-center gap-1"><span id="reward-fairy-icon">🍓</span> <span id="reward-fairy-name">Enhancer</span> Friendship</span>
+            <span id="reward-fairy-level" class="font-extrabold text-[#FF715B]">Lv.1 (1m)</span>
+          </div>
+        </div>
+
+        <button onclick="claimReward()" class="w-full py-2.5 rounded-full bg-[#48D1CC] text-white font-extrabold text-xs tracking-wider shadow-md hover:bg-[#27ABA4] active:scale-95 transition">
+          START BREAK
+        </button>
+
+        <button onclick="openCompendiumFromReward()" class="w-full mt-2 py-1.5 text-xs font-bold text-[#27ABA4] hover:underline flex items-center justify-center gap-1">
+          <span>📖</span> Open Fairy Archive
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL 7: REVENUECAT PAYWALL SHEET -->
     <div id="modal-paywall" class="hidden absolute inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-end">
-      <div class="w-full bg-white rounded-t-[32px] p-5 border-t border-[#E2ECEE] shadow-2xl max-h-[85%] overflow-y-auto">
+      <div class="w-full bg-white rounded-t-[32px] p-5 border-t border-[#E2ECEE] shadow-2xl max-h-[85%] overflow-y-auto no-scrollbar">
         <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
         <div class="flex items-center justify-between mb-4">
           <div>
@@ -578,8 +794,138 @@
     const suppressantDrinkingSrc = 'assets/images/suppressant_1.png';
     const suppressantFinishedSrc = 'assets/images/suppressant_2.png';
 
-    // Focus Cycle: Standard (1.6s) -> Action Eating/Drinking (4.0s) -> Satisfied Smile (3.4s)
-    let focusCyclePhase = 0; // 0: standard, 1: action (eating/drinking), 2: smile
+    // Soundscapes metadata
+    const soundCatalog = {
+      rain: {
+        id: 'rain',
+        title: 'Nordic Rain',
+        desc: 'Gentle raindrops falling on pine needles',
+        icon: '🌧️',
+        file: 'assets/audio/ambient/rain.mp3',
+        cost: 0
+      },
+      forest: {
+        id: 'forest',
+        title: 'Pine Forest',
+        desc: 'Morning breeze through Nordic evergreens',
+        icon: '🌲',
+        file: 'assets/audio/ambient/forest.mp3',
+        cost: 0
+      },
+      rain_nature: {
+        id: 'rain_nature',
+        title: 'Rain & Nature',
+        desc: 'Gentle forest rain with woodland ambience (On-Jin)',
+        icon: '🌾',
+        file: 'assets/audio/ambient/rainnature.mp3',
+        cost: 150
+      },
+      positive: {
+        id: 'positive',
+        title: 'Positive Flow',
+        desc: 'Uplifting acoustic harmonies for motivation (tunee.ai)',
+        icon: '✨',
+        file: 'assets/audio/ambient/positive.mp3',
+        cost: 200
+      },
+      none: {
+        id: 'none',
+        title: 'Silent Calm',
+        desc: 'Pure silence without background music',
+        icon: '🔕',
+        file: null,
+        cost: 0
+      }
+    };
+
+    // Compendium Quotes Catalog (Exact replica of fairy_messages_catalog.dart)
+    const fairyQuotes = {
+      enhancer: [
+        { id: 'enhancer_lv1_1', reqLv: 1, title: 'Nice to Meet You!', quote: "Hey there! Let's eat lots of good treats and enjoy a super focused day together!", desc: 'First meeting with Appetite Enhancer' },
+        { id: 'enhancer_lv1_2', reqLv: 1, title: 'Ready, Set, Focus!', quote: "Timer is running and we're good to go! I'll be right here cheering for you!", desc: 'Encouragement for your focus session' },
+        { id: 'enhancer_lv2_1', reqLv: 2, title: 'Feast Time!', quote: 'Amazing job! Meals after deep focus taste a hundred times better, don’t you think?', desc: 'Unlocked at 25 mins of total focus' },
+        { id: 'enhancer_lv2_2', reqLv: 2, title: 'Energy Boost', quote: "Take a deep breath and have a little snack! We've got plenty of energy left for more!", desc: 'Unlocked at 25 mins of total focus' },
+        { id: 'enhancer_lv3_1', reqLv: 3, title: 'Secret Treat', quote: "Hehe, honestly working together with you has become the highlight of my day. Here's a special pastry for you!", desc: 'Unlocked at 1 hour (60 mins) of total focus' },
+        { id: 'enhancer_lv3_2', reqLv: 3, title: 'In Perfect Sync!', quote: 'When you slip into the zone, my slime glows and sparkles with excitement!', desc: 'Unlocked at 1 hour (60 mins) of total focus' },
+        { id: 'enhancer_lv4_1', reqLv: 4, title: 'Best Partner', quote: 'No matter how tough the challenge is, I know we can conquer anything together!', desc: 'Unlocked at 2 hours (120 mins) of total focus' },
+        { id: 'enhancer_lv4_2', reqLv: 4, title: 'Full of Joy', quote: 'Your hard work is truly paying off. Both my tummy and heart are filled with pure happiness!', desc: 'Unlocked at 2 hours (120 mins) of total focus' },
+        { id: 'enhancer_lv5_1', reqLv: 5, title: 'Soulbound Beacon', quote: 'Every single minute we spent in focus is brighter than all the feasts in the world. I am with you always!', desc: 'Unlocked at 4 hours (240 mins) of total focus' }
+      ],
+      suppressant: [
+        { id: 'suppressant_lv1_1', reqLv: 1, title: 'Vow of Stillness', quote: 'Breathe in deeply and calm your mind like a tranquil lake. I will guard your focus.', desc: 'First quiet moment with Appetite Suppressant' },
+        { id: 'suppressant_lv1_2', reqLv: 1, title: 'Let Desires Fade', quote: 'With every restless craving you let go, your thoughts grow clearer and sharper.', desc: 'An invitation to tranquil focus' },
+        { id: 'suppressant_lv2_1', reqLv: 2, title: 'Like Crystal Water', quote: 'Wonderful session. The quiet world where distractions fade is truly serene, is it not?', desc: 'Unlocked at 25 mins of total focus' },
+        { id: 'suppressant_lv2_2', reqLv: 2, title: 'A Nourishing Droplet', quote: 'No need to rush. Like gentle rain quenching the soil drop by drop, we move steadily forward.', desc: 'Unlocked at 25 mins of total focus' },
+        { id: 'suppressant_lv3_1', reqLv: 3, title: 'Quiet Resonance', quote: 'Your calm determination reaches me. Even the waters of my mantle glow with a pure light.', desc: 'Unlocked at 1 hour (60 mins) of total focus' },
+        { id: 'suppressant_lv3_2', reqLv: 3, title: 'Beyond the Ripples', quote: 'Just as a single raindrop creates wide ripples on the lake, your efforts reach far beyond today.', desc: 'Unlocked at 1 hour (60 mins) of total focus' },
+        { id: 'suppressant_lv4_1', reqLv: 4, title: 'Unshakable Focus', quote: 'Even in a fierce storm, the deep waters remain calm. Your mind has reached that same peaceful depths.', desc: 'Unlocked at 2 hours (120 mins) of total focus' },
+        { id: 'suppressant_lv4_2', reqLv: 4, title: 'Silent Trust', quote: 'Without needing any words, I can feel how sharp and centered you are right now.', desc: 'Unlocked at 2 hours (120 mins) of total focus' },
+        { id: 'suppressant_lv5_1', reqLv: 5, title: 'Serene Spring of Eternity', quote: 'The path we have walked together flows like a pristine mountain spring. May this quiet pride remain with you forever.', desc: 'Unlocked at 4 hours (240 mins) of total focus' }
+      ]
+    };
+
+    // App State
+    const state = {
+      isDemoFast: true,
+      coins: 100,
+      activeChar: 'enhancer',
+      mode: 'focus',
+      remaining: 10,
+      total: 10,
+      durations: {
+        focus: 1,
+        shortBreak: 5,
+        longBreak: 15
+      },
+      isRunning: false,
+      sessionsCompleted: 0,
+      showFocusAnimation: true,
+      bgmBreakMode: 'always',
+      currentBgm: 'rain',
+      unlockedSounds: {
+        rain: true,
+        forest: true,
+        rain_nature: false,
+        positive: false,
+        none: true
+      },
+      activeCategory: 'guitar',
+      categories: [
+        { id: 'guitar', name: 'Guitar & Music', icon: '🎸', totalMinutes: 25, isCustom: true },
+        { id: 'math', name: 'Math & Logic', icon: '📐', totalMinutes: 10, isCustom: false },
+        { id: 'study', name: 'Study & Reading', icon: '📚', totalMinutes: 45, isCustom: false },
+        { id: 'work', name: 'Work & Code', icon: '💻', totalMinutes: 60, isCustom: false },
+        { id: 'hobby', name: 'Creative & Hobby', icon: '🎨', totalMinutes: 15, isCustom: false },
+        { id: 'exercise', name: 'Fitness & Health', icon: '🏃', totalMinutes: 0, isCustom: false },
+        { id: 'other', name: 'Other', icon: '☕', totalMinutes: 0, isCustom: false }
+      ],
+      fairyAffection: {
+        enhancer: { totalMinutes: 25 },
+        suppressant: { totalMinutes: 60 }
+      }
+    };
+
+    function calculateAffection(charId) {
+      const mins = state.fairyAffection[charId].totalMinutes;
+      const levels = [
+        { level: 1, name: 'Acquaintance', threshold: 0, next: 25 },
+        { level: 2, name: 'Good Friend', threshold: 25, next: 60 },
+        { level: 3, name: 'Trusted Ally', threshold: 60, next: 120 },
+        { level: 4, name: 'Best Companion', threshold: 120, next: 240 },
+        { level: 5, name: 'Soulbound', threshold: 240, next: null }
+      ];
+      let curr = levels[0];
+      for (let l of levels) {
+        if (mins >= l.threshold) curr = l;
+      }
+      let progress = 1.0;
+      if (curr.next) {
+        progress = Math.min(1.0, (mins - curr.threshold) / (curr.next - curr.threshold));
+      }
+      return { ...curr, totalMinutes: mins, progressToNext: progress };
+    }
+
+    let focusCyclePhase = 0;
     const phaseDurations = [1600, 4000, 3400];
     let focusCycleTimeout = null;
 
@@ -600,30 +946,16 @@
       const isBreak = state.mode !== 'focus';
       const isRunning = state.isRunning;
 
-      // 1. 休憩中 (Break mode): Always smiling
-      if (isBreak) {
+      if (isBreak || isCompleted) {
         return isEnhancer ? enhancerSmilingSrc : suppressantFinishedSrc;
       }
 
-      // 2. セッション完了 (Completed): Celebration smiling pose
-      if (isCompleted) {
-        return isEnhancer ? enhancerSmilingSrc : suppressantFinishedSrc;
-      }
-
-      // 3. 作業用タイマー実行中 (Focus session running):
-      // ループ: 標準状態 (1.6s) -> 食材捕食・水分吸収 (4.0s) -> 笑顔 (3.4s)
       if (isRunning) {
-        if (focusCyclePhase === 0) {
-          return isEnhancer ? enhancerImgSrc : suppressantImgSrc; // 標準状態
-        } else if (focusCyclePhase === 1) {
-          return isEnhancer ? enhancerEatingSrc : suppressantDrinkingSrc; // 食材捕食・水分吸収
-        } else {
-          return isEnhancer ? enhancerSmilingSrc : suppressantFinishedSrc; // 笑顔
-        }
+        if (focusCyclePhase === 0) return isEnhancer ? enhancerImgSrc : suppressantImgSrc;
+        else if (focusCyclePhase === 1) return isEnhancer ? enhancerEatingSrc : suppressantDrinkingSrc;
+        else return isEnhancer ? enhancerSmilingSrc : suppressantFinishedSrc;
       }
 
-      // 4. 通常時 (Normal / Idle / Paused in focus mode):
-      // 標準状態のまま
       return isEnhancer ? enhancerImgSrc : suppressantImgSrc;
     }
 
@@ -643,7 +975,6 @@
         charImg.src = sprite;
       }
 
-      // Pre-rendered instant sprite toggle: 0ms switch, zero momentary stretch, zero baseline shift
       const targetHeroId = spriteToHeroId[sprite];
       for (const key in spriteToHeroId) {
         const id = spriteToHeroId[key];
@@ -654,7 +985,6 @@
       }
     }
 
-    // Food and Nature Item Assets
     const foodList = [
       { name: 'Apple', src: 'assets/images/items/food_apple.png', icon: '🍎' },
       { name: 'Cinnamon Roll', src: 'assets/images/items/food_cinnamon_roll.png', icon: '🥐' },
@@ -669,26 +999,21 @@
       'assets/images/items/berry_blueberry.png'
     ];
 
-    // Mountain food configuration: 22 items positioned behind the girl in tiers
     const mountainConfig = [
-      // Tier 1 (Peak): top -25 to -15px, fades 1.0 -> 0.70
       { src: foodList[0].src, left: 110, top: 4, scale: 0.84, rot: -10, fadeStart: 1.0, fadeEnd: 0.70 },
       { src: foodList[1].src, left: 140, top: -6, scale: 0.94, rot: 6, fadeStart: 1.0, fadeEnd: 0.68 },
       { src: foodList[2].src, left: 172, top: 6, scale: 0.88, rot: 12, fadeStart: 1.0, fadeEnd: 0.72 },
-      // Tier 2 (Upper mid): top 22 to 38px, fades 0.90 -> 0.45
       { src: foodList[3].src, left: 74, top: 26, scale: 0.90, rot: -15, fadeStart: 0.92, fadeEnd: 0.50 },
       { src: foodList[2].src, left: 104, top: 30, scale: 0.96, rot: 4, fadeStart: 0.88, fadeEnd: 0.46 },
       { src: foodList[4].src, left: 142, top: 28, scale: 0.86, rot: -8, fadeStart: 0.82, fadeEnd: 0.44 },
       { src: foodList[0].src, left: 176, top: 32, scale: 0.92, rot: 10, fadeStart: 0.88, fadeEnd: 0.48 },
       { src: foodList[1].src, left: 210, top: 28, scale: 0.90, rot: 18, fadeStart: 0.90, fadeEnd: 0.48 },
-      // Tier 3 (Mid): top 55 to 75px, fades 0.78 -> 0.25
       { src: foodList[1].src, left: 42, top: 58, scale: 1.02, rot: -20, fadeStart: 0.78, fadeEnd: 0.32 },
       { src: foodList[0].src, left: 78, top: 62, scale: 1.00, rot: 12, fadeStart: 0.72, fadeEnd: 0.26 },
       { src: foodList[2].src, left: 116, top: 66, scale: 1.05, rot: -5, fadeStart: 0.66, fadeEnd: 0.20 },
       { src: foodList[3].src, left: 158, top: 64, scale: 0.96, rot: 14, fadeStart: 0.68, fadeEnd: 0.22 },
       { src: foodList[4].src, left: 196, top: 62, scale: 0.98, rot: -12, fadeStart: 0.74, fadeEnd: 0.28 },
       { src: foodList[0].src, left: 236, top: 58, scale: 1.00, rot: 16, fadeStart: 0.78, fadeEnd: 0.30 },
-      // Tier 4 (Base): top 92 to 110px, fades 0.55 -> 0.02
       { src: foodList[2].src, left: 16, top: 94, scale: 1.08, rot: -10, fadeStart: 0.58, fadeEnd: 0.06 },
       { src: foodList[4].src, left: 52, top: 98, scale: 0.96, rot: 10, fadeStart: 0.52, fadeEnd: 0.03 },
       { src: foodList[1].src, left: 90, top: 100, scale: 1.10, rot: 4, fadeStart: 0.46, fadeEnd: 0.0 },
@@ -699,22 +1024,19 @@
       { src: foodList[0].src, left: 278, top: 92, scale: 1.02, rot: -18, fadeStart: 0.58, fadeEnd: 0.06 }
     ];
 
-    // Web Audio Synthesizer
     let audioCtx = null;
     let masterGain = null;
-    let currentBgmTrack = 'rain_piano';
+    let bgmVolume = 0.6;
     let isBgmPlaying = false;
     let bgmLoopTimer = null;
     let currentChordIndex = 0;
-    let rainNoiseNode = null;
-    let streamNoiseNode = null;
 
     function getAudioContext() {
       if (!audioCtx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         audioCtx = new AudioContext();
         masterGain = audioCtx.createGain();
-        masterGain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+        masterGain.gain.setValueAtTime(bgmVolume, audioCtx.currentTime);
         masterGain.connect(audioCtx.destination);
       }
       if (audioCtx.state === 'suspended') {
@@ -723,16 +1045,49 @@
       return audioCtx;
     }
 
-    function getMasterGain() {
-      getAudioContext();
-      return masterGain;
+    function setBgmVolume(val) {
+      bgmVolume = val / 100;
+      document.getElementById('lbl-bgm-volume').innerText = val + '%';
+      const player = document.getElementById('bgm-audio-player');
+      if (player) player.volume = bgmVolume;
+      if (masterGain && audioCtx) {
+        masterGain.gain.setValueAtTime(bgmVolume, audioCtx.currentTime);
+      }
     }
 
-    function setBgmVolume(val) {
-      document.getElementById('lbl-bgm-volume').innerText = val + '%';
-      if (masterGain) {
-        masterGain.gain.setValueAtTime(val / 100, audioCtx.currentTime);
+    function startBgm() {
+      if (state.currentBgm === 'none') {
+        pauseBgm();
+        return;
       }
+      isBgmPlaying = true;
+      updateBgmUI();
+
+      const track = soundCatalog[state.currentBgm];
+      const player = document.getElementById('bgm-audio-player');
+
+      if (track && track.file && player) {
+        player.src = track.file;
+        player.volume = bgmVolume;
+        player.play().catch(e => {
+          startSynthBgm();
+        });
+      } else {
+        startSynthBgm();
+      }
+    }
+
+    function pauseBgm() {
+      isBgmPlaying = false;
+      const player = document.getElementById('bgm-audio-player');
+      if (player) player.pause();
+      stopSynthBgm();
+      updateBgmUI();
+    }
+
+    function toggleBgmManual() {
+      if (isBgmPlaying) pauseBgm();
+      else startBgm();
     }
 
     const chords = [
@@ -743,7 +1098,7 @@
     ];
 
     function playCurrentChordStep() {
-      if (!isBgmPlaying || currentBgmTrack === 'silent') return;
+      if (!isBgmPlaying || state.currentBgm === 'none') return;
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const chord = chords[currentChordIndex % chords.length];
@@ -752,234 +1107,76 @@
       chord.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const noteGain = ctx.createGain();
-        osc.type = currentBgmTrack === 'forest_chimes' ? 'sine' : 'triangle';
+        osc.type = state.currentBgm === 'forest' ? 'sine' : 'triangle';
         osc.frequency.setValueAtTime(freq, now + idx * 0.12);
-
         noteGain.gain.setValueAtTime(0.001, now + idx * 0.12);
         noteGain.gain.exponentialRampToValueAtTime(0.12, now + idx * 0.12 + 0.1);
         noteGain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.12 + 2.8);
-
         osc.connect(noteGain);
-        noteGain.connect(getMasterGain());
-
+        noteGain.connect(masterGain);
         osc.start(now + idx * 0.12);
         osc.stop(now + idx * 0.12 + 3.0);
       });
-
-      if (currentBgmTrack === 'forest_chimes') {
-        const chime = ctx.createOscillator();
-        const chimeGain = ctx.createGain();
-        chime.type = 'sine';
-        chime.frequency.setValueAtTime(chord[0] * 3, now + 1.2);
-        chimeGain.gain.setValueAtTime(0.001, now + 1.2);
-        chimeGain.gain.exponentialRampToValueAtTime(0.05, now + 1.25);
-        chimeGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
-        chime.connect(chimeGain);
-        chimeGain.connect(getMasterGain());
-        chime.start(now + 1.2);
-        chime.stop(now + 2.3);
-      }
     }
 
-    function startAmbientNoise(type) {
-      stopAmbientNoise();
-      const ctx = getAudioContext();
-      const bufferSize = ctx.sampleRate * 2;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      let lastOut = 0.0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        data[i] = (lastOut + 0.02 * white) / 1.02;
-        lastOut = data[i];
-        data[i] *= 3.5;
-      }
-
-      const noiseSource = ctx.createBufferSource();
-      noiseSource.buffer = buffer;
-      noiseSource.loop = true;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = type === 'rain' ? 'lowpass' : 'bandpass';
-      filter.frequency.setValueAtTime(type === 'rain' ? 800 : 450, ctx.currentTime);
-
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(type === 'rain' ? 0.08 : 0.06, ctx.currentTime);
-
-      noiseSource.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(getMasterGain());
-
-      noiseSource.start();
-      if (type === 'rain') rainNoiseNode = { source: noiseSource, gain: noiseGain };
-      else streamNoiseNode = { source: noiseSource, gain: noiseGain };
-    }
-
-    function stopAmbientNoise() {
-      if (rainNoiseNode) {
-        try { rainNoiseNode.source.stop(); } catch(e) {}
-        rainNoiseNode = null;
-      }
-      if (streamNoiseNode) {
-        try { streamNoiseNode.source.stop(); } catch(e) {}
-        streamNoiseNode = null;
-      }
-    }
-
-    function startBgm() {
+    function startSynthBgm() {
       getAudioContext();
-      if (isBgmPlaying) return;
-      isBgmPlaying = true;
-      updateBgmUI();
-
-      if (currentBgmTrack === 'rain_piano') startAmbientNoise('rain');
-      else if (currentBgmTrack === 'river_drone') startAmbientNoise('stream');
-      else stopAmbientNoise();
-
       playCurrentChordStep();
+      if (bgmLoopTimer) clearInterval(bgmLoopTimer);
       bgmLoopTimer = setInterval(playCurrentChordStep, 3400);
     }
 
-    function pauseBgm() {
-      isBgmPlaying = false;
+    function stopSynthBgm() {
       if (bgmLoopTimer) {
         clearInterval(bgmLoopTimer);
         bgmLoopTimer = null;
       }
-      stopAmbientNoise();
-      updateBgmUI();
-    }
-
-    function toggleBgmManual() {
-      getAudioContext();
-      if (isBgmPlaying) pauseBgm();
-      else startBgm();
-    }
-
-    function selectBgmTrack(trackId) {
-      if (trackId === 'river_drone' && !state.streamUnlocked) {
-        switchTab('shop');
-        return;
-      }
-      currentBgmTrack = trackId;
-      ['rain_piano', 'forest_chimes', 'river_drone', 'silent'].forEach(id => {
-        const row = document.getElementById('track-' + id);
-        const status = document.getElementById('status-' + id);
-        if (!row || !status) return;
-        if (id === trackId) {
-          row.className = 'p-3 rounded-2xl border-2 border-[#48D1CC] bg-[#E4F8F7]/60 flex items-center justify-between cursor-pointer transition';
-          status.innerText = 'Selected';
-          status.className = 'text-xs font-extrabold text-[#27ABA4]';
-        } else {
-          row.className = 'p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition';
-          status.innerText = 'Select';
-          status.className = 'text-xs font-bold text-slate-400';
-        }
-      });
-
-      updateBgmUI();
-      if (isBgmPlaying) {
-        pauseBgm();
-        startBgm();
-      }
-    }
-
-    function updateBgmUI() {
-      const bannerText = document.getElementById('bgm-banner-text');
-      const pulse = document.getElementById('bgm-pulse');
-      const dot = document.getElementById('bgm-dot');
-      const visualizer = document.getElementById('eq-visualizer');
-      const soundIcon = document.getElementById('icon-sound');
-      const btnManual = document.getElementById('btn-bgm-manual');
-
-      const names = {
-        'rain_piano': 'Nordic Rain & Piano',
-        'forest_chimes': 'Pine Forest & Chimes',
-        'river_drone': 'Glacier Stream',
-        'silent': 'Silent (Muted)'
-      };
-
-      if (isBgmPlaying) {
-        pulse.classList.remove('hidden');
-        dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-[#27ABA4]';
-        bannerText.innerText = '🎵 BGM: ' + names[currentBgmTrack] + ' (Playing)';
-        visualizer.classList.remove('hidden');
-        soundIcon.classList.add('hidden');
-        btnManual.innerText = 'PAUSE SOUNDSCAPE PREVIEW';
-        btnManual.className = 'w-full mt-4 py-2.5 rounded-xl bg-[#FF715B] text-white font-extrabold text-xs tracking-wider shadow-sm hover:bg-[#e05641] transition';
-      } else {
-        pulse.classList.add('hidden');
-        dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-slate-400';
-        bannerText.innerText = '🎵 BGM: ' + names[currentBgmTrack] + ' (Ready)';
-        visualizer.classList.add('hidden');
-        soundIcon.classList.remove('hidden');
-        btnManual.innerText = 'PLAY SOUNDSCAPE PREVIEW';
-        btnManual.className = 'w-full mt-4 py-2.5 rounded-xl bg-[#48D1CC] text-white font-extrabold text-xs tracking-wider shadow-sm hover:bg-[#27ABA4] transition';
-      }
     }
 
     function playBellSound() {
-      const ctx = getAudioContext();
-      const now = ctx.currentTime;
-      [528, 1056, 1584].forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now);
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.exponentialRampToValueAtTime(0.2 / (idx + 1), now + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
-        osc.connect(gain);
-        gain.connect(getMasterGain());
-        osc.start(now);
-        osc.stop(now + 3.3);
+      const bellAudio = new Audio('assets/audio/sfx/bell.mp3');
+      bellAudio.play().catch(() => {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        [528, 1056, 1584].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.2 / (idx + 1), now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start(now);
+          osc.stop(now + 3.3);
+        });
       });
     }
 
     function playCoinChime() {
-      const ctx = getAudioContext();
-      const now = ctx.currentTime;
-      [987.77, 1318.51, 1567.98, 1975.53].forEach((freq, idx) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-        gain.gain.setValueAtTime(0.001, now + idx * 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.6);
-        osc.connect(gain);
-        gain.connect(getMasterGain());
-        osc.start(now + idx * 0.08);
-        osc.stop(now + idx * 0.08 + 0.7);
+      const coinAudio = new Audio('assets/audio/sfx/coin.mp3');
+      coinAudio.play().catch(() => {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        [987.77, 1318.51, 1567.98, 1975.53].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.001, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.18, now + idx * 0.08 + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.6);
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.7);
+        });
       });
     }
 
-    // App State
-    const state = {
-      coins: 100,
-      suppressantUnlocked: true,
-      streamUnlocked: false,
-      activeChar: 'enhancer',
-      mode: 'focus',
-      remaining: 10,
-      total: 10,
-      durations: {
-        focus: 10,
-        shortBreak: 5,
-        longBreak: 10
-      },
-      isRunning: false,
-      sessionsCompleted: 0,
-      showFocusAnimation: true,
-      bgmBreakMode: 'always' // 'always' | 'focusOnly' | 'breakOnly'
-    };
-
-    let timerInterval = null;
-    let itemCycleInterval = null;
-    let currentItemIdx = 0;
-
     function shouldPlayBgm(mode) {
-      if (currentBgmTrack === 'silent') return false;
+      if (state.currentBgm === 'none') return false;
       const isFocus = mode === 'focus';
       if (state.bgmBreakMode === 'always') return true;
       if (state.bgmBreakMode === 'focusOnly') return isFocus;
@@ -991,11 +1188,8 @@
       state.bgmBreakMode = mode;
       updateBgmBreakModeUI();
       if (state.isRunning) {
-        if (shouldPlayBgm(state.mode)) {
-          startBgm();
-        } else {
-          pauseBgm();
-        }
+        if (shouldPlayBgm(state.mode)) startBgm();
+        else pauseBgm();
       }
     }
 
@@ -1004,7 +1198,7 @@
       const labels = {
         always: { tag: 'ALWAYS', desc: 'Plays continuously during both focus sessions and breaks.' },
         focusOnly: { tag: 'FOCUS ONLY', desc: 'Plays during focus only; muted during breaks.' },
-        breakOnly: { tag: 'BREAK ONLY', desc: 'Plays during breaks only; muted during focus.' },
+        breakOnly: { tag: 'BREAK ONLY', desc: 'Plays during breaks only; muted during focus.' }
       };
 
       const current = state.bgmBreakMode;
@@ -1016,33 +1210,195 @@
       if (lblSettings) lblSettings.innerText = labels[current].tag;
 
       modes.forEach(m => {
-        const btnM = document.getElementById('btn-bgm-mode-' + m);
-        if (btnM) {
-          if (m === current) {
-            btnM.className = 'flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-xs';
-          } else {
-            btnM.className = 'flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition';
+        ['btn-bgm-mode-', 'btn-set-bgm-'].forEach(prefix => {
+          const btn = document.getElementById(prefix + m);
+          if (btn) {
+            btn.className = (m === current)
+              ? 'flex-1 py-1 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-2xs'
+              : 'flex-1 py-1 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition';
           }
-        }
-        const btnS = document.getElementById('btn-set-bgm-' + m);
-        if (btnS) {
-          if (m === current) {
-            btnS.className = 'flex-1 py-1.5 rounded-lg text-[10px] font-extrabold transition bg-white text-[#162529] shadow-xs';
-          } else {
-            btnS.className = 'flex-1 py-1.5 rounded-lg text-[10px] font-bold text-slate-500 hover:text-slate-800 transition';
-          }
-        }
+        });
       });
     }
 
-    // Render Timer Digits & Visuals
+    function updateBgmUI() {
+      const bannerText = document.getElementById('bgm-banner-text');
+      const pulse = document.getElementById('bgm-pulse');
+      const dot = document.getElementById('bgm-dot');
+      const visualizer = document.getElementById('eq-visualizer');
+      const soundIcon = document.getElementById('icon-sound');
+      const btnManual = document.getElementById('btn-bgm-manual');
+
+      const track = soundCatalog[state.currentBgm] || soundCatalog.none;
+
+      if (isBgmPlaying) {
+        pulse.classList.remove('hidden');
+        dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-[#27ABA4]';
+        bannerText.innerText = '🎵 BGM: ' + track.title + ' (Playing)';
+        visualizer.classList.remove('hidden');
+        soundIcon.classList.add('hidden');
+        if (btnManual) {
+          btnManual.innerText = 'PAUSE SOUNDSCAPE PREVIEW';
+          btnManual.className = 'w-full mt-4 py-2.5 rounded-xl bg-[#FF715B] text-white font-extrabold text-xs tracking-wider shadow-sm hover:bg-[#e05641] transition';
+        }
+      } else {
+        pulse.classList.add('hidden');
+        dot.className = 'relative inline-flex rounded-full h-2 w-2 bg-slate-400';
+        bannerText.innerText = '🎵 BGM: ' + track.title + ' (Ready)';
+        visualizer.classList.add('hidden');
+        soundIcon.classList.remove('hidden');
+        if (btnManual) {
+          btnManual.innerText = 'PLAY SOUNDSCAPE PREVIEW';
+          btnManual.className = 'w-full mt-4 py-2.5 rounded-xl bg-[#48D1CC] text-white font-extrabold text-xs tracking-wider shadow-sm hover:bg-[#27ABA4] transition';
+        }
+      }
+    }
+
+    function selectBgmTrack(trackId) {
+      if (!state.unlockedSounds[trackId]) {
+        switchTab('shop');
+        closeSoundSheet();
+        return;
+      }
+      state.currentBgm = trackId;
+      renderSoundSheetList();
+      updateBgmUI();
+      if (isBgmPlaying) {
+        pauseBgm();
+        startBgm();
+      }
+    }
+
+    function renderSoundSheetList() {
+      const container = document.getElementById('soundscape-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      Object.values(soundCatalog).forEach(track => {
+        const isUnlocked = state.unlockedSounds[track.id];
+        const isSelected = state.currentBgm === track.id;
+
+        const row = document.createElement('div');
+        row.className = isSelected
+          ? 'p-3 rounded-2xl border-2 border-[#48D1CC] bg-[#E4F8F7]/60 flex items-center justify-between cursor-pointer transition'
+          : 'p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition';
+        
+        row.onclick = () => selectBgmTrack(track.id);
+
+        row.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="text-xl">${track.icon}</span>
+            <div>
+              <p class="text-xs font-extrabold text-[#162529]">${track.title}</p>
+              <p class="text-[10px] text-[#516970]">${track.desc}</p>
+            </div>
+          </div>
+          <div>
+            ${!isUnlocked 
+              ? `<span class="text-[10px] font-extrabold text-[#D98209] bg-[#FFF3DB] px-2 py-0.5 rounded-full border border-[#F5A623]/30">🪙 ${track.cost}</span>`
+              : (isSelected 
+                  ? `<span class="text-xs font-extrabold text-[#27ABA4]">Selected</span>`
+                  : `<span class="text-xs font-bold text-slate-400">Select</span>`
+                )
+            }
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function buyOrEquipTrack(trackId, cost) {
+      if (state.unlockedSounds[trackId]) {
+        selectBgmTrack(trackId);
+        updateShopButtons();
+        return;
+      }
+      if (state.coins >= cost) {
+        state.coins -= cost;
+        state.unlockedSounds[trackId] = true;
+        updateCoinDisplay();
+        playCoinChime();
+        selectBgmTrack(trackId);
+        updateShopButtons();
+        openSoundSheet();
+      } else {
+        openPaywallSheet();
+      }
+    }
+
+    function equipSoundFromShop(trackId) {
+      selectBgmTrack(trackId);
+      updateShopButtons();
+    }
+
+    function updateShopButtons() {
+      const btnRain = document.getElementById('btn-shop-rain');
+      if (btnRain) {
+        btnRain.innerText = state.currentBgm === 'rain' ? 'Equipped' : 'Equip';
+        btnRain.className = state.currentBgm === 'rain'
+          ? 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default'
+          : 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition';
+      }
+      const btnForest = document.getElementById('btn-shop-forest');
+      if (btnForest) {
+        btnForest.innerText = state.currentBgm === 'forest' ? 'Equipped' : 'Equip';
+        btnForest.className = state.currentBgm === 'forest'
+          ? 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default'
+          : 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition';
+      }
+      const btnRN = document.getElementById('btn-shop-rain_nature');
+      const costRN = document.getElementById('cost-rain_nature');
+      if (btnRN) {
+        if (state.unlockedSounds.rain_nature) {
+          costRN.innerText = '✓ Unlocked';
+          costRN.className = 'text-[10px] font-semibold text-[#27ABA4]';
+          btnRN.innerText = state.currentBgm === 'rain_nature' ? 'Equipped' : 'Equip';
+          btnRN.className = state.currentBgm === 'rain_nature'
+            ? 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default'
+            : 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition';
+        } else {
+          btnRN.innerText = 'Unlock';
+          btnRN.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#48D1CC] text-white shadow-sm hover:bg-[#27ABA4] active:scale-95 transition';
+        }
+      }
+      const btnPos = document.getElementById('btn-shop-positive');
+      const costPos = document.getElementById('cost-positive');
+      if (btnPos) {
+        if (state.unlockedSounds.positive) {
+          costPos.innerText = '✓ Unlocked';
+          costPos.className = 'text-[10px] font-semibold text-[#27ABA4]';
+          btnPos.innerText = state.currentBgm === 'positive' ? 'Equipped' : 'Equip';
+          btnPos.className = state.currentBgm === 'positive'
+            ? 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default'
+            : 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition';
+        } else {
+          btnPos.innerText = 'Unlock';
+          btnPos.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-[#48D1CC] text-white shadow-sm hover:bg-[#27ABA4] active:scale-95 transition';
+        }
+      }
+    }
+
+    function toggleTestModeSpeed() {
+      state.isDemoFast = !state.isDemoFast;
+      const badge = document.getElementById('test-mode-badge');
+      if (badge) {
+        badge.innerText = state.isDemoFast ? '10s DEMO' : 'REAL TIME';
+        badge.className = state.isDemoFast
+          ? 'text-[9px] font-extrabold bg-[#48D1CC]/20 text-[#27ABA4] px-1.5 py-0.5 rounded cursor-pointer hover:bg-[#48D1CC]/30 transition'
+          : 'text-[9px] font-extrabold bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded cursor-pointer hover:bg-slate-300 transition';
+      }
+      setMode(state.mode);
+    }
+
+    let timerInterval = null;
+    let currentItemIdx = 0;
+
     function renderTimer() {
       updateCharacterSprite();
       const minutes = Math.floor(state.remaining / 60);
       const seconds = state.remaining % 60;
       const timeStr = String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
 
-      // Clocks
       document.getElementById('timer-clock').innerText = timeStr;
       document.getElementById('stage-timer-clock').innerText = timeStr;
 
@@ -1050,16 +1406,14 @@
       const isFocusMode = state.mode === 'focus';
       const progress = isFocusMode && state.total > 0 ? (state.remaining / state.total) : 0;
 
-      // Circular ring offset (for Classic Mode)
       const strokeOffset = 100 * (1 - (state.total > 0 ? (state.remaining / state.total) : 0));
       document.getElementById('progress-arc').style.strokeDashoffset = strokeOffset;
 
-      // Organic Progress 1: Girl's Food Mountain Sinking & Fading
       const mountainContainer = document.getElementById('girl-food-mountain');
       const mountainInner = document.getElementById('mountain-inner');
       if (mountainContainer && mountainInner) {
         if (!isFocusMode || !isEnhancer) {
-          mountainContainer.style.display = 'none'; // Strictly hidden when not Enhancer or during break!
+          mountainContainer.style.display = 'none';
         } else {
           mountainContainer.style.display = 'flex';
           const sinkY = (1 - progress) * 36;
@@ -1083,26 +1437,19 @@
         foodIcon.innerText = isFocusMode ? foodList[currentItemIdx % foodList.length].icon : (state.mode === 'shortBreak' ? '☕' : '🌿');
       }
       if (feastLabel) {
-        if (!isFocusMode) {
-          feastLabel.innerText = '☕ ' + (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': REST & SMILE';
-        } else if (state.remaining === 0) {
-          feastLabel.innerText = '🎉 ALL FEAST DEVOURED! FOCUS COMPLETE';
-        } else if (state.isRunning) {
-          feastLabel.innerText = 'FEAST IN PROGRESS: ' + feastPct + '% REMAINING';
-        } else {
-          feastLabel.innerText = 'FEAST: ' + feastPct + '% REMAINING (READY)';
-        }
+        if (!isFocusMode) feastLabel.innerText = '☕ ' + (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': REST & SMILE';
+        else if (state.remaining === 0) feastLabel.innerText = '🎉 ALL FEAST DEVOURED! FOCUS COMPLETE';
+        else if (state.isRunning) feastLabel.innerText = 'FEAST IN PROGRESS: ' + feastPct + '% REMAINING';
+        else feastLabel.innerText = 'FEAST: ' + feastPct + '% REMAINING (READY)';
       }
 
-      // Organic Progress 2: Boy's Water Pond Shrinking Seamlessly
       const waterPool = document.getElementById('boy-water-pool');
       if (waterPool) {
         if (isEnhancer) {
-          waterPool.style.display = 'none'; // Strictly hidden when Enhancer is active!
+          waterPool.style.display = 'none';
         } else {
           waterPool.style.display = 'flex';
           if (!isFocusMode) {
-            // No water absorbed during break!
             waterPool.style.transform = 'scale(0.18)';
             waterPool.style.opacity = '0.35';
           } else {
@@ -1117,21 +1464,61 @@
       if (waterLabel) {
         const waterPct = Math.round(progress * 100);
         if (!isFocusMode) {
-          waterLabel.innerText = '🌿 ' + (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': TRANQUILITY (NO ABSORPTION)';
-          waterLabel.className = 'text-[10px] font-extrabold text-[#27ABA4]';
+          waterLabel.innerText = '🌿 ' + (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': TRANQUILITY';
         } else if (waterPct > 0) {
           waterLabel.innerText = state.isRunning
             ? '💧 WATER LEVEL: ' + waterPct + '% (ABSORBING)'
             : '💧 WATER LEVEL: ' + waterPct + '% (READY)';
-          waterLabel.className = 'text-[10px] font-extrabold text-[#27ABA4]';
         } else {
           waterLabel.innerText = '✨ PURIFICATION COMPLETE! TRANQUILITY ACHIEVED';
-          waterLabel.className = 'text-[10px] font-extrabold text-[#27ABA4]';
         }
       }
     }
 
-    // Toggle between Animation Mode and Classic Mode
+    function renderQuickPresets() {
+      const bar = document.getElementById('quick-preset-bar');
+      if (!bar) return;
+      if (state.isRunning) {
+        bar.style.display = 'none';
+        return;
+      }
+      bar.style.display = 'flex';
+      bar.innerHTML = '';
+
+      const presets = {
+        focus: [1, 5, 15, 25, 45, 60],
+        shortBreak: [1, 3, 5, 10],
+        longBreak: [1, 5, 15, 30]
+      }[state.mode];
+
+      const currentVal = state.durations[state.mode];
+      const activeColor = state.mode === 'focus' ? '#48D1CC' : (state.mode === 'shortBreak' ? '#5AB693' : '#8BA2A8');
+
+      presets.forEach(p => {
+        const isSelected = currentVal === p;
+        const btn = document.createElement('button');
+        btn.className = isSelected
+          ? 'px-2.5 py-1 rounded-xl text-[11px] font-extrabold border transition shadow-2xs'
+          : 'px-2.5 py-1 rounded-xl text-[11px] font-semibold bg-white border border-[#E2ECEE] text-slate-600 hover:border-slate-300 transition';
+        
+        if (isSelected) {
+          btn.style.backgroundColor = state.mode === 'focus' ? 'rgba(72,209,204,0.15)' : (state.mode === 'shortBreak' ? 'rgba(90,182,147,0.15)' : 'rgba(139,162,168,0.15)');
+          btn.style.borderColor = activeColor;
+          btn.style.color = activeColor;
+        }
+
+        btn.innerText = p === 1 ? '⚡ 1m' : p + ' min';
+        btn.onclick = () => {
+          state.durations[state.mode] = p;
+          if (state.mode === 'focus') document.getElementById('slider-focus').value = p;
+          else if (state.mode === 'shortBreak') document.getElementById('slider-short').value = p;
+          else document.getElementById('slider-long').value = p;
+          setMode(state.mode);
+        };
+        bar.appendChild(btn);
+      });
+    }
+
     function updateAnimationModeView() {
       const stageContainer = document.getElementById('stage-container');
       const circularContainer = document.getElementById('timer-circular-container');
@@ -1146,7 +1533,6 @@
       const isFocusMode = state.mode === 'focus';
 
       if (state.showFocusAnimation) {
-        // Prominent Center Stage
         stageContainer.classList.remove('hidden');
         circularContainer.classList.add('hidden');
         charCard.classList.add('hidden');
@@ -1164,7 +1550,6 @@
           boyStatus.style.display = 'flex';
         }
       } else {
-        // Classic Circular Progress Ring
         stageContainer.classList.add('hidden');
         circularContainer.classList.remove('hidden');
         charCard.classList.remove('hidden');
@@ -1180,7 +1565,6 @@
       updateAnimationModeView();
     }
 
-    // Companion Head Overlay Updates
     function updateItemOverlay() {
       const cardOverlay = document.getElementById('char-item-overlay');
       const stageEatOverlay = document.getElementById('stage-eat-overlay');
@@ -1202,7 +1586,7 @@
           if (stageBloomOverlay) stageBloomOverlay.classList.add('hidden');
           if (cardOverlay) {
             cardOverlay.src = foodList[currentItemIdx % foodList.length].src;
-            cardOverlay.className = 'absolute w-7 h-7 object-contain pointer-events-none z-10 anim-food-eat';
+            cardOverlay.className = 'absolute w-6 h-6 object-contain pointer-events-none z-10 anim-food-eat';
             cardOverlay.classList.remove('hidden');
           }
         } else {
@@ -1215,7 +1599,7 @@
           }
           if (cardOverlay) {
             cardOverlay.src = bloomList[currentItemIdx % bloomList.length];
-            cardOverlay.className = 'absolute w-7 h-7 object-contain pointer-events-none z-10 anim-bloom-grow';
+            cardOverlay.className = 'absolute w-6 h-6 object-contain pointer-events-none z-10 anim-bloom-grow';
             cardOverlay.classList.remove('hidden');
           }
         }
@@ -1234,6 +1618,7 @@
 
     function startTimer() {
       state.isRunning = true;
+      renderQuickPresets();
       document.getElementById('btn-play').classList.replace('bg-[#48D1CC]', 'bg-[#FF715B]');
       document.getElementById('btn-play').classList.replace('hover:bg-[#27ABA4]', 'hover:bg-[#e05641]');
       document.getElementById('play-text').innerText = 'PAUSE';
@@ -1244,10 +1629,9 @@
         ? 'STATUS: BREAK RELAXATION'
         : 'STATUS: IN SESSION';
       document.getElementById('char-status').className = isBreak
-        ? 'text-[11px] font-extrabold text-[#5AB693] tracking-wide mt-0.5 uppercase'
-        : 'text-[11px] font-extrabold text-[#27ABA4] tracking-wide mt-0.5 uppercase';
+        ? 'text-[10px] font-extrabold text-[#5AB693] tracking-wide uppercase'
+        : 'text-[10px] font-extrabold text-[#27ABA4] tracking-wide uppercase';
 
-      // Focus Mode Cycle Loop: Standard (1.6s) -> Action (4.0s) -> Smile (3.4s) -> repeat
       if (state.mode === 'focus') {
         if (focusCycleTimeout) clearTimeout(focusCycleTimeout);
         focusCyclePhase = 0;
@@ -1263,9 +1647,6 @@
         updateCharacterSprite();
         updateItemOverlay();
       }
-
-      updateCharacterSprite();
-      updateItemOverlay();
 
       if (shouldPlayBgm(state.mode)) {
         startBgm();
@@ -1285,6 +1666,7 @@
 
     function pauseTimer() {
       state.isRunning = false;
+      renderQuickPresets();
       clearInterval(timerInterval);
       document.getElementById('btn-play').classList.replace('bg-[#FF715B]', 'bg-[#48D1CC]');
       document.getElementById('btn-play').classList.replace('hover:bg-[#e05641]', 'hover:bg-[#27ABA4]');
@@ -1295,7 +1677,7 @@
       document.getElementById('char-status').innerText = isBreak
         ? 'STATUS: BREAK RELAXATION'
         : 'STATUS: READY';
-      document.getElementById('char-status').className = 'text-[11px] font-bold text-slate-400 tracking-wide mt-0.5 uppercase';
+      document.getElementById('char-status').className = 'text-[10px] font-bold text-slate-400 tracking-wide uppercase';
 
       if (focusCycleTimeout) {
         clearTimeout(focusCycleTimeout);
@@ -1317,6 +1699,7 @@
 
     function completeSession() {
       state.isRunning = false;
+      renderQuickPresets();
       clearInterval(timerInterval);
       document.getElementById('btn-play').classList.replace('bg-[#FF715B]', 'bg-[#48D1CC]');
       document.getElementById('btn-play').classList.replace('hover:bg-[#e05641]', 'hover:bg-[#27ABA4]');
@@ -1327,9 +1710,8 @@
         clearTimeout(focusCycleTimeout);
         focusCycleTimeout = null;
       }
-      focusCyclePhase = 2; // Celebration smile
+      focusCyclePhase = 2;
 
-      // Only pause BGM if break playback is disabled
       if (state.bgmBreakMode === 'focusOnly') {
         pauseBgm();
       }
@@ -1341,11 +1723,56 @@
       playBellSound();
 
       if (state.mode === 'focus') {
+        const focusMins = state.durations.focus;
+        const oldAffection = calculateAffection(state.activeChar);
+        
         state.coins += 10;
         state.sessionsCompleted++;
         updateCoinDisplay();
+        
+        const activeCat = state.categories.find(c => c.id === state.activeCategory);
+        if (activeCat) activeCat.totalMinutes += focusMins;
+
+        state.fairyAffection[state.activeChar].totalMinutes += focusMins;
+        const newAffection = calculateAffection(state.activeChar);
+        const didLevelUp = newAffection.level > oldAffection.level;
+
+        const unlockedQuotes = fairyQuotes[state.activeChar].filter(q => q.reqLv <= newAffection.level);
+        const featuredQuote = unlockedQuotes[Math.floor(Math.random() * unlockedQuotes.length)];
+
         document.getElementById('session-badge').innerText = 'SESSION #' + (state.sessionsCompleted + 1);
         document.getElementById('reward-img').src = state.activeChar === 'enhancer' ? enhancerSmilingSrc : suppressantFinishedSrc;
+        
+        const quoteBox = document.getElementById('reward-quote-box');
+        const quoteText = document.getElementById('reward-quote-text');
+        const quoteAuthor = document.getElementById('reward-quote-author');
+        if (featuredQuote) {
+          quoteBox.classList.remove('hidden');
+          quoteText.innerText = `"${featuredQuote.quote}"`;
+          quoteAuthor.innerText = `— ${state.activeChar === 'enhancer' ? 'Appetite Enhancer' : 'Appetite Suppressant'}`;
+          quoteBox.className = state.activeChar === 'enhancer'
+            ? 'w-full my-3 p-3 rounded-2xl bg-[#FFF1ED] border border-[#FF715B]/25 text-left'
+            : 'w-full my-3 p-3 rounded-2xl bg-[#E4F8F7] border border-[#48D1CC]/30 text-left';
+          quoteText.className = state.activeChar === 'enhancer'
+            ? 'text-xs font-semibold text-[#FF715B] italic leading-snug'
+            : 'text-xs font-semibold text-[#1E8D87] italic leading-snug';
+        }
+
+        const levelBanner = document.getElementById('reward-levelup-banner');
+        if (didLevelUp) {
+          levelBanner.classList.remove('hidden');
+          document.getElementById('reward-levelup-text').innerText = `Friendship reached Lv.${newAffection.level} [${newAffection.name}]!`;
+        } else {
+          levelBanner.classList.add('hidden');
+        }
+
+        document.getElementById('reward-cat-name').innerText = activeCat ? activeCat.name : 'Focus';
+        document.getElementById('reward-cat-mins').innerText = `+${focusMins} min${focusMins > 1 ? 's' : ''} Focus`;
+        document.getElementById('reward-fairy-icon').innerText = state.activeChar === 'enhancer' ? '🍓' : '💧';
+        document.getElementById('reward-fairy-name').innerText = state.activeChar === 'enhancer' ? 'Enhancer' : 'Suppressant';
+        document.getElementById('reward-fairy-level').innerText = `Lv.${newAffection.level} (${newAffection.totalMinutes}m)`;
+        document.getElementById('reward-fairy-level').className = state.activeChar === 'enhancer' ? 'font-extrabold text-[#FF715B]' : 'font-extrabold text-[#27ABA4]';
+
         document.getElementById('modal-reward').classList.remove('hidden');
       } else {
         setMode('focus');
@@ -1360,6 +1787,11 @@
       startTimer();
     }
 
+    function openCompendiumFromReward() {
+      document.getElementById('modal-reward').classList.add('hidden');
+      openCompendium(state.activeChar);
+    }
+
     function skipTimer() {
       if (state.mode === 'focus') setMode('shortBreak');
       else if (state.mode === 'shortBreak') setMode('longBreak');
@@ -1368,7 +1800,12 @@
 
     function setMode(mode) {
       state.mode = mode;
-      state.total = state.durations[mode];
+      const mins = state.durations[mode];
+      if (state.isDemoFast) {
+        state.total = mins === 1 ? 10 : (mins * 60);
+      } else {
+        state.total = mins * 60;
+      }
       state.remaining = state.total;
 
       const colors = {
@@ -1376,18 +1813,13 @@
         shortBreak: '#5AB693',
         longBreak: '#8BA2A8'
       };
-      const titles = {
-        focus: 'Focus (' + state.durations.focus + 's)',
-        shortBreak: 'Short Break (' + state.durations.shortBreak + 's)',
-        longBreak: 'Long Break (' + state.durations.longBreak + 's)'
-      };
 
       ['focus', 'shortBreak', 'longBreak'].forEach(m => {
         const btn = document.getElementById('mode-' + (m === 'shortBreak' ? 'short' : (m === 'longBreak' ? 'long' : 'focus')));
         if (m === mode) {
-          btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-extrabold transition bg-white text-[#162529] shadow-sm';
+          btn.className = 'px-3.5 py-1 rounded-full text-xs font-extrabold transition bg-white text-[#162529] shadow-sm';
         } else {
-          btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold text-[#8BA2A8] transition hover:text-slate-700';
+          btn.className = 'px-3.5 py-1 rounded-full text-xs font-bold text-[#8BA2A8] transition hover:text-slate-700';
         }
       });
 
@@ -1402,13 +1834,16 @@
         const rewardHtml = '<span>🪙</span> +10 COINS';
         sub.innerHTML = rewardHtml;
         stageSub.innerHTML = rewardHtml;
+        document.getElementById('play-text').innerText = state.isDemoFast && mins === 1 ? 'START (10s)' : `START (${mins}m)`;
       } else {
         const breakHtml = mode === 'shortBreak' ? '☕ SHORT BREAK RELAXATION' : '🌿 LONG BREAK RECHARGE';
         sub.innerHTML = breakHtml;
         stageSub.innerHTML = breakHtml;
+        document.getElementById('play-text').innerText = `START BREAK (${mins}m)`;
       }
 
       document.getElementById('progress-arc').style.stroke = colors[mode];
+      renderQuickPresets();
       resetTimer();
     }
 
@@ -1427,23 +1862,20 @@
       document.getElementById('stage-char-icon').innerText = isEnhancer ? '🔥' : '❄️';
       document.getElementById('char-badge').innerText = isEnhancer ? '🔥 WARM IMP' : '❄️ COOL SAGE';
       document.getElementById('char-badge').className = isEnhancer
-        ? 'inline-block px-2 py-0.5 text-[10px] font-extrabold tracking-wide uppercase rounded-md bg-[#FF715B]/15 text-[#FF715B]'
-        : 'inline-block px-2 py-0.5 text-[10px] font-extrabold tracking-wide uppercase rounded-md bg-[#27ABA4]/15 text-[#27ABA4]';
+        ? 'inline-block px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide uppercase rounded-md bg-[#FF715B]/15 text-[#FF715B]'
+        : 'inline-block px-1.5 py-0.5 text-[9px] font-extrabold tracking-wide uppercase rounded-md bg-[#27ABA4]/15 text-[#27ABA4]';
 
       document.getElementById('char-frame').className = isEnhancer
-        ? 'w-16 h-16 rounded-2xl bg-[#FFF1ED] p-1.5 shrink-0 flex items-center justify-center overflow-hidden border border-[#FFDDD5] relative'
-        : 'w-16 h-16 rounded-2xl bg-[#E4F8F7] p-1.5 shrink-0 flex items-center justify-center overflow-hidden border border-[#48D1CC]/30 relative';
+        ? 'w-14 h-14 rounded-2xl bg-[#FFF1ED] p-1 shrink-0 flex items-center justify-center overflow-hidden border border-[#FFDDD5] relative'
+        : 'w-14 h-14 rounded-2xl bg-[#E4F8F7] p-1 shrink-0 flex items-center justify-center overflow-hidden border border-[#48D1CC]/30 relative';
 
-      // Update shop buttons
       const btnEnhancer = document.getElementById('btn-equip-enhancer');
       const btnSuppressant = document.getElementById('btn-buy-suppressant');
       if (isEnhancer) {
         btnEnhancer.innerText = 'Equipped';
         btnEnhancer.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default';
-        if (state.suppressantUnlocked) {
-          btnSuppressant.innerText = 'Equip';
-          btnSuppressant.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition';
-        }
+        btnSuppressant.innerText = 'Equip';
+        btnSuppressant.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#48D1CC] text-[#27ABA4] shadow-sm hover:bg-[#E4F8F7] active:scale-95 transition';
       } else {
         btnEnhancer.innerText = 'Equip';
         btnEnhancer.className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-white border border-[#FF715B] text-[#FF715B] shadow-sm hover:bg-[#FFF1ED] active:scale-95 transition';
@@ -1452,26 +1884,6 @@
       }
 
       updateAnimationModeView();
-    }
-
-    function buyOrEquipSuppressant() {
-      setActiveCharacter('suppressant');
-      switchTab('timer');
-    }
-
-    function buySound(trackId, cost) {
-      if (state.coins >= cost) {
-        state.coins -= cost;
-        state.streamUnlocked = true;
-        updateCoinDisplay();
-        document.getElementById('btn-stream').innerText = 'Owned';
-        document.getElementById('btn-stream').className = 'text-xs font-extrabold px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 cursor-default';
-        playCoinChime();
-        selectBgmTrack(trackId);
-        openSoundSheet();
-      } else {
-        openPaywallSheet();
-      }
     }
 
     function updateCoinDisplay() {
@@ -1487,22 +1899,21 @@
     }
 
     function updateDuration(modeKey, val) {
-      state.durations[modeKey === 'short' ? 'shortBreak' : (modeKey === 'long' ? 'longBreak' : 'focus')] = parseInt(val);
-      document.getElementById('lbl-' + modeKey).innerText = val + ' secs';
-      if ((modeKey === 'focus' && state.mode === 'focus') ||
-          (modeKey === 'short' && state.mode === 'shortBreak') ||
-          (modeKey === 'long' && state.mode === 'longBreak')) {
+      const mode = modeKey === 'short' ? 'shortBreak' : (modeKey === 'long' ? 'longBreak' : 'focus');
+      state.durations[mode] = parseInt(val);
+      document.getElementById('lbl-' + modeKey).innerText = val + (val == 1 ? ' min' : ' mins');
+      if (state.mode === mode) {
         setMode(state.mode);
       }
     }
 
     function resetSettings() {
-      document.getElementById('slider-focus').value = 10;
+      document.getElementById('slider-focus').value = 1;
       document.getElementById('slider-short').value = 5;
-      document.getElementById('slider-long').value = 10;
-      updateDuration('focus', 10);
+      document.getElementById('slider-long').value = 15;
+      updateDuration('focus', 1);
       updateDuration('short', 5);
-      updateDuration('long', 10);
+      updateDuration('long', 15);
     }
 
     function switchTab(tabId) {
@@ -1519,12 +1930,273 @@
       });
     }
 
-    function openSoundSheet() { document.getElementById('modal-sound').classList.remove('hidden'); }
+    function openSoundSheet() {
+      renderSoundSheetList();
+      document.getElementById('modal-sound').classList.remove('hidden');
+    }
     function closeSoundSheet() { document.getElementById('modal-sound').classList.add('hidden'); }
     function openPaywallSheet() { document.getElementById('modal-paywall').classList.remove('hidden'); }
     function closePaywallSheet() { document.getElementById('modal-paywall').classList.add('hidden'); }
+    function openCreditsModal() { document.getElementById('modal-credits').classList.remove('hidden'); }
+    function closeCreditsModal() { document.getElementById('modal-credits').classList.add('hidden'); }
 
-    // Init Mountain Items on Load
+    let compendiumCurrentTab = 'enhancer';
+
+    function openCompendium(initialTab = state.activeChar) {
+      compendiumCurrentTab = initialTab;
+      switchCompendiumTab(compendiumCurrentTab);
+      document.getElementById('modal-compendium').classList.remove('hidden');
+    }
+
+    function closeCompendium() {
+      document.getElementById('modal-compendium').classList.add('hidden');
+    }
+
+    function switchCompendiumTab(tabId) {
+      compendiumCurrentTab = tabId;
+      ['enhancer', 'suppressant', 'categories'].forEach(t => {
+        const btn = document.getElementById('compendium-tab-' + t);
+        if (btn) {
+          if (t === tabId) {
+            btn.className = 'flex-1 py-1.5 rounded-xl text-xs font-extrabold transition bg-white text-[#162529] shadow-2xs';
+            if (t === 'enhancer') btn.classList.add('text-[#FF715B]');
+            else if (t === 'suppressant') btn.classList.add('text-[#27ABA4]');
+            else btn.classList.add('text-[#162529]');
+          } else {
+            btn.className = 'flex-1 py-1.5 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 transition';
+          }
+        }
+      });
+      renderCompendiumContent();
+    }
+
+    function renderCompendiumContent() {
+      const container = document.getElementById('compendium-body');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (compendiumCurrentTab === 'categories') {
+        const totalMinutes = state.categories.reduce((acc, c) => acc + c.totalMinutes, 0);
+
+        const overviewCard = document.createElement('div');
+        overviewCard.className = 'bg-[#E4F8F7] border border-[#48D1CC]/30 rounded-2xl p-4 flex items-center space-x-3.5';
+        overviewCard.innerHTML = `
+          <div class="w-12 h-12 rounded-2xl bg-[#48D1CC] text-white flex items-center justify-center text-2xl font-bold shadow-sm">⏱️</div>
+          <div>
+            <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">TOTAL CATEGORIZED FOCUS</p>
+            <h4 class="text-xl font-black text-[#162529]">${totalMinutes} mins</h4>
+            <p class="text-[10px] text-slate-500 mt-0.5">Tracked across ${state.categories.length} activity categories</p>
+          </div>
+        `;
+        container.appendChild(overviewCard);
+
+        const listHeader = document.createElement('div');
+        listHeader.className = 'flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider px-1 pt-1';
+        listHeader.innerHTML = `<span>Focus by Category</span><span>${state.categories.length} Activities</span>`;
+        container.appendChild(listHeader);
+
+        state.categories.forEach(cat => {
+          const isActive = cat.id === state.activeCategory;
+          const pct = totalMinutes > 0 ? Math.round((cat.totalMinutes / totalMinutes) * 100) : 0;
+
+          const catCard = document.createElement('div');
+          catCard.className = `p-3 rounded-2xl border transition cursor-pointer ${isActive ? 'bg-white border-[#48D1CC] shadow-sm ring-1 ring-[#48D1CC]' : 'bg-white border-slate-200 hover:border-slate-300'}`;
+          catCard.onclick = () => {
+            selectActiveCategory(cat.id);
+          };
+
+          catCard.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <span class="text-xl">${cat.icon}</span>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h5 class="text-xs font-extrabold text-[#162529]">${cat.name}</h5>
+                    ${isActive ? `<span class="text-[9px] font-black bg-[#48D1CC] text-white px-1.5 py-0.2 rounded-full">ACTIVE</span>` : ''}
+                  </div>
+                  <p class="text-[10px] font-semibold text-slate-400">${cat.totalMinutes} mins (${pct}%)</p>
+                </div>
+              </div>
+              <button class="text-xs font-extrabold px-2.5 py-1 rounded-lg ${isActive ? 'bg-[#E4F8F7] text-[#27ABA4]' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
+                ${isActive ? 'Selected' : 'Select'}
+              </button>
+            </div>
+            <div class="w-full bg-slate-100 h-1.5 rounded-full mt-2.5 overflow-hidden">
+              <div class="bg-[#48D1CC] h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+            </div>
+          `;
+          container.appendChild(catCard);
+        });
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'w-full py-2.5 rounded-xl border-2 border-dashed border-[#48D1CC] text-[#27ABA4] font-extrabold text-xs tracking-wider hover:bg-[#E4F8F7] transition flex items-center justify-center gap-1.5 mt-2';
+        addBtn.innerHTML = `<span>✨</span> + Add Custom Category`;
+        addBtn.onclick = () => openAddCategoryModal();
+        container.appendChild(addBtn);
+
+      } else {
+        const charId = compendiumCurrentTab;
+        const isEnhancer = charId === 'enhancer';
+        const affection = calculateAffection(charId);
+        const quotes = fairyQuotes[charId];
+        const unlockedCount = quotes.filter(q => q.reqLv <= affection.level).length;
+
+        const affCard = document.createElement('div');
+        affCard.className = isEnhancer
+          ? 'bg-[#FFF1ED] border border-[#FFDDD5] rounded-2xl p-4'
+          : 'bg-[#E4F8F7] border border-[#48D1CC]/30 rounded-2xl p-4';
+        
+        affCard.innerHTML = `
+          <div class="flex items-center space-x-3.5 mb-3">
+            <div class="w-14 h-14 rounded-2xl bg-white p-1 border ${isEnhancer ? 'border-[#FFDDD5]' : 'border-[#48D1CC]/30'} flex items-center justify-center">
+              <img src="${isEnhancer ? enhancerImgSrc : suppressantImgSrc}" class="w-full h-full object-contain" />
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-sm font-extrabold text-[#162529]">${isEnhancer ? 'Appetite Enhancer' : 'Appetite Suppressant'}</h4>
+                <span class="text-[10px] font-black text-white px-2 py-0.5 rounded-full ${isEnhancer ? 'bg-[#FF715B]' : 'bg-[#27ABA4]'}">Lv.${affection.level} ${affection.name}</span>
+              </div>
+              <p class="text-xs font-semibold text-slate-500 mt-0.5">Total Focus: ${affection.totalMinutes} mins</p>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-[11px] font-bold text-slate-500 mb-1">
+              <span>${affection.next ? `To Friendship Lv.${affection.level + 1}` : 'MAX Friendship Reached!'}</span>
+              <span>${affection.next ? `${affection.totalMinutes} / ${affection.next} mins` : 'MAX'}</span>
+            </div>
+            <div class="w-full bg-white h-2 rounded-full overflow-hidden border border-slate-200">
+              <div class="h-full rounded-full ${isEnhancer ? 'bg-[#FF715B]' : 'bg-[#27ABA4]'}" style="width: ${affection.progressToNext * 100}%"></div>
+            </div>
+          </div>
+        `;
+        container.appendChild(affCard);
+
+        const qHeader = document.createElement('div');
+        qHeader.className = 'flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider px-1 pt-1';
+        qHeader.innerHTML = `<span>Unlocked Quotes</span><span>Collected: ${unlockedCount} / ${quotes.length}</span>`;
+        container.appendChild(qHeader);
+
+        quotes.forEach(q => {
+          const isUnlocked = q.reqLv <= affection.level;
+          const qCard = document.createElement('div');
+          qCard.className = isUnlocked
+            ? 'bg-white border border-slate-200 rounded-2xl p-3.5 shadow-2xs'
+            : 'bg-slate-50 border border-dashed border-slate-200 rounded-2xl p-3.5 opacity-60';
+
+          qCard.innerHTML = isUnlocked ? `
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-extrabold text-[#162529]">${q.title}</span>
+              <span class="text-[9px] font-black px-1.5 py-0.2 rounded ${isEnhancer ? 'bg-[#FF715B]/15 text-[#FF715B]' : 'bg-[#27ABA4]/15 text-[#27ABA4]'}">Lv.${q.reqLv}</span>
+            </div>
+            <p class="text-xs font-semibold text-[#162529] italic leading-relaxed my-1">"${q.quote}"</p>
+            <p class="text-[10px] text-slate-400 mt-1">${q.desc}</p>
+          ` : `
+            <div class="flex items-center justify-between text-slate-400">
+              <span class="text-xs font-bold flex items-center gap-1.5">🔒 Locked (Unlocks at Lv.${q.reqLv})</span>
+              <span class="text-[9px] font-semibold">${q.desc}</span>
+            </div>
+          `;
+          container.appendChild(qCard);
+        });
+      }
+    }
+
+    function openCategorySheet() {
+      renderCategorySheetList();
+      document.getElementById('modal-category-sheet').classList.remove('hidden');
+    }
+
+    function closeCategorySheet() {
+      document.getElementById('modal-category-sheet').classList.add('hidden');
+    }
+
+    function selectActiveCategory(catId) {
+      state.activeCategory = catId;
+      const cat = state.categories.find(c => c.id === catId);
+      if (cat) {
+        document.getElementById('active-category-icon').innerText = cat.icon;
+        document.getElementById('active-category-name').innerText = cat.name;
+      }
+      closeCategorySheet();
+      if (!document.getElementById('modal-compendium').classList.contains('hidden') && compendiumCurrentTab === 'categories') {
+        renderCompendiumContent();
+      }
+    }
+
+    function renderCategorySheetList() {
+      const container = document.getElementById('category-sheet-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      state.categories.forEach(cat => {
+        const isSelected = cat.id === state.activeCategory;
+        const row = document.createElement('div');
+        row.className = isSelected
+          ? 'p-3 rounded-2xl border-2 border-[#48D1CC] bg-[#E4F8F7]/60 flex items-center justify-between cursor-pointer transition'
+          : 'p-3 rounded-2xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between cursor-pointer transition';
+        row.onclick = () => selectActiveCategory(cat.id);
+
+        row.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="text-xl">${cat.icon}</span>
+            <div>
+              <p class="text-xs font-extrabold text-[#162529]">${cat.name}</p>
+              <p class="text-[10px] text-[#516970]">${cat.totalMinutes} total focus mins</p>
+            </div>
+          </div>
+          <span class="text-xs font-extrabold ${isSelected ? 'text-[#27ABA4]' : 'text-slate-400'}">${isSelected ? '✓ Active' : 'Select'}</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    let selectedNewCategoryEmoji = '📝';
+    const categoryEmojiOptions = ['📝', '📐', '📚', '💻', '🎨', '🏃', '🔬', '🎸', '🗣️', '☕'];
+
+    function openAddCategoryModal() {
+      selectedNewCategoryEmoji = '📝';
+      document.getElementById('add-cat-name-input').value = '';
+      renderEmojiPicker();
+      document.getElementById('modal-add-category').classList.remove('hidden');
+    }
+
+    function closeAddCategoryModal() {
+      document.getElementById('modal-add-category').classList.add('hidden');
+    }
+
+    function renderEmojiPicker() {
+      const picker = document.getElementById('add-cat-emoji-picker');
+      if (!picker) return;
+      picker.innerHTML = '';
+      categoryEmojiOptions.forEach(emoji => {
+        const isSel = emoji === selectedNewCategoryEmoji;
+        const btn = document.createElement('button');
+        btn.className = `w-8 h-8 rounded-xl flex items-center justify-center text-lg transition ${isSel ? 'bg-[#E4F8F7] border-2 border-[#48D1CC]' : 'bg-slate-100 hover:bg-slate-200'}`;
+        btn.innerText = emoji;
+        btn.onclick = () => {
+          selectedNewCategoryEmoji = emoji;
+          renderEmojiPicker();
+        };
+        picker.appendChild(btn);
+      });
+    }
+
+    function saveNewCategory() {
+      const name = document.getElementById('add-cat-name-input').value.trim();
+      if (!name) return;
+      const id = 'custom_' + Date.now();
+      const newCat = {
+        id: id,
+        name: name,
+        icon: selectedNewCategoryEmoji,
+        totalMinutes: 0,
+        isCustom: true
+      };
+      state.categories.push(newCat);
+      selectActiveCategory(id);
+      closeAddCategoryModal();
+    }
+
     function initFoodMountain() {
       const container = document.getElementById('mountain-inner');
       if (!container) return;
@@ -1541,13 +2213,15 @@
       });
     }
 
-    // Startup Initialization
     window.addEventListener('DOMContentLoaded', () => {
       initFoodMountain();
       setActiveCharacter('enhancer');
       setMode('focus');
       updateAnimationModeView();
       updateBgmBreakModeUI();
+      updateShopButtons();
+      renderQuickPresets();
+      selectActiveCategory('guitar');
     });
   </script>
 </body>
