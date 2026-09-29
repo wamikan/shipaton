@@ -63,7 +63,7 @@ class AmbientSoundModel {
     AmbientSoundModel(
       id: 'rain_nature',
       title: 'Rain & Nature',
-      description: 'Gentle forest rain harmonized with ambient woodland nature',
+      description: 'Gentle forest rain harmonized with woodland nature (Credit: On-Jin)',
       icon: Icons.grain_rounded,
       assetPath: AppAssets.ambientRainNature,
       isUnlocked: false,
@@ -72,7 +72,7 @@ class AmbientSoundModel {
     AmbientSoundModel(
       id: 'positive',
       title: 'Positive Flow',
-      description: 'Uplifting acoustic harmonies to boost positivity and energy',
+      description: 'Uplifting acoustic harmonies to boost energy (Credit: tunee.ai)',
       icon: Icons.auto_awesome_rounded,
       assetPath: AppAssets.ambientPositive,
       isUnlocked: false,

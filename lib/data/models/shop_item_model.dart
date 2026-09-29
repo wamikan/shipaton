@@ -110,7 +110,7 @@ class ShopItemModel {
         const ShopItemModel(
           id: 'rain_nature',
           name: 'Rain & Nature',
-          description: 'Gentle forest rain harmonized with ambient woodland nature.',
+          description: 'Gentle forest rain harmonized with ambient woodland nature. (Audio: On-Jin)',
           category: ShopCategory.ambientBgm,
           cost: 150,
           isUnlocked: false,
@@ -120,7 +120,7 @@ class ShopItemModel {
         const ShopItemModel(
           id: 'positive',
           name: 'Positive Flow',
-          description: 'Uplifting acoustic harmonies to boost positivity and energy.',
+          description: 'Uplifting acoustic harmonies to boost positivity and energy. (Audio: tunee.ai)',
           category: ShopCategory.ambientBgm,
           cost: 200,
           isUnlocked: false,

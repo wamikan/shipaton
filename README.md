@@ -97,3 +97,21 @@ See [**`REVENUECAT_SETUP.md`**](REVENUECAT_SETUP.md) for full documentation on:
 - Product identifiers (`coin_pack_100`, `coin_pack_500`, `coin_pack_1200`)
 - RevenueCat Offerings and Entitlements
 - Dev/Sandbox mode configuration
+
+---
+
+## 🎵 Audio Credits & Licensing
+
+Nordic Focus incorporates ambient background soundscapes and sound effects to facilitate deep focus and concentration. Special thanks and formal attributions to our audio sources:
+
+| Sound Track | Audio File | Source / Creator | License & Attribution |
+| :--- | :--- | :--- | :--- |
+| **Rain & Nature** | `rainnature.mp3` | [**On-Jin ～音人～**](https://on-jin.com/) | Used under On-Jin material embedded work guidelines. All rights reserved by On-Jin. Secondary distribution or standalone extraction prohibited. (音源の二次配布・無断利用禁止) |
+| **Positive Flow** | `positive.mp3` | [**tunee.ai**](https://tunee.ai/) | AI-assisted concentration track composed with tunee.ai for motivation and positivity. |
+| **Nordic Rain & Piano** | `rain.mp3` | Royalty-Free Soundscapes | Nordic ambient lo-fi arrangement. |
+| **Pine Forest & Bells** | `forest.mp3` | Royalty-Free Soundscapes | Nordic pine woodland soundscape. |
+| **Temple Bell Chime** | `bell.mp3` | 528Hz Harmonic Bell | Focus session completion alert. |
+| **Coin Collection SFX** | `coin.mp3` | In-House SFX | Rewarding gamification audio chime. |
+
+> Detailed licensing terms and Japanese attribution statements are fully documented in [**`ATTRIBUTION.md`**](ATTRIBUTION.md).
+

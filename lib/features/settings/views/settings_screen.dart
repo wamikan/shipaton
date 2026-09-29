@@ -260,6 +260,38 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+
+          const SizedBox(height: 28),
+
+          // Section: Audio Credits & Licenses
+          _buildSectionHeader('AUDIO CREDITS & LICENSES'),
+          const SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.cardBorder),
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+              leading: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primarySubtle,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.library_music_rounded, color: AppColors.primary, size: 22),
+              ),
+              title: const Text('Sound Track Attributions', style: AppTypography.sectionTitle),
+              subtitle: const Text(
+                'Attribution notices for On-Jin, tunee.ai & soundscapes',
+                style: AppTypography.bodySmall,
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios_rounded, color: AppColors.textTertiary, size: 16),
+              onTap: () => _showAudioCreditsDialog(context),
+            ),
+          ),
           const SizedBox(height: 40),
         ],
       ),
@@ -367,6 +399,120 @@ class SettingsScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _showAudioCreditsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Row(
+          children: [
+            Text('🎵', style: TextStyle(fontSize: 22)),
+            SizedBox(width: 8),
+            Text('Audio Credits & Licenses', style: AppTypography.sectionTitle),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Rain & Nature (On-Jin)
+              _buildCreditItem(
+                title: 'Rain & Nature (rainnature.mp3)',
+                sourceName: 'On-Jin ～音人～',
+                url: 'https://on-jin.com/',
+                description:
+                    'Used under the On-Jin material embedded work guidelines. All copyright and neighboring rights are retained by On-Jin ～音人～.\n'
+                    '※当アプリ内の音源の二次配布、無断利用、および抽出利用は固く禁止されています。',
+              ),
+              const Divider(height: 24),
+
+              // Positive Flow (tunee.ai)
+              _buildCreditItem(
+                title: 'Positive Flow (positive.mp3)',
+                sourceName: 'tunee.ai',
+                url: 'https://tunee.ai/',
+                description:
+                    'AI-assisted ambient concentration track composed with tunee.ai for deep focus and uplifting motivation.',
+              ),
+              const Divider(height: 24),
+
+              // Nordic Ambient & SFX
+              _buildCreditItem(
+                title: 'Nordic Ambience & SFX',
+                sourceName: 'Royalty-Free & In-House Assets',
+                url: '',
+                description:
+                    'Nordic Rain & Piano, Pine Forest & Bells, 528Hz Temple Bell completion chime, and Coin SFX.',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCreditItem({
+    required String title,
+    required String sourceName,
+    required String url,
+    required String description,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 2),
+        if (url.isNotEmpty)
+          Text(
+            'Source: $sourceName ($url)',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primaryDark,
+            ),
+          )
+        else
+          Text(
+            'Source: $sourceName',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        const SizedBox(height: 6),
+        Text(
+          description,
+          style: const TextStyle(
+            fontSize: 12,
+            height: 1.45,
+            color: AppColors.textSecondary,
+          ),
+        ),
+      ],
     );
   }
 }
