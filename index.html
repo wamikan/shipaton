@@ -34,24 +34,25 @@
     .eq-bar-3 { animation: eqBar 0.8s ease-in-out infinite 0.5s; }
   
     @keyframes foodEat {
-      0% { transform: translateY(-16px) scale(0.9); opacity: 0; }
-      20% { transform: translateY(-16px) scale(1.05); opacity: 1; }
-      40% { transform: translateY(-16px) scale(1); opacity: 1; }
-      75% { transform: translateY(-4px) scale(0.35); opacity: 0.25; }
-      90%, 100% { transform: translateY(-4px) scale(0.1); opacity: 0; }
+      0% { transform: translateY(-24px) scale(0.85); opacity: 0; }
+      15% { transform: translateY(-12px) scale(1.05); opacity: 1; }
+      30% { transform: translateY(-8px) scale(1.0); opacity: 1; }
+      55% { transform: translateY(0px) scale(0.72); opacity: 0.85; }
+      75% { transform: translateY(8px) scale(0.35); opacity: 0.35; }
+      86%, 100% { transform: translateY(12px) scale(0.05); opacity: 0; }
     }
     .anim-food-eat {
-      animation: foodEat 3.2s ease-in-out infinite;
+      animation: foodEat 4.0s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     @keyframes bloomGrow {
-      0% { transform: translateY(-18px) scale(0); opacity: 0; }
-      25% { transform: translateY(-18px) scale(1.15); opacity: 1; }
-      40% { transform: translateY(-18px) scale(1); opacity: 1; }
-      75% { transform: translateY(-18px) scale(1.08); opacity: 1; filter: drop-shadow(0 0 6px #48D1CC); }
-      90%, 100% { transform: translateY(-18px) scale(1.2); opacity: 0; }
+      0% { transform: translateY(-10px) scale(0); opacity: 0; }
+      20% { transform: translateY(-18px) scale(1.15); opacity: 1; }
+      40% { transform: translateY(-18px) scale(1.0); opacity: 1; }
+      72% { transform: translateY(-18px) scale(1.08); opacity: 1; filter: drop-shadow(0 0 10px #48D1CC); }
+      86%, 100% { transform: translateY(-22px) scale(1.25); opacity: 0; }
     }
     .anim-bloom-grow {
-      animation: bloomGrow 3.2s ease-in-out infinite;
+      animation: bloomGrow 4.0s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
     @keyframes rippleIn {
       0% { transform: scale(1.05); opacity: 0.15; }
@@ -181,16 +182,16 @@
             </div>
 
             <!-- Frameless Hero Character (No Box/Border) -->
-            <!-- Horizontal width fixed at 150px, vertical height scales naturally with aspect ratio -->
+            <!-- Horizontal width fixed at 150px, vertical height scales naturally with aspect ratio and pose -->
             <div id="stage-char-frame" class="relative z-20 w-[150px] min-h-[150px] flex flex-col items-center justify-end cursor-pointer pointer-events-auto" onclick="toggleCharacter()">
               <!-- Soft ground contact shadow -->
-              <div id="char-ground-shadow" class="absolute bottom-1 w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none"></div>
+              <div id="char-ground-shadow" class="absolute bottom-1 w-24 h-3 rounded-full bg-slate-800/10 blur-sm pointer-events-none transition-all duration-300"></div>
               <!-- Slime Eating Overlay for Enhancer Girl -->
-              <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute top-[-10px] w-12 h-12 object-contain pointer-events-none z-30 anim-food-eat" />
+              <img id="stage-eat-overlay" src="assets/images/items/food_apple.png" class="hidden absolute top-[-10px] w-12 h-12 object-contain pointer-events-none z-30" />
               <!-- Sprout Bloom Overlay for Suppressant Boy -->
-              <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute top-[-14px] w-12 h-12 object-contain pointer-events-none z-30 anim-bloom-grow" />
+              <img id="stage-bloom-overlay" src="assets/images/items/flower_lily_valley.png" class="hidden absolute top-[-14px] w-12 h-12 object-contain pointer-events-none z-30" />
               <!-- Base Character Image (Frameless) -->
-              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="w-[150px] h-auto object-contain filter drop-shadow-md" />
+              <img id="stage-char-img" src="assets/images/character_enhancer.png" alt="Hero Companion" class="w-[150px] h-auto object-contain filter drop-shadow-md transition-all duration-300" style="transform-origin: bottom center;" />
             </div>
 
             <!-- Girl: Feast Status Pill -->
@@ -567,8 +568,21 @@
     const suppressantDrinkingSrc = 'assets/images/suppressant_1.png';
     const suppressantFinishedSrc = 'assets/images/suppressant_2.png';
 
+    // Focus Cycle: Standard (1.6s) -> Action Eating/Drinking (4.0s) -> Satisfied Smile (3.4s)
     let focusCyclePhase = 0; // 0: standard, 1: action (eating/drinking), 2: smile
-    let focusCycleTimer = null;
+    const phaseDurations = [1600, 4000, 3400];
+    let focusCycleTimeout = null;
+
+    function runFocusCycleStep() {
+      if (!state.isRunning || state.mode !== 'focus') return;
+      focusCyclePhase = (focusCyclePhase + 1) % 3;
+      if (focusCyclePhase === 0) {
+        currentItemIdx = (currentItemIdx + 1) % foodList.length;
+      }
+      updateCharacterSprite();
+      updateItemOverlay();
+      focusCycleTimeout = setTimeout(runFocusCycleStep, phaseDurations[focusCyclePhase]);
+    }
 
     function resolveCharacterSprite(charId = state.activeChar) {
       const isEnhancer = charId === 'enhancer';
@@ -587,7 +601,7 @@
       }
 
       // 3. 作業用タイマー実行中 (Focus session running):
-      // ループ: 標準状態 -> 食材捕食・水分吸収 -> 笑顔
+      // ループ: 標準状態 (1.6s) -> 食材捕食・水分吸収 (4.0s) -> 笑顔 (3.4s)
       if (isRunning) {
         if (focusCyclePhase === 0) {
           return isEnhancer ? enhancerImgSrc : suppressantImgSrc; // 標準状態
@@ -607,8 +621,30 @@
       const sprite = resolveCharacterSprite();
       const charImg = document.getElementById('char-img');
       const stageCharImg = document.getElementById('stage-char-img');
-      if (charImg && charImg.getAttribute('src') !== sprite) charImg.src = sprite;
-      if (stageCharImg && stageCharImg.getAttribute('src') !== sprite) stageCharImg.src = sprite;
+      const groundShadow = document.getElementById('char-ground-shadow');
+
+      const isBreak = state.mode !== 'focus';
+      const isCompleted = state.remaining === 0;
+      const isSmilePose = isBreak || isCompleted || (state.isRunning && focusCyclePhase === 2);
+      const isActionPose = state.isRunning && focusCyclePhase === 1;
+
+      // Prominent vertical height scaling as requested by user:
+      // Smile pose (enhancer_2 / suppressant_2): 1.25x (tall, celebratory, joyful)
+      // Action pose (enhancer_1 / suppressant_1): 1.16x (eating / absorbing)
+      // Standard idle: 1.0x
+      const poseScale = isSmilePose ? 1.25 : (isActionPose ? 1.16 : 1.0);
+
+      if (charImg && charImg.getAttribute('src') !== sprite) {
+        charImg.src = sprite;
+      }
+      if (stageCharImg) {
+        if (stageCharImg.getAttribute('src') !== sprite) stageCharImg.src = sprite;
+        stageCharImg.style.transform = `scale(${poseScale})`;
+        stageCharImg.style.transformOrigin = 'bottom center';
+      }
+      if (groundShadow) {
+        groundShadow.style.transform = `scale(${poseScale})`;
+      }
     }
 
     // Food and Nature Item Assets
@@ -1152,7 +1188,9 @@
         if (isEnhancer) {
           if (stageEatOverlay) {
             stageEatOverlay.src = foodList[currentItemIdx % foodList.length].src;
-            stageEatOverlay.classList.remove('hidden');
+            stageEatOverlay.classList.remove('anim-food-eat', 'hidden');
+            void stageEatOverlay.offsetWidth;
+            stageEatOverlay.classList.add('anim-food-eat');
           }
           if (stageBloomOverlay) stageBloomOverlay.classList.add('hidden');
           if (cardOverlay) {
@@ -1164,7 +1202,9 @@
           if (stageEatOverlay) stageEatOverlay.classList.add('hidden');
           if (stageBloomOverlay) {
             stageBloomOverlay.src = bloomList[currentItemIdx % bloomList.length];
-            stageBloomOverlay.classList.remove('hidden');
+            stageBloomOverlay.classList.remove('anim-bloom-grow', 'hidden');
+            void stageBloomOverlay.offsetWidth;
+            stageBloomOverlay.classList.add('anim-bloom-grow');
           }
           if (cardOverlay) {
             cardOverlay.src = bloomList[currentItemIdx % bloomList.length];
@@ -1200,31 +1240,25 @@
         ? 'text-[11px] font-extrabold text-[#5AB693] tracking-wide mt-0.5 uppercase'
         : 'text-[11px] font-extrabold text-[#27ABA4] tracking-wide mt-0.5 uppercase';
 
-      // Focus Mode Cycle Loop: Standard (1.5s) -> Action (1.5s) -> Smile (1.5s) -> repeat
+      // Focus Mode Cycle Loop: Standard (1.6s) -> Action (4.0s) -> Smile (3.4s) -> repeat
       if (state.mode === 'focus') {
-        if (focusCycleTimer) clearInterval(focusCycleTimer);
+        if (focusCycleTimeout) clearTimeout(focusCycleTimeout);
         focusCyclePhase = 0;
-        focusCycleTimer = setInterval(() => {
-          focusCyclePhase = (focusCyclePhase + 1) % 3;
-          updateCharacterSprite();
-          updateItemOverlay();
-        }, 1500);
+        updateCharacterSprite();
+        updateItemOverlay();
+        focusCycleTimeout = setTimeout(runFocusCycleStep, phaseDurations[0]);
       } else {
-        if (focusCycleTimer) {
-          clearInterval(focusCycleTimer);
-          focusCycleTimer = null;
+        if (focusCycleTimeout) {
+          clearTimeout(focusCycleTimeout);
+          focusCycleTimeout = null;
         }
         focusCyclePhase = 0;
+        updateCharacterSprite();
+        updateItemOverlay();
       }
 
       updateCharacterSprite();
       updateItemOverlay();
-      if (!itemCycleInterval) {
-        itemCycleInterval = setInterval(() => {
-          currentItemIdx++;
-          updateItemOverlay();
-        }, 4500);
-      }
 
       if (shouldPlayBgm(state.mode)) {
         startBgm();
@@ -1256,17 +1290,13 @@
         : 'STATUS: READY';
       document.getElementById('char-status').className = 'text-[11px] font-bold text-slate-400 tracking-wide mt-0.5 uppercase';
 
-      if (focusCycleTimer) {
-        clearInterval(focusCycleTimer);
-        focusCycleTimer = null;
+      if (focusCycleTimeout) {
+        clearTimeout(focusCycleTimeout);
+        focusCycleTimeout = null;
       }
       focusCyclePhase = 0;
 
       pauseBgm();
-      if (itemCycleInterval) {
-        clearInterval(itemCycleInterval);
-        itemCycleInterval = null;
-      }
       updateCharacterSprite();
       updateItemOverlay();
       renderTimer();
@@ -1286,21 +1316,17 @@
       document.getElementById('play-text').innerText = 'RESUME';
       document.getElementById('play-icon').innerHTML = '<path d="M8 5v14l11-7z"/>';
 
-      if (focusCycleTimer) {
-        clearInterval(focusCycleTimer);
-        focusCycleTimer = null;
+      if (focusCycleTimeout) {
+        clearTimeout(focusCycleTimeout);
+        focusCycleTimeout = null;
       }
-      focusCyclePhase = 0;
+      focusCyclePhase = 2; // Celebration smile
 
       // Only pause BGM if break playback is disabled
       if (state.bgmBreakMode === 'focusOnly') {
         pauseBgm();
       }
 
-      if (itemCycleInterval) {
-        clearInterval(itemCycleInterval);
-        itemCycleInterval = null;
-      }
       state.remaining = 0;
       updateCharacterSprite();
       updateItemOverlay();

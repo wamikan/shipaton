@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -259,7 +258,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     super.initState();
     _cycleController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 4500),
+      duration: const Duration(milliseconds: 9000),
     );
 
     _cycleController.addStatusListener((status) {
@@ -540,11 +539,11 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     }
 
     // 3. 作業用タイマー実行中 (Focus mode running):
-    // ループ: 標準状態 -> 食材捕食・水分吸収 -> 笑顔
+    // ループ: 標準状態 (1.6s) -> 食材捕食・水分吸収 (4.0s) -> 笑顔 (3.4s)
     if (isRunning) {
-      if (t < 0.33) {
+      if (t < 0.18) {
         return char.assetPath; // 1. 標準状態
-      } else if (t < 0.67) {
+      } else if (t < 0.62) {
         return char.actionAssetPath ?? char.assetPath; // 2. 食材捕食・水分吸収
       } else {
         return char.completedAssetPath ?? char.assetPath; // 3. 笑顔
@@ -558,23 +557,36 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
 
   /// Builds the frameless hero character without any card box or outline.
   /// Horizontal width is consistently aligned, while vertical height naturally
-  /// scales according to the original illustration aspect ratio without shrinking.
+  /// scales prominently larger during eating and smiling poses as requested.
   Widget _buildFramelessHero(CharacterModel char, bool isEnhancer, double t) {
     const double spriteWidth = 150.0;
     final spritePath = _resolveCharacterSprite(char, isEnhancer, t);
     final isFocusRunning =
         widget.state.mode == PomodoroMode.focus && widget.state.isRunning;
-    final isActionPhase = isFocusRunning && (t >= 0.33 && t < 0.67);
+    final isBreak = widget.state.mode != PomodoroMode.focus;
+    final isCompleted =
+        widget.state.isCompleted || widget.state.remainingSeconds == 0;
+
+    final isActionPhase = isFocusRunning && (t >= 0.18 && t < 0.62);
+    final isSmilePhase = isBreak || isCompleted || (isFocusRunning && t >= 0.62);
+
+    // Height scaling factor:
+    // Standard idle: 1.0 (w=150, h=172-184)
+    // Action pose: 1.16 (enhancer_1/suppressant_1, w=174, h=195-208)
+    // Smile pose: 1.25 (enhancer_2/suppressant_2, w=188, h=220-230)
+    final double poseScale = isSmilePhase ? 1.25 : (isActionPhase ? 1.16 : 1.0);
+    final double actionPhaseT =
+        isActionPhase ? ((t - 0.18) / 0.44).clamp(0.0, 1.0) : 0.0;
 
     // Subtle rhythmic munching/breathing scale during active eating/drinking phase
-    final double spriteScale = isFocusRunning
+    final double spriteScale = poseScale * (isFocusRunning
         ? 1.0 +
             (isActionPhase
-                ? math.sin(t * math.pi * 6) * 0.025
+                ? math.sin(actionPhaseT * math.pi * 6) * 0.02
                 : math.sin(t * math.pi * 2) * 0.01)
-        : 1.0;
+        : 1.0);
     final double spriteBob =
-        isActionPhase ? math.sin(t * math.pi * 6) * 1.5 : 0.0;
+        isActionPhase ? math.sin(actionPhaseT * math.pi * 6) * 1.5 : 0.0;
 
     return SizedBox(
       width: spriteWidth,
@@ -586,7 +598,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           Positioned(
             bottom: 0,
             child: Container(
-              width: spriteWidth * 0.65,
+              width: spriteWidth * 0.65 * poseScale,
               height: 14,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
@@ -643,23 +655,31 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
             ),
           ),
 
+          // Slime Eating Overlay for Enhancer Girl (Phase 1)
+          if (isEnhancer && isActionPhase)
+            _buildGirlEatingOverlay(spriteWidth * poseScale, actionPhaseT),
+
+          // Sprout Bloom Overlay for Suppressant Boy (Phase 1)
+          if (!isEnhancer && isActionPhase)
+            _buildBoyBloomingOverlay(spriteWidth * poseScale, actionPhaseT),
+
           // Girl Slime digestion glow pulse during active eating phase
           if (isEnhancer && isActionPhase)
             Positioned(
-              top: 8,
+              top: 6,
               child: Opacity(
-                opacity: (math.sin((t - 0.33) / 0.34 * math.pi) * 0.55).clamp(0.0, 1.0),
+                opacity: (math.sin(actionPhaseT * math.pi) * 0.60).clamp(0.0, 1.0),
                 child: Container(
-                  width: spriteWidth * 0.44,
-                  height: spriteWidth * 0.22,
+                  width: spriteWidth * poseScale * 0.46,
+                  height: spriteWidth * poseScale * 0.22,
                   decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.25),
+                    color: Colors.orange.withValues(alpha: 0.28),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: const [
                       BoxShadow(
                         color: Colors.amber,
-                        blurRadius: 12,
-                        spreadRadius: 2,
+                        blurRadius: 14,
+                        spreadRadius: 3,
                       ),
                     ],
                   ),
@@ -670,17 +690,17 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           // Boy Head Sprout water absorption sparkles during active absorption phase
           if (!isEnhancer && isActionPhase)
             Positioned(
-              top: -16,
+              top: -18,
               child: Opacity(
-                opacity: (math.sin((t - 0.33) / 0.34 * math.pi) * 0.85).clamp(0.0, 1.0),
+                opacity: (math.sin(actionPhaseT * math.pi) * 0.85).clamp(0.0, 1.0),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('✨', style: TextStyle(fontSize: 13, color: AppColors.primary)),
+                    Text('✨', style: TextStyle(fontSize: 14, color: AppColors.primary)),
                     SizedBox(width: 8),
-                    Text('💧', style: TextStyle(fontSize: 11)),
+                    Text('💧', style: TextStyle(fontSize: 12)),
                     SizedBox(width: 8),
-                    Text('✨', style: TextStyle(fontSize: 13, color: AppColors.primary)),
+                    Text('✨', style: TextStyle(fontSize: 14, color: AppColors.primary)),
                   ],
                 ),
               ),
@@ -690,120 +710,95 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     );
   }
 
-  /// Girl (食欲増進ちゃん): Slime head swallowing active food
-  Widget _buildGirlEatingOverlay(double spriteSize, double t) {
+  /// Girl (食欲増進ちゃん): Slime head swallowing active food.
+  /// Guaranteed to completely swallow and fade to opacity 0 by 84% of Phase 1,
+  /// so she transitions into the smile pose with food 100% swallowed.
+  Widget _buildGirlEatingOverlay(double spriteSize, double phaseT) {
     final currentFood = _activeFoods[_itemIndex % _activeFoods.length]['path']!;
 
     double foodScale = 1.0;
     double foodOpacity = 1.0;
-    double foodY = -spriteSize * 0.38;
+    double foodY = -spriteSize * 0.40;
 
-    if (t < 0.35) {
-      final bob = math.sin(t / 0.35 * math.pi) * 3.0;
-      foodY += bob;
-      foodScale = 0.92 + (t / 0.35) * 0.15;
-      foodOpacity = (t / 0.1).clamp(0.0, 1.0);
-    } else if (t < 0.75) {
-      final sinkProgress = (t - 0.35) / 0.40;
-      foodY += sinkProgress * (spriteSize * 0.18);
-      foodScale = (1.07 - sinkProgress * 0.75).clamp(0.2, 1.07);
-      foodOpacity = (1.0 - sinkProgress * 0.85).clamp(0.0, 1.0);
+    if (phaseT < 0.22) {
+      final subT = phaseT / 0.22;
+      foodY += subT * 12.0;
+      foodScale = 0.85 + subT * 0.20;
+      foodOpacity = (subT * 1.5).clamp(0.0, 1.0);
+    } else if (phaseT < 0.84) {
+      final sinkT = (phaseT - 0.22) / 0.62;
+      foodY += 12.0 + sinkT * 32.0;
+      foodScale = (1.05 - sinkT * 0.85).clamp(0.1, 1.05);
+      foodOpacity = (1.0 - sinkT * 1.15).clamp(0.0, 1.0);
     } else {
+      // 100% swallowed! Fully absorbed inside slime head before smile begins.
       foodOpacity = 0.0;
+      foodScale = 0.0;
     }
 
-    return Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.none,
-      children: [
-        // Sinking delicacy into slime head
-        if (foodOpacity > 0.01)
-          Transform.translate(
-            offset: Offset(0, foodY),
-            child: Transform.scale(
-              scale: foodScale,
-              child: Opacity(
-                opacity: foodOpacity,
-                child: SizedBox(
-                  width: spriteSize * 0.38,
-                  height: spriteSize * 0.38,
-                  child: Image.asset(currentFood, fit: BoxFit.contain),
-                ),
-              ),
-            ),
-          ),
+    if (foodOpacity <= 0.01) {
+      return const SizedBox.shrink();
+    }
 
-        // Slime gel amber glow pulse during swallow
-        if (t >= 0.35 && t <= 0.85)
-          Positioned(
-            top: spriteSize * 0.04,
-            child: Opacity(
-              opacity: math.sin((t - 0.35) / 0.50 * math.pi) * 0.65,
-              child: Container(
-                width: spriteSize * 0.48,
-                height: spriteSize * 0.26,
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.amber,
-                      blurRadius: 12,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+    return Transform.translate(
+      offset: Offset(0, foodY),
+      child: Transform.scale(
+        scale: foodScale,
+        child: Opacity(
+          opacity: foodOpacity,
+          child: SizedBox(
+            width: spriteSize * 0.42,
+            height: spriteSize * 0.42,
+            child: Image.asset(currentFood, fit: BoxFit.contain),
           ),
-      ],
+        ),
+      ),
     );
   }
 
-  /// Boy (食欲減退君): Sprout blooming on head as water is absorbed
-  Widget _buildBoyBloomingOverlay(double spriteSize, double t) {
+  /// Boy (食欲減退君): Sprout blooming on head as water is absorbed.
+  /// Flower / Berry blossoms gloriously and dissolves into aura by 92% of Phase 1,
+  /// so he transitions into the smiling pose with water absorption fully finished.
+  Widget _buildBoyBloomingOverlay(double spriteSize, double phaseT) {
     final currentBloom = _blooms[_itemIndex % _blooms.length];
 
     double bloomScale = 0.0;
     double bloomOpacity = 0.0;
-    final double bloomY = -spriteSize * 0.42;
+    final double bloomY = -spriteSize * 0.44;
 
-    if (t >= 0.35 && t < 0.85) {
-      final bloomT = (t - 0.35) / 0.50;
-      if (bloomT < 0.3) {
-        bloomScale = (bloomT / 0.3) * 1.18;
-        bloomOpacity = (bloomT / 0.2).clamp(0.0, 1.0);
-      } else {
-        bloomScale = 1.0 + math.sin((bloomT - 0.3) * math.pi * 3) * 0.06;
-        bloomOpacity = 1.0;
-      }
-    } else if (t >= 0.85) {
-      final fadeT = (t - 0.85) / 0.15;
-      bloomScale = 1.0 + fadeT * 0.25;
+    if (phaseT < 0.25) {
+      final subT = phaseT / 0.25;
+      bloomScale = subT * 1.15;
+      bloomOpacity = (subT * 1.5).clamp(0.0, 1.0);
+    } else if (phaseT < 0.82) {
+      final subT = (phaseT - 0.25) / 0.57;
+      bloomScale = 1.0 + math.sin(subT * math.pi * 3) * 0.08;
+      bloomOpacity = 1.0;
+    } else if (phaseT < 0.94) {
+      final fadeT = (phaseT - 0.82) / 0.12;
+      bloomScale = 1.0 + fadeT * 0.20;
       bloomOpacity = (1.0 - fadeT).clamp(0.0, 1.0);
+    } else {
+      bloomOpacity = 0.0;
     }
 
-    return Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.none,
-      children: [
-        // Blooming Flower / Berry atop Sprout
-        if (bloomOpacity > 0.01)
-          Transform.translate(
-            offset: Offset(0, bloomY),
-            child: Transform.scale(
-              scale: bloomScale,
-              child: Opacity(
-                opacity: bloomOpacity,
-                child: SizedBox(
-                  width: spriteSize * 0.40,
-                  height: spriteSize * 0.40,
-                  child: Image.asset(currentBloom, fit: BoxFit.contain),
-                ),
-              ),
-            ),
+    if (bloomOpacity <= 0.01) {
+      return const SizedBox.shrink();
+    }
+
+    return Transform.translate(
+      offset: Offset(0, bloomY),
+      child: Transform.scale(
+        scale: bloomScale,
+        child: Opacity(
+          opacity: bloomOpacity,
+          child: SizedBox(
+            width: spriteSize * 0.42,
+            height: spriteSize * 0.42,
+            child: Image.asset(currentBloom, fit: BoxFit.contain),
           ),
-      ],
+        ),
+      ),
     );
   }
 
