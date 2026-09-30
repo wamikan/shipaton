@@ -233,7 +233,7 @@
 
             <!-- Girl: Feast Status Pill -->
             <!-- <div id="girl-feast-status" class="absolute bottom-[4px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#FF715B]/30 shadow-sm text-[10px] font-extrabold text-[#FF715B] flex items-center gap-1.5 pointer-events-none">
-              <!-- <span id="active-food-icon" class="text-xs">🍎</span> 
+               <span id="active-food-icon" class="text-xs">🍎</span> 
               <span id="active-food-icon" class="inline-flex items-center justify-center w-4 h-4 text-xs leading-none"><img id="active-food-img" src="" alt="" class="w-4 h-4 object-contain" /><span id="active-food-emoji" class="hidden"></span></span>
               <span id="feast-status-text">FEAST: 100% REMAINING</span> -->
             <div id="girl-feast-status" class="absolute bottom-[4px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#FF715B]/30 shadow-sm text-[10px] font-extrabold text-[#FF715B] flex items-center gap-2 pointer-events-none">
@@ -242,7 +242,8 @@
             </div>
 
             <!-- Suppressant: Water Absorption Status Subtitle -->
-            <div id="boy-water-status" class="hidden absolute bottom-[4px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#48D1CC]/40 shadow-sm text-[10px] font-extrabold text-[#27ABA4] flex items-center gap-1.5 pointer-events-none">
+            <div id="boy-water-status" class="hidden absolute bottom-[4px] inset-x-0 mx-auto w-fit z-30 bg-white/95 rounded-full px-3.5 py-1 border border-[#48D1CC]/40 shadow-sm text-[10px] font-extrabold text-[#27ABA4] flex items-center gap-2 pointer-events-none">
+              <span id="active-bloom-icon" class="inline-flex items-center justify-center w-5 h-5 text-xs leading-none"><img id="active-bloom-img" src="" alt="" class="w-5 h-5 object-contain" /><span id="active-bloom-emoji" class="hidden"></span></span>
               <span id="water-level-text">💧 WATER LEVEL: 100% (ABSORBING)</span>
             </div>
 
@@ -1541,17 +1542,34 @@
         }
       }
 
+      const bloomImg = document.getElementById('active-bloom-img');
+      const bloomEmoji = document.getElementById('active-bloom-emoji');
+      if (bloomImg && bloomEmoji) {
+        if (isFocusMode) {
+          bloomImg.src = getCurrentBloomSrc();
+          bloomImg.classList.remove('hidden');
+          bloomEmoji.classList.add('hidden');
+        } else {
+          bloomImg.classList.add('hidden');
+          bloomEmoji.innerText = '🌿';
+          bloomEmoji.classList.remove('hidden');
+        }
+      }
       const waterLabel = document.getElementById('water-level-text');
       if (waterLabel) {
         const waterPct = Math.round(progress * 100);
         if (!isFocusMode) {
-          waterLabel.innerText = '🌿 ' + (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': TRANQUILITY';
+          // waterLabel.innerText = '🌿 ' + (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': TRANQUILITY';
+          waterLabel.innerText = (state.mode === 'shortBreak' ? 'SHORT BREAK' : 'LONG BREAK') + ': TRANQUILITY';
         } else if (waterPct > 0) {
           waterLabel.innerText = state.isRunning
-            ? '💧 WATER LEVEL: ' + waterPct + '% (ABSORBING)'
-            : '💧 WATER LEVEL: ' + waterPct + '% (READY)';
+            // ? '💧 WATER LEVEL: ' + waterPct + '% (ABSORBING)'
+            // : '💧 WATER LEVEL: ' + waterPct + '% (READY)';
+            ? 'WATER LEVEL: ' + waterPct + '% (ABSORBING)'
+            : 'WATER LEVEL: ' + waterPct + '% (READY)';
         } else {
-          waterLabel.innerText = '✨ PURIFICATION COMPLETE! TRANQUILITY ACHIEVED';
+          // waterLabel.innerText = '✨ PURIFICATION COMPLETE! TRANQUILITY ACHIEVED';
+          waterLabel.innerText = 'PURIFICATION COMPLETE! TRANQUILITY ACHIEVED';
         }
       }
     }
@@ -1650,6 +1668,12 @@
     function getCurrentFoodSrc() {
       const f = foodList[currentItemIdx % foodList.length];
       return (typeof f === 'string') ? f : (f && f.src) || '';
+    }
+
+    // Current bloom image path (Dart: currentBloom)
+    function getCurrentBloomSrc() {
+      const b = bloomList[currentItemIdx % bloomList.length];
+      return (typeof b === 'string') ? b : (b && b.src) || '';
     }
 
     function updateItemOverlay() {
