@@ -87,7 +87,7 @@ class FairyMessagesCatalog {
       characterId: 'enhancer',
       requiredLevel: 5,
       title: '???',
-      quote: 'Sometimes I wonder... If I wrapped you in my slime, would you stay with me forever?" Hehe... just kidding. Probably.',
+      quote: 'Sometimes I wonder... If I wrapped you in my slime, would you stay with me forever? Hehe... just kidding. Probably.',
       description: 'Unlocked at 4 hours (240 mins) of total focus',
     ),
 
