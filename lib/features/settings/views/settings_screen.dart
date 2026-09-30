@@ -553,7 +553,7 @@ class SettingsScreen extends ConsumerWidget {
                 sourceName: 'Personal & Family Photos',
                 url: '',
                 description:
-                    'Original food and snack graphics created from photographs taken by the author and family.',
+                    'Original food and snack graphics created from photographs taken by the author and family. Pattern created with MakeBead.',
               ),
               const Divider(height: 24),
 
@@ -564,7 +564,7 @@ class SettingsScreen extends ConsumerWidget {
                 url: 'https://www.pakutaso.com/',
                 description:
                     'Plant item graphics used in the focus stage.\n'
-                    'Provided by フリー素材ぱくたそ (https://www.pakutaso.com/).',
+                    'Provided by フリー素材ぱくたそ (https://www.pakutaso.com/). Pattern created with MakeBead.',
               ),
             ],
           ),
