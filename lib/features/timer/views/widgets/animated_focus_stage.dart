@@ -1127,6 +1127,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   Widget _buildBoyWaterStatus(double progress) {
     final waterPercent = (progress * 100).toInt();
     final isRunning = widget.state.isRunning;
+    final activebloom = _activeBlooms[_itemIndex % _activeBlooms.length];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -1144,17 +1145,38 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        // children: [
+        //   const Text('💧', style: TextStyle(fontSize: 12)),
+        //   const SizedBox(width: 6),
+        //   Text(
+        //     waterPercent > 0
+        //         ? (isRunning
+        //             ? 'WATER LEVEL: $waterPercent% (ABSORBING)'
+        //             : 'WATER LEVEL: $waterPercent% (READY)')
+        //         : '✨ PURIFICATION COMPLETE! TRANQUILITY ACHIEVED',
+        //     style: const TextStyle(
+        //       color: AppColors.primaryDark,
+        //       fontSize: 10,
+        //       fontWeight: FontWeight.w800,
+        //       letterSpacing: 0.6,
+        //     ),
+        //   ),
+        // ],
         children: [
-          const Text('💧', style: TextStyle(fontSize: 12)),
-          const SizedBox(width: 6),
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: Image.asset(activebloom['path']!, fit: BoxFit.contain),
+          ),
+          const SizedBox(width: 8),
           Text(
             waterPercent > 0
                 ? (isRunning
                     ? 'WATER LEVEL: $waterPercent% (ABSORBING)'
                     : 'WATER LEVEL: $waterPercent% (READY)')
                 : '✨ PURIFICATION COMPLETE! TRANQUILITY ACHIEVED',
-            style: const TextStyle(
-              color: AppColors.primaryDark,
+            style: TextStyle(
+              color: waterPercent > 0 ? AppColors.boyWater : AppColors.primaryDark,
               fontSize: 10,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
