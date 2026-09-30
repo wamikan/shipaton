@@ -30,4 +30,43 @@ class AppAssets {
   // SFX Sounds
   static const String sfxBell = 'assets/audio/sfx/bell.mp3';
   static const String sfxCoin = 'assets/audio/sfx/coin.mp3';
+
+  static const List<String> foods = [
+    'assets/images/items/foods/bead-pattern (20).png',
+    'assets/images/items/foods/bead-pattern (21).png',
+    'assets/images/items/foods/bead-pattern (22).png',
+    'assets/images/items/foods/bead-pattern (23).png',
+    'assets/images/items/foods/bead-pattern (24).png',
+    'assets/images/items/foods/bead-pattern (25).png',
+    'assets/images/items/foods/bead-pattern (26).png',
+    'assets/images/items/foods/bead-pattern (27).png',
+    'assets/images/items/foods/bead-pattern (28).png',
+    'assets/images/items/foods/bead-pattern (29).png',
+    'assets/images/items/foods/bead-pattern (30).png',
+    'assets/images/items/foods/bead-pattern (31).png',
+    'assets/images/items/foods/bead-pattern (32).png',
+    'assets/images/items/foods/bead-pattern (33).png',
+    'assets/images/items/foods/bead-pattern (36).png',
+    'assets/images/items/foods/bead-pattern (37).png',
+    'assets/images/items/foods/bead-pattern (38).png',
+    'assets/images/items/foods/bead-pattern (39).png',
+    'assets/images/items/foods/bead-pattern (40).png',
+  ];
+
+  static const List<String> plants = [
+    'assets/images/items/plants/bead-pattern (20).png',
+    'assets/images/items/plants/bead-pattern (21).png',
+    'assets/images/items/plants/bead-pattern (22).png',
+    'assets/images/items/plants/bead-pattern (23).png',
+    'assets/images/items/plants/bead-pattern (24).png',
+    'assets/images/items/plants/bead-pattern (25).png',
+    'assets/images/items/plants/bead-pattern (26).png',
+    'assets/images/items/plants/bead-pattern (27).png',
+    'assets/images/items/plants/bead-pattern (28).png',
+    'assets/images/items/plants/bead-pattern (29).png',
+    'assets/images/items/plants/bead-pattern (30).png',
+    'assets/images/items/plants/bead-pattern (31).png',
+    'assets/images/items/plants/bead-pattern (33).png',
+    'assets/images/items/plants/bead-pattern (34).png',
+  ];
 }

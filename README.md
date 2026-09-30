@@ -113,5 +113,17 @@ Nordic Focus incorporates ambient background soundscapes and sound effects to fa
 | **Temple Bell Chime** | `bell.mp3` | 528Hz Harmonic Bell | Focus session completion alert. |
 | **Coin Collection SFX** | `coin.mp3` | In-House SFX | Rewarding gamification audio chime. |
 
+---
+
+
+## 🎨 Visual Assets & Licensing
+
+Nordic Focus incorporates graphic and illustration assets to enhance the immersive focus experience. Formal attributions and sources for our visual assets:
+
+| Asset Category | File Prefix / Path | Source / Creator | License & Attribution |
+| :--- | :--- | :--- | :--- |
+| **Food Icons** | `assets/images/items/foods/` | **Original / Family Collection** | Custom icons crafted from personal and family photographs. |
+| **Plant Icons** | `assets/images/items/plants/` | [**フリー素材ぱくたそ**](https://www.pakutaso.com/) | Visual assets used under the [Pakutaso Terms of Use](https://www.pakutaso.com/userpolicy.html). All rights reserved by フリー素材ぱくたそ. |
+
 > Detailed licensing terms and Japanese attribution statements are fully documented in [**`ATTRIBUTION.md`**](ATTRIBUTION.md).
 

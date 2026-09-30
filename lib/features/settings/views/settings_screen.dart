@@ -545,6 +545,27 @@ class SettingsScreen extends ConsumerWidget {
                 description:
                     'Nordic Rain & Piano, Pine Forest & Bells, 528Hz Temple Bell completion chime, and Coin SFX.',
               ),
+              const Divider(height: 24),
+
+              // Food Icons (Personal / Family)
+              _buildCreditItem(
+                title: 'Food Item Icons',
+                sourceName: 'Personal & Family Photos',
+                url: '',
+                description:
+                    'Original food and snack graphics created from photographs taken by the author and family.',
+              ),
+              const Divider(height: 24),
+
+              // Plant Assets (Pakutaso)
+              _buildCreditItem(
+                title: 'Plant Visual Assets',
+                sourceName: 'フリー素材ぱくたそ',
+                url: 'https://www.pakutaso.com/',
+                description:
+                    'Plant item graphics used in the focus stage.\n'
+                    'Provided by フリー素材ぱくたそ (https://www.pakutaso.com/).',
+              ),
             ],
           ),
         ),

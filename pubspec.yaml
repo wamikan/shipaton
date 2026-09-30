@@ -28,5 +28,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/items/
+    - assets/images/items/foods/
+    - assets/images/items/plants/
     - assets/audio/ambient/
     - assets/audio/sfx/
