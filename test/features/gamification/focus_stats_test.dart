@@ -14,7 +14,7 @@ void main() {
       // Level 1: 0 - 24 mins
       final lv1Start = FairyAffectionInfo.fromMinutes('enhancer', 0);
       expect(lv1Start.level, 1);
-      expect(lv1Start.levelName, 'Acquaintance');
+      expect(lv1Start.levelName, 'Curious');
       expect(lv1Start.nextLevelThreshold, 25);
       expect(lv1Start.progressToNext, 0.0);
 
@@ -25,25 +25,25 @@ void main() {
       // Level 2: 25 - 59 mins
       final lv2 = FairyAffectionInfo.fromMinutes('enhancer', 25);
       expect(lv2.level, 2);
-      expect(lv2.levelName, 'Good Friend');
+      expect(lv2.levelName, 'Familiar');
       expect(lv2.nextLevelThreshold, 60);
 
       // Level 3: 60 - 119 mins
       final lv3 = FairyAffectionInfo.fromMinutes('enhancer', 60);
       expect(lv3.level, 3);
-      expect(lv3.levelName, 'Trusted Ally');
+      expect(lv3.levelName, 'Attached');
       expect(lv3.nextLevelThreshold, 120);
 
       // Level 4: 120 - 239 mins
       final lv4 = FairyAffectionInfo.fromMinutes('enhancer', 120);
       expect(lv4.level, 4);
-      expect(lv4.levelName, 'Best Companion');
+      expect(lv4.levelName, 'Dependent');
       expect(lv4.nextLevelThreshold, 240);
 
       // Level 5: 240+ mins
       final lv5 = FairyAffectionInfo.fromMinutes('enhancer', 240);
       expect(lv5.level, 5);
-      expect(lv5.levelName, 'Soulbound');
+      expect(lv5.levelName, 'Irreplaceable');
       expect(lv5.nextLevelThreshold, isNull);
       expect(lv5.progressToNext, 1.0);
     });

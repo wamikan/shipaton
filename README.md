@@ -125,5 +125,6 @@ Nordic Focus incorporates graphic and illustration assets to enhance the immersi
 | **Food Icons** | `assets/images/items/foods/` | **Original / Family Collection** | Custom icons crafted from personal and family photographs. |
 | **Plant Icons** | `assets/images/items/plants/` | [**フリー素材ぱくたそ**](https://www.pakutaso.com/) | Visual assets used under the [Pakutaso Terms of Use](https://www.pakutaso.com/userpolicy.html). All rights reserved by フリー素材ぱくたそ. |
 
+
 > Detailed licensing terms and Japanese attribution statements are fully documented in [**`ATTRIBUTION.md`**](ATTRIBUTION.md).
 
