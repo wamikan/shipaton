@@ -1127,7 +1127,8 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
   Widget _buildBoyWaterStatus(double progress) {
     final waterPercent = (progress * 100).toInt();
     final isRunning = widget.state.isRunning;
-    final activebloom = _activeBlooms[_itemIndex % _activeBlooms.length];
+    // final activebloom = _blooms[_itemIndex % _blooms.length];
+    final currentBloom = _blooms[_itemIndex % _blooms.length];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -1166,7 +1167,8 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
           SizedBox(
             width: 20,
             height: 20,
-            child: Image.asset(activebloom['path']!, fit: BoxFit.contain),
+            // child: Image.asset(currentBloom['path']!, fit: BoxFit.contain),
+            child: Image.asset(currentBloom, fit: BoxFit.contain),
           ),
           const SizedBox(width: 8),
           Text(
@@ -1176,7 +1178,7 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
                     : 'WATER LEVEL: $waterPercent% (READY)')
                 : '✨ PURIFICATION COMPLETE! TRANQUILITY ACHIEVED',
             style: TextStyle(
-              color: waterPercent > 0 ? AppColors.boyWater : AppColors.primaryDark,
+              color: AppColors.primaryDark,
               fontSize: 10,
               fontWeight: FontWeight.w800,
               letterSpacing: 0.6,
