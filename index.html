@@ -1642,14 +1642,16 @@
       if (shouldAnimate) {
         if (isEnhancer) {
           if (stageEatOverlay) {
-            stageEatOverlay.src = foodList[currentItemIdx % foodList.length].src;
+            // stageEatOverlay.src = foodList[currentItemIdx % foodList.length].src;
+            stageEatOverlay.src = foodList[currentItemIdx % foodList.length];
             stageEatOverlay.classList.remove('anim-food-eat', 'hidden');
             void stageEatOverlay.offsetWidth;
             stageEatOverlay.classList.add('anim-food-eat');
           }
           if (stageBloomOverlay) stageBloomOverlay.classList.add('hidden');
           if (cardOverlay) {
-            cardOverlay.src = foodList[currentItemIdx % foodList.length].src;
+            // cardOverlay.src = foodList[currentItemIdx % foodList.length].src;
+            cardOverlay.src = foodList[currentItemIdx % foodList.length];
             cardOverlay.className = 'absolute w-6 h-6 object-contain pointer-events-none z-10 anim-food-eat';
             cardOverlay.classList.remove('hidden');
           }
