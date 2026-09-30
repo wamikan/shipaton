@@ -87,6 +87,194 @@ class _AnimatedFocusStageState extends State<AnimatedFocusStage>
     ),
   );
 
+    // 
+  // final List<_FoodMountainItem> _mountainPositions = [
+  // Layout for each tier of the mountain (asset here is a fallback;
+  // _mountainItems below picks the asset from AppAssets.foods).
+  static const List<_FoodMountainItem> _mountainPositions = [  
+     _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(-34, -62),
+      scale: 0.88,
+      rotation: -0.15,
+      fadeStart: 1.0,
+      fadeEnd: 0.72,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(0, -72),
+      scale: 0.95,
+      rotation: 0.08,
+      fadeStart: 1.0,
+      fadeEnd: 0.68,
+    ),
+    _FoodMountainItem(    
+      asset: AppAssets.foodPancake,
+      offset: Offset(36, -60),
+      scale: 0.90,
+      rotation: 0.16,
+      fadeStart: 1.0,
+      fadeEnd: 0.70,
+    ),
+ 
+    // --- Tier 2: Upper-Mid (Fades out between 0.90 and 0.45) ---
+    _FoodMountainItem(
+      asset: AppAssets.berryCloudberry,
+      offset: Offset(-76, -34),
+      scale: 0.92,
+      rotation: -0.22,
+      fadeStart: 0.92,
+      fadeEnd: 0.50,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(-38, -26),
+      scale: 1.0,
+      rotation: 0.06,
+      fadeStart: 0.88,
+      fadeEnd: 0.46,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryBlueberry,
+      offset: Offset(0, -22),
+      scale: 0.86,
+      rotation: -0.12,
+      fadeStart: 0.82,
+      fadeEnd: 0.44,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(40, -28),
+      scale: 0.95,
+      rotation: -0.10,
+      fadeStart: 0.88,
+      fadeEnd: 0.48,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(78, -32),
+      scale: 0.92,
+      rotation: 0.20,
+      fadeStart: 0.90,
+      fadeEnd: 0.48,
+    ),
+ 
+    // --- Tier 3: Mid-Lower (Fades out between 0.75 and 0.22) ---
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(-112, 6),
+      scale: 1.05,
+      rotation: -0.26,
+      fadeStart: 0.78,
+      fadeEnd: 0.32,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(-72, 8),
+      scale: 1.02,
+      rotation: 0.14,
+      fadeStart: 0.72,
+      fadeEnd: 0.26,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(-28, 14),
+      scale: 1.08,
+      rotation: -0.06,
+      fadeStart: 0.66,
+      fadeEnd: 0.20,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryCloudberry,
+      offset: Offset(28, 12),
+      scale: 0.98,
+      rotation: 0.18,
+      fadeStart: 0.68,
+      fadeEnd: 0.22,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryBlueberry,
+      offset: Offset(74, 10),
+      scale: 0.98,
+      rotation: -0.16,
+      fadeStart: 0.74,
+      fadeEnd: 0.28,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(114, 8),
+      scale: 1.02,
+      rotation: 0.22,
+      fadeStart: 0.78,
+      fadeEnd: 0.30,
+    ),
+ 
+    // --- Tier 4: Base Foundation (Fades out between 0.55 and 0.0) ---
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(-142, 46),
+      scale: 1.10,
+      rotation: -0.12,
+      fadeStart: 0.58,
+      fadeEnd: 0.06,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryBlueberry,
+      offset: Offset(-102, 50),
+      scale: 0.98,
+      rotation: 0.12,
+      fadeStart: 0.52,
+      fadeEnd: 0.03,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(-60, 52),
+      scale: 1.12,
+      rotation: 0.06,
+      fadeStart: 0.46,
+      fadeEnd: 0.0,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(-18, 56),
+      scale: 1.08,
+      rotation: -0.14,
+      fadeStart: 0.40,
+      fadeEnd: 0.0,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodPancake,
+      offset: Offset(26, 54),
+      scale: 1.14,
+      rotation: 0.10,
+      fadeStart: 0.44,
+      fadeEnd: 0.0,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.berryCloudberry,
+      offset: Offset(70, 52),
+      scale: 1.04,
+      rotation: -0.08,
+      fadeStart: 0.48,
+      fadeEnd: 0.02,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodCinnamonRoll,
+      offset: Offset(112, 48),
+      scale: 1.08,
+      rotation: 0.18,
+      fadeStart: 0.54,
+      fadeEnd: 0.04,
+    ),
+    _FoodMountainItem(
+      asset: AppAssets.foodApple,
+      offset: Offset(146, 44),
+      scale: 1.04,
+      rotation: -0.20,
+      fadeStart: 0.58,
+      fadeEnd: 0.06,
+    ),
+  ];
   // /// Mountain of stacked delicacies positioned in tiers behind the girl
   // static const List<_FoodMountainItem> _mountainItems = [
   //   // --- Tier 1: Peak (Top tier, fades out first between 1.0 and 0.68) ---
