@@ -15,6 +15,7 @@ dependencies:
   shared_preferences: ^2.3.2
   just_audio: ^0.9.40
   purchases_flutter: ^10.13.2
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -32,3 +33,10 @@ flutter:
     - assets/images/items/plants/
     - assets/audio/ambient/
     - assets/audio/sfx/
+
+# icon
+flutter_launcher_icons:       
+  # android: true
+  ios: true
+  remove_alpha_ios: true 
+  image_path: assets/images/app_icon/app_icon.png
